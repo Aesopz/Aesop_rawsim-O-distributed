@@ -1,0 +1,88 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 03/22/2026 23:01:51
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/jenkinsinstance1.xinst
+Setting: Material/Instances/CoreBenchmark/jenkinssetting1.xsett
+ControlConfig: Material/Instances/CoreBenchmark/jenPPWHCAvStar.xconf
+StatisticsDir: BenchmarkOutput/WHCAvStar
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: jenkinsinstance1-jenkinssetting1-jenPPWHCAvStar-42
+Done!
+Executing ... 
+ 23:01:53 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. 
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    
+ 00:00:05 | 00:03:52 | 0.00:02:31 |  2.10%   |   17    |    23    | 70%  |   2221   |   0    
+ 00:00:10 | 00:01:57 | 0.00:09:25 |  7.85%   |   128   |    92    | 71%  |   6494   |   0    
+ 00:00:15 | 00:01:03 | 0.00:22:56 |  19.12%  |   342   |   188    | 71%  |  16147   |   0    
+ 00:00:20 | 00:00:49 | 0.00:34:28 |  28.73%  |   532   |   266    | 72%  |  24013   |   0    
+ 00:00:25 | 00:00:57 | 0.00:36:20 |  30.28%  |   564   |   273    | 72%  |  25267   |   0    
+ 00:00:30 | 00:01:06 | 0.00:37:08 |  30.95%  |   582   |   282    | 72%  |  25809   |   0    
+ 00:00:35 | 00:01:09 | 0.00:40:08 |  33.45%  |   629   |   302    | 72%  |  27853   |   0    
+ 00:00:40 | 00:00:56 | 0.00:49:40 |  41.40%  |   780   |   360    | 72%  |  34466   |   0    
+ 00:00:45 | 00:00:55 | 0.00:53:29 |  44.58%  |   846   |   383    | 72%  |  37201   |   0    
+ 00:00:50 | 00:00:55 | 0.00:56:51 |  47.39%  |   904   |   405    | 72%  |  39550   |   0    
+ 00:00:55 | 00:00:36 | 0.01:12:25 |  60.35%  |  1165   |   500    | 73%  |  49973   |   0    
+ 00:01:00 | 00:00:26 | 0.01:23:30 |  69.59%  |  1352   |   570    | 73%  |  57458   |   0    
+ 00:01:05 | 00:00:19 | 0.01:32:19 |  76.93%  |  1485   |   631    | 73%  |  63480   |   0    
+ 00:01:10 | 00:00:14 | 0.01:39:26 |  82.86%  |  1603   |   683    | 74%  |  68464   |   0    
+ 00:01:15 | 00:00:07 | 0.01:49:14 |  91.03%  |  1766   |   758    | 74%  |  74716   |   0    
+ 00:01:20 | 00:00:06 | 0.01:51:23 |  92.83%  |  1802   |   773    | 74%  |  76213   |   0    
+ 00:01:25 | 00:00:05 | 0.01:53:18 |  94.42%  |  1835   |   786    | 74%  |  77576   |   0    
+ 00:01:25 | 00:00:00 | 0.02:00:00 | 100.00%  |  1952   |   836    | 74%  |  81745   |   0    
+ 00:01:25 | >>> Simulation finished - writing results ...
+ 00:01:26 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.01726662473317866
+StatTimingPathPlanningOverall: 74.41915260000003
+StatTimingPathPlanningCount: 4310
+StatTimingTaskAllocationAverage: 0.0034509228297632437
+StatTimingTaskAllocationOverall: 6.121937099999994
+StatTimingTaskAllocationCount: 1774
+StatTimingItemStorageAverage: 2.1632124352331227E-06
+StatTimingItemStorageOverall: 0.007932499999999862
+StatTimingItemStorageCount: 3667
+StatTimingPodStorageAverage: 0.0022134200238379037
+StatTimingPodStorageOverall: 1.8570594000000011
+StatTimingPodStorageCount: 839
+StatTimingReplenishmentBatchingAverage: 8.125103734439832E-06
+StatTimingReplenishmentBatchingOverall: 0.011748899999999996
+StatTimingReplenishmentBatchingCount: 1446
+StatTimingOrderBatchingAverage: 1.9714140320485067E-05
+StatTimingOrderBatchingOverall: 0.09103990000000003
+StatTimingOrderBatchingCount: 4618
+>>> Overall
+StatOverallBundlesPlaced: 888
+StatOverallItemsOrdered: 3271
+StatOverallOrdersPlaced: 2032
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 836
+StatOverallItemsHandled: 3150
+StatOverallLinesHandled: 3012
+StatOverallOrdersHandled: 1952
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 81744.7296627509
+StatOverallDistanceEstimated: 73153
+StatOverallAssignedTasks: 1774
+StatMaxMemoryUsed: 88,70703125
+StatRealTimeUsed: 85.8955207
+StatAverageTurnoverTime: 295.2191169018148
+StatMedianTurnoverTime: 299.1481934045796
+StatLowerQuartileTurnoverTime: 165.94961054519763
+StatUpperQuartileTurnoverTime: 385.2850240620114
+StatAverageThroughputTime: 288.172211200873
+StatMedianThroughputTime: 294.59831333309626
+StatLowerQuartileThroughputTime: 161.4555688878222
+StatUpperQuartileThroughputTime: 381.15327669791895
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

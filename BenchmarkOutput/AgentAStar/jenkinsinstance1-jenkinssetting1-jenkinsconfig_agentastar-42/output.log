@@ -1,0 +1,179 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 03/22/2026 23:03:22
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/jenkinsinstance1.xinst
+Setting: Material/Instances/CoreBenchmark/jenkinssetting1.xsett
+ControlConfig: Material/Instances/CoreBenchmark/jenkinsconfig_agentastar.xconf
+StatisticsDir: BenchmarkOutput/AgentAStar
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: jenkinsinstance1-jenkinssetting1-jenkinsconfig_agentastar-42
+Done!
+Executing ... 
+ 23:03:23 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. 
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    
+ 00:00:03 | WARNING! Task aborted: Insert
+ 00:00:03 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:04 | WARNING! Task aborted: Insert
+ 00:00:05 | 00:00:44 | 0.00:12:08 |  10.12%  |   182   |   123    | 71%  |   8677   |  705   
+ 00:00:09 | WARNING! Task aborted: Extract
+ 00:00:09 | 00:00:15 | 0.00:46:43 |  38.94%  |   751   |   410    | 73%  |  33135   |  2628  
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:10 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Insert
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:12 | WARNING! Task aborted: Extract
+ 00:00:13 | WARNING! Task aborted: Insert
+ 00:00:13 | WARNING! Task aborted: Insert
+ 00:00:13 | WARNING! Task aborted: Insert
+ 00:00:13 | WARNING! Task aborted: Insert
+ 00:00:15 | 00:00:05 | 0.01:29:55 |  74.93%  |  1463   |   782    | 75%  |  63294   |  5022  
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Extract
+ 00:00:16 | WARNING! Task aborted: Insert
+ 00:00:18 | 00:00:00 | 0.02:00:00 | 100.00%  |  1947   |   1018   | 77%  |  84387   |  6620  
+ 00:00:18 | >>> Simulation finished - writing results ...
+ 00:00:18 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0
+StatTimingPathPlanningOverall: 0
+StatTimingPathPlanningCount: 0
+StatTimingTaskAllocationAverage: 0.003100618601262751
+StatTimingTaskAllocationOverall: 6.384173700000004
+StatTimingTaskAllocationCount: 2059
+StatTimingItemStorageAverage: 2.2275309917354886E-06
+StatTimingItemStorageOverall: 0.008624999999999812
+StatTimingItemStorageCount: 3872
+StatTimingPodStorageAverage: 0.002097800753498386
+StatTimingPodStorageOverall: 1.9488569000000004
+StatTimingPodStorageCount: 929
+StatTimingReplenishmentBatchingAverage: 7.77643348623851E-06
+StatTimingReplenishmentBatchingOverall: 0.013562099999999962
+StatTimingReplenishmentBatchingCount: 1744
+StatTimingOrderBatchingAverage: 2.0289141308878625E-05
+StatTimingOrderBatchingOverall: 0.09734729999999965
+StatTimingOrderBatchingCount: 4798
+>>> Overall
+StatOverallBundlesPlaced: 1070
+StatOverallItemsOrdered: 3308
+StatOverallOrdersPlaced: 2027
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 1018
+StatOverallItemsHandled: 3203
+StatOverallLinesHandled: 3045
+StatOverallOrdersHandled: 1947
+StatOverallCollisions: 6620
+StatOverallDistanceTraveled: 84387.11791299164
+StatOverallDistanceEstimated: 86600
+StatOverallAssignedTasks: 2059
+StatMaxMemoryUsed: 67,27734375
+StatRealTimeUsed: 18.3019889
+StatAverageTurnoverTime: 294.3324105252112
+StatMedianTurnoverTime: 306.3786651548212
+StatLowerQuartileTurnoverTime: 162.14953627880368
+StatUpperQuartileTurnoverTime: 390.2824510161786
+StatAverageThroughputTime: 287.61541284469945
+StatMedianThroughputTime: 303.24935377070597
+StatLowerQuartileThroughputTime: 159.79106010564112
+StatUpperQuartileThroughputTime: 384.8751566220626
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

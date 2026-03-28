@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnergyParameters>
+    <RobotMass>300</RobotMass>           <!-- AGV chassis mass [kg] -->
+    <RobotWidth>0.6</RobotWidth>         <!-- AGV width [m] -->
+    <RobotLength>0.75</RobotLength>      <!-- AGV length [m] -->
+    <RollingFriction>0.02</RollingFriction>  <!-- Rolling friction coefficient μ_r -->
+    <InertiaCoeff>0.15</InertiaCoeff>    <!-- Drivetrain inertia equiv. coeff. η -->
+    <LiftHeight>0.2</LiftHeight>         <!-- Pod lift height h [m] -->
+    <PodFrameMass>40</PodFrameMass>      <!-- Pod shelf frame mass (excl. cargo) [kg] -->
+    <StationHoldPowerW>15</StationHoldPowerW>  <!-- Station hold power P [W] -->
+  </EnergyParameters>
+  <Seed>0</Seed>
+  <TierCount>1</TierCount>
+  <TierHeight>4</TierHeight>
+  <BotCount>30</BotCount>
+  <BotRadius>0.35</BotRadius>
+  <MaxAcceleration>1</MaxAcceleration>
+  <MaxDeceleration>1</MaxDeceleration>
+  <MaxVelocity>1.5</MaxVelocity>
+  <TurnSpeed>4</TurnSpeed>
+  <CollisionPenaltyTime>0.5</CollisionPenaltyTime>
+  <PodTransferTime>4</PodTransferTime>
+  <PodAmount>0.9</PodAmount>
+  <PodRadius>0.45</PodRadius>
+  <PodCapacity>500</PodCapacity>
+  <StationRadius>0.45</StationRadius>
+  <ItemTransferTime>10</ItemTransferTime>
+  <ItemPickTime>3</ItemPickTime>
+  <ItemBundleTransferTime>10</ItemBundleTransferTime>
+  <IStationCapacity>1000</IStationCapacity>
+  <OStationCapacity>5</OStationCapacity>
+  <ElevatorTransportationTimePerTier>10</ElevatorTransportationTimePerTier>
+  <AisleLayoutType>HighwayHallway</AisleLayoutType>
+  <AislesTwoDirectional>false</AislesTwoDirectional>
+  <SingleLane>true</SingleLane>
+  <NameLayout>aesop</NameLayout>
+  <NrHorizontalAisles>10</NrHorizontalAisles>
+  <NrVerticalAisles>4</NrVerticalAisles>
+  <HorizontalLengthBlock>8</HorizontalLengthBlock>
+  <WidthHall>2</WidthHall>
+  <WidthBuffer>5</WidthBuffer>
+  <DistanceEntryExitStation>3</DistanceEntryExitStation>
+  <CounterClockwiseRingwayDirection>true</CounterClockwiseRingwayDirection>
+  <NPickStationWest>0</NPickStationWest>
+  <NPickStationEast>4</NPickStationEast>
+  <NPickStationSouth>0</NPickStationSouth>
+  <NPickStationNorth>0</NPickStationNorth>
+  <NReplenishmentStationWest>4</NReplenishmentStationWest>
+  <NReplenishmentStationEast>0</NReplenishmentStationEast>
+  <NReplenishmentStationSouth>0</NReplenishmentStationSouth>
+  <NReplenishmentStationNorth>0</NReplenishmentStationNorth>
+  <NElevatorsWest>0</NElevatorsWest>
+  <NElevatorsEast>0</NElevatorsEast>
+  <NElevatorsSouth>0</NElevatorsSouth>
+  <NElevatorsNorth>0</NElevatorsNorth>
+</LayoutConfiguration>

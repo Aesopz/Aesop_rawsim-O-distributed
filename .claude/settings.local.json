@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:\\\\Users\\\\lucky\\\\OneDrive\\\\Documents\\\\Kuliah\\\\TEEP\\\\Project\\\\rmfs\\\\RAWSim-O-CITI/RAWSimO.Core\" -name \"*.cs\" -exec grep -l \"world state\\\\|world\\\\s*state\\\\|representation\\\\|observe\" {} \\\\; 2>/dev/null | head -10)",
+      "Bash(find /c/Users/lucky/OneDrive/Documents/Kuliah/TEEP/Project/rmfs/RAWSim-O-CITI -type f -name \"*.cs\" | xargs grep -l \"Circle\\\\|Geometrics\" | head -10)",
+      "Bash(find \"C:\\\\Users\\\\lucky\\\\OneDrive\\\\Documents\\\\Kuliah\\\\TEEP\\\\Project\\\\rmfs\\\\RAWSim-O-CITI\" -name \"*.csproj\" -type f -exec echo \"=== {} ===\" \\\\; -exec grep -A 10 \"PackageReference\\\\|ProjectReference\" {} \\\\; | head -100)",
+      "Bash(grep -r \"state\\\\|observation\\\\|metric\\\\|throughput\\\\|energy\" \"C:\\\\Users\\\\lucky\\\\OneDrive\\\\Documents\\\\Kuliah\\\\TEEP\\\\Project\\\\rmfs\\\\RAWSim-O-CITI/RAWSimO.Core\" --include=\"*.cs\" -l 2>/dev/null | head -15)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet run:*)",
+      "Bash(whca)",
+      "Bash(jenkins \")",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest tests/test_phase4_dataset.py -v)",
+      "Bash(head -20 grep -n \"public.*double.*X\\\\b\\\\|public.*double.*Y\\\\b\\\\|public.*Radius\\\\|public.*Length\\\\|public.*Width\\\\|public.*Height\\\\b\" C:UsersluckyOneDriveDocumentsKuliahTEEPProjectrmfsRAWSim-O-CITIRAWSimO.CoreElementsWaypoint.cs)",
+      "Bash(head -10 grep -n \"class InstanceElement\\\\|public.*Tier\" \"C:\\\\Users\\\\lucky\\\\OneDrive\\\\Documents\\\\Kuliah\\\\TEEP\\\\Project\\\\rmfs\\\\RAWSim-O-CITI\\\\RAWSimO.Core\\\\Geometrics\\\\Circle.cs\")",
+      "Bash(/tmp/color_ref.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(git:*)",
+      "Bash(python -m pytest Tests/test_gym_client.py Tests/test_phase4_dataset.py Tests/test_waypoint_candidate.py -v)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/lucky/OneDrive/Documents/Kuliah/TEEP/Project/rmfs/RAWSim-O-CITI/**)",
+      "Bash(done)"
+    ]
+  }
+}
