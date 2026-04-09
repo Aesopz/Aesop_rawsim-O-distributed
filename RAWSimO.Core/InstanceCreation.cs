@@ -254,6 +254,7 @@ namespace RAWSimO.Core
                 case PathPlanningMethodType.CBS:
                 case PathPlanningMethodType.PAS:
                 case PathPlanningMethodType.AgentAStar:
+                case PathPlanningMethodType.JunctionArbitration:
                     bot = new BotNormal(id, this, radius, podTransferTime, maxAcceleration, maxDeceleration, maxVelocity, turnSpeed, collisionPenaltyTime, x, y);
                     break;
                 default: throw new ArgumentException("Unknown path planning engine: " + ControllerConfig.PathPlanningConfig.GetMethodType());

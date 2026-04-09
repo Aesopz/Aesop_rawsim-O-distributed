@@ -4,6 +4,7 @@ using RAWSimO.Core.Control.Defaults.MethodManagement;
 using RAWSimO.Core.Control.Defaults.OrderBatching;
 using RAWSimO.Core.Control.Defaults.PathPlanning;
 using RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar;
+using RAWSimO.Core.Control.Defaults.PathPlanning.JunctionArbitration;
 using RAWSimO.Core.Control.Defaults.PodStorage;
 using RAWSimO.Core.Control.Defaults.ReplenishmentBatching;
 using RAWSimO.Core.Control.Defaults.Repositioning;
@@ -39,6 +40,7 @@ namespace RAWSimO.Core.Control
                 case PathPlanningMethodType.WHCAnStar: PathManager = new WHCAnStarPathManager(instance); break;
                 case PathPlanningMethodType.PAS: PathManager = new PASPathManager(instance); break;
                 case PathPlanningMethodType.AgentAStar: PathManager = new AgentAStarPathManager(instance, (DecentralAStarPathPlanningConfiguration)instance.ControllerConfig.PathPlanningConfig); break;
+                case PathPlanningMethodType.JunctionArbitration: PathManager = new JunctionArbitrationPathManager(instance, (JunctionArbitrationPathPlanningConfiguration)instance.ControllerConfig.PathPlanningConfig); break;
                 default: throw new ArgumentException("Unknown path planning engine: " + instance.ControllerConfig.PathPlanningConfig.GetMethodType());
             }
             // Init bot manager

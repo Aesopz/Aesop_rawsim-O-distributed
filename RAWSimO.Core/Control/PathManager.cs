@@ -200,8 +200,12 @@ namespace RAWSimO.Core.Control
 
         /// <summary>
         /// Updates all lock and obstacle information for all connections.
+        /// Called once per Update() tick by decentralized planners (AgentAStar,
+        /// JunctionArbitration) so the graph reflects current pod positions before
+        /// per-bot A* replanning runs. Must be called AFTER queue management so
+        /// queue-locked waypoints are already marked.
         /// </summary>
-        private void UpdateLocksAndObstacles()
+        internal void UpdateLocksAndObstacles()
         {
             // First reset locked / occupied by obstacle info
             foreach (var nodeInfo in _nodeMetaInfo)
@@ -442,10 +446,14 @@ namespace RAWSimO.Core.Control
 
         /// <summary>
         /// The next event when this element has to be updated.
+        /// Declared <c>virtual</c> so decentralized subclasses (e.g.
+        /// <c>JunctionArbitrationPathManager</c>) can drive their own retry cadence
+        /// when bots are arbitration-blocked, instead of relying on other updateables
+        /// to advance the simulation timeline.
         /// </summary>
         /// <param name="currentTime">The current time of the simulation.</param>
         /// <returns>The next time this element has to be updated.</returns>
-        public double GetNextEventTime(double currentTime)
+        public virtual double GetNextEventTime(double currentTime)
         {
             return double.PositiveInfinity;
         }

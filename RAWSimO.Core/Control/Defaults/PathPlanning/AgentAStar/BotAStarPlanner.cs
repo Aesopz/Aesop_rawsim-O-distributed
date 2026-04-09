@@ -97,12 +97,11 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
                 ArrivalTimeAtNextNode = currentTime,
                 ReservationsToNextNode = new List<ReservationTable.Interval>(),
                 Physics = _bot.Physics,
-                // Plan 1 objective: pure geometric A* — no obstacle awareness.
-                // UpdateLocksAndObstacles() is never called (bypasses _reoptimize()), so all
-                // nodes have IsObstacle=false. Setting false here is effectively equivalent
-                // to true — all waypoints are traversable. Collision/congestion avoidance is
-                // the responsibility of Plan 2 (Gym policy) and Plan 3 (World Model), not Plan 1.
-                CanGoThroughObstacles = false,
+                // Empty bots may tunnel through pod-storage waypoints when CanTunnel=true
+                // (same rule as the default centralized planners, PathManager.cs line 377).
+                // Loaded bots must use aisle-only paths — pod waypoints are IsObstacle=true
+                // after UpdateLocksAndObstacles() runs each tick.
+                CanGoThroughObstacles = _config.CanTunnel && _bot.Pod == null,
                 FixedPosition = _bot.hasFixedPosition(),
                 Resting = _bot.IsResting(),
                 RequestReoptimization = _bot.RequestReoptimization,
@@ -143,7 +142,23 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
                 aStar.getReservationsAndPath(currentTime, ref path, out reservations);
                 // reservations discarded — not stored to shared _reservationTable.
                 // No collision gate: AgentAStar is fully decentralized.
-                _bot.Path = path;
+
+                // [Stage A] Safe application of new path:
+                // - if mid-segment: defer until safe
+                // - if safe: apply immediately
+                // - otherwise: keep existing path
+                if (_bot.IsMidSegment())
+                {
+                    // Defer application until the bot finishes current segment
+                    _bot.SetPendingPlannedPath(path, currentTime);
+                }
+                else if (_bot.CanSafelySwapPathNow())
+                {
+                    // Safe to apply immediately
+                    _bot.Path = path;
+                }
+                // else: keep existing path, try again at next interval
+
                 _lastPlanTime = currentTime;
             }
             // Step 9: If not found, keep existing path and retry at next interval.

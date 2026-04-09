@@ -1,3 +1,4 @@
+using RAWSimO.Core.Configurations;
 using RAWSimO.Core.Control;
 using RAWSimO.Core.Elements;
 using RAWSimO.Core.Waypoints;
@@ -15,6 +16,7 @@ using System.Text;
 using RAWSimO.Core.IO;
 using RAWSimO.Core.Metrics;
 using RAWSimO.Toolbox;
+using RAWSimO.Core.Bots;
 
 namespace RAWSimO.Core.Bots
 {
@@ -187,6 +189,59 @@ namespace RAWSimO.Core.Bots
                     _currentPath = _path.Actions.Select(a => Instance.Controller.PathManager.GetWaypointByNodeId(a.Node)).Cast<IWaypointInfo>().ToList();
             }
         }
+
+        /// <summary>
+        /// [Stage A] Pending path to be applied when safe (not mid-segment).
+        /// Used by deferred path application to avoid overwriting active movement.
+        /// </summary>
+        internal Path PendingPlannedPath { get; set; } = null;
+
+        /// <summary>
+        /// [Stage A] Flag indicating a pending path is waiting to be applied.
+        /// </summary>
+        public bool HasPendingPlannedPath => PendingPlannedPath != null;
+
+        /// <summary>
+        /// [Stage A] Time when the current path was last assigned.
+        /// Useful for tracking how long a path has been active.
+        /// </summary>
+        public double LastPathAssignmentTime { get; set; } = -1.0;
+
+        /// <summary>
+        /// [Stage C] Count of consecutive movement anomalies.
+        /// </summary>
+        public int ConsecutiveMovementAnomalies { get; set; } = 0;
+
+        /// <summary>
+        /// [Stage C] Count of consecutive ticks with no meaningful progress.
+        /// </summary>
+        public int ConsecutiveNoProgressTicks { get; set; } = 0;
+
+        /// <summary>
+        /// [Stage C] Last recorded navigation anomaly reason.
+        /// </summary>
+        public NavigationAnomalyReason LastNavigationAnomalyReason { get; set; } = NavigationAnomalyReason.None;
+
+        #endregion
+
+        #region Tick-Coherence Guard
+
+        /// <summary>
+        /// Set to true inside <see cref="_updateMove"/> when the bot arrives at NextWaypoint
+        /// during the current tick.  Checked before the second <c>Act()</c> call in
+        /// <see cref="Update"/> to prevent a bot from immediately committing to a new
+        /// segment in the same tick — which would bypass the conflict-detection pass that
+        /// <see cref="Control.PathManager"/> performs at the start of each tick.
+        /// Only effective when the path planner is decentralized (AgentAStar / JunctionArbitration).
+        /// </summary>
+        private bool _arrivedAtWaypointThisTick;
+
+        /// <summary>
+        /// Lazily cached flag: true when the active path planner is decentralized
+        /// (AgentAStar or JunctionArbitration).  Cached on first use because
+        /// <c>ControllerConfig</c> is not available at construction time.
+        /// </summary>
+        private bool? _isDecentralizedMode;
 
         #endregion
 
@@ -585,6 +640,9 @@ namespace RAWSimO.Core.Bots
                 // ── Energy Hook: E7 conflict flag ──
                 ConflictStopPending = true;
 
+                // [Stage C] Mark transition registration denial
+                MarkNavigationAnomaly(NavigationAnomalyReason.TransitionRegistrationDenied, currentTime);
+
                 return false;
             }
         }
@@ -600,6 +658,88 @@ namespace RAWSimO.Core.Bots
 
             _waitUntil = time;
         }
+
+        #region Stage A Helper Methods
+
+        /// <summary>
+        /// [Stage A] Returns true when the bot is actively moving between waypoints
+        /// (committed to a next waypoint). Used to detect mid-segment state.
+        /// </summary>
+        public bool IsMidSegment()
+        {
+            return NextWaypoint != null;
+        }
+
+        /// <summary>
+        /// [Stage A] Returns true when it is safe to swap the active path for a new one.
+        /// Safe conditions: not moving and no committed next waypoint.
+        /// </summary>
+        public bool CanSafelySwapPathNow()
+        {
+            return NextWaypoint == null && GetSpeed() == 0.0;
+        }
+
+        /// <summary>
+        /// [Stage A] Stores a new path for deferred application. The path is not activated
+        /// until ActivatePendingPlannedPathIfSafe() is called.
+        /// </summary>
+        public void SetPendingPlannedPath(Path path, double currentTime)
+        {
+            PendingPlannedPath = path;
+        }
+
+        /// <summary>
+        /// [Stage A] Applies the pending path if it is currently safe to do so
+        /// (not mid-segment, speed = 0). If applied, records the assignment time.
+        /// </summary>
+        public void ActivatePendingPlannedPathIfSafe(double currentTime)
+        {
+            if (CanSafelySwapPathNow() && HasPendingPlannedPath)
+            {
+                Path = PendingPlannedPath;
+                PendingPlannedPath = null;
+                LastPathAssignmentTime = currentTime;
+            }
+        }
+
+        #endregion
+
+        #region Stage C Helper Methods
+
+        /// <summary>
+        /// [Stage C] Records a navigation anomaly reason and increments counters as appropriate.
+        /// </summary>
+        public void MarkNavigationAnomaly(NavigationAnomalyReason reason, double currentTime)
+        {
+            LastNavigationAnomalyReason = reason;
+
+            // Increment movement anomaly counter for movement-related failures
+            if (reason == NavigationAnomalyReason.MoveOverrideReportedInvalid ||
+                reason == NavigationAnomalyReason.TransitionRegistrationDenied)
+            {
+                ConsecutiveMovementAnomalies++;
+            }
+        }
+
+        /// <summary>
+        /// [Stage C] Requests soft recovery from a navigation anomaly.
+        /// Does not forcibly reset movement state or clear CurrentWaypoint.
+        /// </summary>
+        public void RequestSoftRecovery(double currentTime)
+        {
+            RequestReoptimization = true;
+
+            // Clear pending path if it's likely stale
+            if (PendingPlannedPath != null)
+            {
+                PendingPlannedPath = null;
+            }
+
+            // Note: we do NOT clear CurrentWaypoint or forcibly rewrite Path
+            // The bot will attempt replanning at the next planning interval
+        }
+
+        #endregion
 
         /// <summary>
         /// Determines whether this bot is fixed to a position.
@@ -722,6 +862,9 @@ namespace RAWSimO.Core.Bots
             var xOld = X;
             var yOld = Y;
 
+            // Reset per-tick arrival flag (tick-coherence guard)
+            _arrivedAtWaypointThisTick = false;
+
             //get a task
             if (StateQueueCount == 0)
             {
@@ -745,9 +888,27 @@ namespace RAWSimO.Core.Bots
             //get target orientation
             _updateDrive(lastTime, currentTime);
 
-            //do state dependent action
+            // Second state-dependent action: allows the bot to immediately commit to the
+            // next path segment after completing a drive within the same tick.
+            // In decentralized mode (AgentAStar / JunctionArbitration) this is dangerous:
+            // the bot would bypass the conflict-detection pass that PathManager.Update()
+            // performs at the START of each tick.  We defer the commitment to the next tick
+            // so PathManager can re-evaluate with the bot's updated position.
+            // In centralized mode (reservation-table planners) this is safe because
+            // reservations already guarantee conflict-free paths.
             if (StateQueueCount > 0)
-                StateQueuePeek().Act(this, lastTime, currentTime);
+            {
+                // Lazily cache decentralized mode flag
+                if (!_isDecentralizedMode.HasValue && Instance.Controller?.PathManager != null)
+                {
+                    var pt = Instance.ControllerConfig.PathPlanningConfig.GetMethodType();
+                    _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar
+                                        || pt == PathPlanningMethodType.JunctionArbitration;
+                }
+
+                if (!(_isDecentralizedMode == true && _arrivedAtWaypointThisTick))
+                    StateQueuePeek().Act(this, lastTime, currentTime);
+            }
 
             //save statistics
             _updateStatistics(delta, xOld, yOld);
@@ -850,6 +1011,8 @@ namespace RAWSimO.Core.Bots
                 yNew = NextWaypoint.Y;
                 CurrentWaypoint = NextWaypoint;
                 NextWaypoint = null;
+                // Tick-coherence guard: signal that this bot just completed a segment.
+                _arrivedAtWaypointThisTick = true;
             }
 
             // Try to make move. If can't ask move due to a collision, then stop

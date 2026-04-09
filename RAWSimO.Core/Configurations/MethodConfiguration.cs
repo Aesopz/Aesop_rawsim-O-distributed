@@ -90,7 +90,15 @@ namespace RAWSimO.Core.Configurations
         /// Serves as LOCAL PATH EXECUTOR for Plan 2 (Gym) and Plan 3 (World Model).
         /// No collision avoidance — conflict resolution delegated to higher-level controller.
         /// </summary>
-        AgentAStar
+        AgentAStar,
+
+        /// <summary>
+        /// Decentralized A* + junction arbitration. Builds on AgentAStar by adding a
+        /// reservation table, total-order priority arbitration at the RegisterNextWaypoint
+        /// gate, and a wait-for-graph cycle breaker. Engineered for collision-free and
+        /// deadlock-free operation in unidirectional RMFS layouts.
+        /// </summary>
+        JunctionArbitration
 
     }
     /// <summary>
@@ -499,6 +507,7 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(CBSPathPlanningConfiguration))]
     [XmlInclude(typeof(PASPathPlanningConfiguration))]
     [XmlInclude(typeof(DecentralAStarPathPlanningConfiguration))]
+    [XmlInclude(typeof(JunctionArbitrationPathPlanningConfiguration))]
     [XmlInclude(typeof(PathPlanningConfiguration))]
     public abstract class PathPlanningConfiguration : ControllerConfigurationBase
     {

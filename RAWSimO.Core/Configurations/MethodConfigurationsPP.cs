@@ -524,6 +524,41 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public double RuntimeLimitPerAgentMs = 10.0;
 
+        #region Stage B — Local Transition Claims
+
+        /// <summary>
+        /// [Stage B] Enable local transition claim gate for waypoint transitions.
+        /// When enabled, a minimal claim table tracks single-step transitions to detect conflicts.
+        /// Default false for backward compatibility.
+        /// </summary>
+        public bool EnableLocalTransitionClaims = false;
+
+        /// <summary>
+        /// [Stage B] TTL (time-to-live) in seconds for transition claims.
+        /// Default 2.0 seconds.
+        /// </summary>
+        public double LocalTransitionClaimTtl = 2.0;
+
+        #endregion
+
+        #region Stage C — Navigation Anomaly Handling
+
+        /// <summary>
+        /// [Stage C] Enable no-progress watchdog to detect and recover from stalls.
+        /// When enabled, a bot that fails to progress for N consecutive ticks will
+        /// trigger soft recovery (replan request).
+        /// Default false for backward compatibility.
+        /// </summary>
+        public bool EnableNoProgressWatchdog = false;
+
+        /// <summary>
+        /// [Stage C] Threshold (number of consecutive ticks) before marking a bot as stalled.
+        /// Default 20 ticks.
+        /// </summary>
+        public int NoProgressTickThreshold = 20;
+
+        #endregion
+
         /// <summary>
         /// Checks whether the path planning configuration is valid.
         /// </summary>
@@ -539,6 +574,84 @@ namespace RAWSimO.Core.Configurations
             if (RuntimeLimitPerAgentMs <= 0)
             {
                 errorMessage = "Problem with AgentAStar configuration: RuntimeLimitPerAgentMs must be > 0.";
+                return false;
+            }
+            if (EnableLocalTransitionClaims && LocalTransitionClaimTtl <= 0)
+            {
+                errorMessage = "Problem with AgentAStar configuration: LocalTransitionClaimTtl must be > 0 when enabled.";
+                return false;
+            }
+            if (EnableNoProgressWatchdog && NoProgressTickThreshold <= 0)
+            {
+                errorMessage = "Problem with AgentAStar configuration: NoProgressTickThreshold must be > 0 when enabled.";
+                return false;
+            }
+            errorMessage = "";
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Configuration for the JunctionArbitration path planner. Inherits the per-bot A*
+    /// behaviour of <see cref="DecentralAStarPathPlanningConfiguration"/> and adds a
+    /// reservation table + total-order priority arbitration at the RegisterNextWaypoint
+    /// gate, plus a wait-for-graph cycle breaker.
+    /// </summary>
+    public class JunctionArbitrationPathPlanningConfiguration : DecentralAStarPathPlanningConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        public override PathPlanningMethodType GetMethodType() => PathPlanningMethodType.JunctionArbitration;
+
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "ppJunctionArb" + ReplanInterval.ToString(IOConstants.EXPORT_FORMAT_SHORTER, IOConstants.FORMATTER);
+        }
+
+        /// <summary>How many waypoints ahead to reserve when planning the next move.</summary>
+        public int LookaheadK = 3;
+
+        /// <summary>
+        /// How often (in simulation seconds) the path manager wakes itself up to retry
+        /// every blocked bot.  Without this, a bot whose RegisterNextWaypoint failed is
+        /// pinned by BotMove's hardcoded 1-second sleep, even after the physical cause
+        /// of the block has cleared.  Setting this drives PathManager.GetNextEventTime
+        /// so the simulation timeline does not skip the retry window.
+        /// </summary>
+        public double BlockedRetryIntervalSec = 0.1;
+
+        /// <summary>Per-second priority boost while a bot is blocked (anti-starvation).</summary>
+        public double StarvationBoostPerSec = 1.0;
+
+        /// <summary>How long a bot may remain blocked before forced replan kicks in.</summary>
+        public double DeadlockTimeoutSec = 5.0;
+
+        /// <summary>How long a forcibly-replanned bot blacklists the blocked waypoint.</summary>
+        public double ForcedReplanBlacklistSec = 8.0;
+
+        /// <summary>Run Tarjan SCC on the wait-for graph each tick to break livelocks.</summary>
+        public bool EnableWaitForGraphCycleCheck = true;
+
+        /// <summary>
+        /// Checks whether the path planning configuration is valid.
+        /// </summary>
+        public override bool AttributesAreValid(out string errorMessage)
+        {
+            if (!base.AttributesAreValid(out errorMessage))
+                return false;
+            if (LookaheadK < 1)
+            {
+                errorMessage = "Problem with JunctionArbitration configuration: LookaheadK must be >= 1.";
+                return false;
+            }
+            if (BlockedRetryIntervalSec <= 0.0)
+            {
+                errorMessage = "Problem with JunctionArbitration configuration: BlockedRetryIntervalSec must be > 0.";
                 return false;
             }
             errorMessage = "";

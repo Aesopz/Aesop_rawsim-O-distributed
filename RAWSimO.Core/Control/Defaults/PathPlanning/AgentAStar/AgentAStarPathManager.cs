@@ -34,10 +34,12 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
         private readonly Graph _graph;
 
         /// <summary>
-        /// Per-bot planners. Private because BotAStarPlanner is internal to this assembly.
-        /// GymPathManager (Plan 2) inherits Update() behavior without needing direct access to this dict.
+        /// Per-bot planners. <c>internal</c> so in-assembly subclasses (e.g.
+        /// JunctionArbitrationPathManager) can iterate the planners while still
+        /// running their own arbitration logic. BotAStarPlanner is <c>internal</c>,
+        /// so the field cannot be <c>protected</c> (CS0052).
         /// </summary>
-        private Dictionary<BotNormal, BotAStarPlanner> _planners;
+        internal Dictionary<BotNormal, BotAStarPlanner> _planners;
 
         /// <summary>Exposes the navigation graph for GymServer (Plan 2).</summary>
         public Graph ExposedGraph => _graph;
@@ -107,6 +109,36 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
         /// </summary>
         public override void Update(double lastTime, double currentTime)
         {
+            // Step 1: queue management + reservation table (base PathManager).
+            RunQueueManagement(lastTime, currentTime);
+
+            // Step 2: refresh pod-obstacle and lock flags AFTER queue management,
+            // so queue-locked waypoints are already marked when A* runs.
+            // This gives each bot a consistent snapshot of the world for this tick:
+            //   - IsObstacle = true  → waypoint has a pod on it
+            //   - IsLocked   = true  → waypoint is held by a queue or idling bot
+            UpdateLocksAndObstacles();
+
+            // [Stage A] Apply any pending paths that are now safe to activate
+            // This is done BEFORE replan to ensure newly-planned paths can be immediately applied if safe
+            foreach (var bot in _planners.Keys)
+            {
+                bot.ActivatePendingPlannedPathIfSafe(currentTime);
+            }
+
+            // Step 3: per-bot independent A* replanning.
+            foreach (var planner in _planners.Values)
+                planner.TryReplan(currentTime);
+        }
+
+        /// <summary>
+        /// Calls into the base PathManager so its queue managers and reservation table get
+        /// updated, but suppresses the centralized <c>_reoptimize()</c> batch replan path.
+        /// Subclasses (e.g. <c>JunctionArbitrationPathManager</c>) call this once per update
+        /// before running their own per-bot planning + arbitration logic.
+        /// </summary>
+        protected void RunQueueManagement(double lastTime, double currentTime)
+        {
             // Block base from calling _reoptimize() (centralized batch replanning).
             // Clocking check in PathManager.Update() (line 441):
             //   if (_lastCallTimeStamp + Clocking > currentTime) return;
@@ -116,11 +148,6 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
             // RISK: fails if the clocking check is removed from PathManager.Update().
             _lastCallTimeStamp = double.MaxValue / 2;
             base.Update(lastTime, currentTime);
-
-            // Per-bot independent path planning.
-            // RequestReoptimization flag is reset inside TryReplan() after each bot's replan.
-            foreach (var planner in _planners.Values)
-                planner.TryReplan(currentTime);
         }
     }
 }
