@@ -1,5 +1,6 @@
 using RAWSimO.Core.Configurations;
 using RAWSimO.Core.Control;
+using RAWSimO.Core.Control.Defaults.PathPlanning.FixedRoutePriority;
 using RAWSimO.Core.Elements;
 using RAWSimO.Core.Waypoints;
 using RAWSimO.MultiAgentPathFinding;
@@ -207,23 +208,6 @@ namespace RAWSimO.Core.Bots
         /// </summary>
         public double LastPathAssignmentTime { get; set; } = -1.0;
 
-        /// <summary>
-        /// [Stage C] Count of consecutive movement anomalies.
-        /// </summary>
-        public int ConsecutiveMovementAnomalies { get; set; } = 0;
-
-        /// <summary>
-        /// [Stage C] Count of consecutive ticks with no meaningful progress.
-        /// </summary>
-        public int ConsecutiveNoProgressTicks { get; set; } = 0;
-
-        /// <summary>
-        /// [Stage C] Last recorded navigation anomaly reason.
-        /// </summary>
-        public NavigationAnomalyReason LastNavigationAnomalyReason { get; set; } = NavigationAnomalyReason.None;
-
-        #endregion
-
         #region Tick-Coherence Guard
 
         /// <summary>
@@ -232,14 +216,13 @@ namespace RAWSimO.Core.Bots
         /// <see cref="Update"/> to prevent a bot from immediately committing to a new
         /// segment in the same tick — which would bypass the conflict-detection pass that
         /// <see cref="Control.PathManager"/> performs at the start of each tick.
-        /// Only effective when the path planner is decentralized (AgentAStar / JunctionArbitration).
+        /// Only effective when the path planner is AgentAStar (decentralized).
         /// </summary>
         private bool _arrivedAtWaypointThisTick;
 
         /// <summary>
-        /// Lazily cached flag: true when the active path planner is decentralized
-        /// (AgentAStar or JunctionArbitration).  Cached on first use because
-        /// <c>ControllerConfig</c> is not available at construction time.
+        /// Lazily cached flag: true when the active path planner is AgentAStar (decentralized).
+        /// Cached on first use because <c>ControllerConfig</c> is not available at construction time.
         /// </summary>
         private bool? _isDecentralizedMode;
 
@@ -259,10 +242,10 @@ namespace RAWSimO.Core.Bots
         public double StatEnergyE4RotationJ;
         /// <summary>Pod lift/lower energy (E5a + E5b) [J].</summary>
         public double StatEnergyE5LiftLowerJ;
-        /// <summary>Station processing energy (E6) [J].</summary>
-        public double StatEnergyE6StationJ;
-        /// <summary>Conflict-induced re-acceleration energy (E7 equivalent) [J].</summary>
-        public double StatEnergyConflictStopGoJ;
+        /// <summary>Number of turning events (segments with rotation).</summary>
+        public int StatTurningCount;
+        /// <summary>Number of stop-and-go events (completed segments).</summary>
+        public int StatStopAndGoCount;
         /// <summary>Number of extract orders completed by this bot.</summary>
         public int StatOrdersCompleted;
         /// <summary>Total distance traveled [m].</summary>
@@ -270,10 +253,6 @@ namespace RAWSimO.Core.Bots
         /// <summary>Current total dynamic mass [kg] = ROBOT_MASS + pod load (0 if no pod).</summary>
         public double CurrentTotalMassKg => RAWSimO.Core.Metrics.EnergyConsumption.GetTotalMass(Pod);
 
-        /// <summary>Pending flag: previous waypoint reservation failed due to conflict.</summary>
-        internal bool ConflictStopPending = false;
-        /// <summary>Timestamp when bot entered station processing state [s]. -1 if not in station.</summary>
-        internal double StationEnterTime = -1.0;
 
         /// <summary>Resets all energy statistics to zero.</summary>
         public void ResetEnergyStatistics()
@@ -284,12 +263,10 @@ namespace RAWSimO.Core.Bots
             StatEnergyE3CruiseJ = 0.0;
             StatEnergyE4RotationJ = 0.0;
             StatEnergyE5LiftLowerJ = 0.0;
-            StatEnergyE6StationJ = 0.0;
-            StatEnergyConflictStopGoJ = 0.0;
+            StatTurningCount = 0;
+            StatStopAndGoCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
-            ConflictStopPending = false;
-            StationEnterTime = -1.0;
         }
 
         #endregion
@@ -375,15 +352,6 @@ namespace RAWSimO.Core.Bots
             // Warn when clearing incomplete tasks
             if (StateQueueCount > 0)
                 Instance.LogDefault("WARNING! Aborting some incomplete task: " + string.Join(", ", _stateQueue.Select(s => s.Type)));
-            // ── Energy Hook: E6 settle if interrupted mid-station ──
-            if (StationEnterTime >= 0.0)
-            {
-                double stationDuration = Instance.Controller.CurrentTime - StationEnterTime;
-                double e6 = EnergyConsumption.E6_StationProcessing(stationDuration);
-                StatEnergyE6StationJ += e6;
-                StatEnergyTotalJ += e6;
-                StationEnterTime = -1.0;
-            }
             // Forget old tasks
             StateQueueClear();
 
@@ -524,16 +492,6 @@ namespace RAWSimO.Core.Bots
         {
             IBotState dequeuedState = StateQueueDequeue();
 
-            // ── Energy Hook: E6 (station processing settled on state exit) ──
-            if ((dequeuedState.Type == BotStateType.PutItems || dequeuedState.Type == BotStateType.GetItems)
-                && StationEnterTime >= 0.0)
-            {
-                double stationDuration = currentTime - StationEnterTime;
-                double e6 = EnergyConsumption.E6_StationProcessing(stationDuration);
-                StatEnergyE6StationJ += e6;
-                StatEnergyTotalJ += e6;
-                StationEnterTime = -1.0;
-            }
             // ── Stat Hook: count completed extract orders ──
             if (dequeuedState.Type == BotStateType.PutItems)
                 StatOrdersCompleted++;
@@ -618,12 +576,9 @@ namespace RAWSimO.Core.Bots
                 StatEnergyTotalJ += segmentTotal;
                 StatDistanceTraveledM += segmentDistance;
 
-                // E7 equivalent: if previous reservation failed, this E1 is conflict-induced
-                if (ConflictStopPending)
-                {
-                    StatEnergyConflictStopGoJ += e1;
-                    ConflictStopPending = false;
-                }
+                // Motion behavior counters
+                StatStopAndGoCount++;
+                if (_rotateDuration > 0) StatTurningCount++;
 
                 return true;
 
@@ -636,12 +591,6 @@ namespace RAWSimO.Core.Bots
 
                 // Log failed reservation
                 Instance.StatOverallFailedReservations++;
-
-                // ── Energy Hook: E7 conflict flag ──
-                ConflictStopPending = true;
-
-                // [Stage C] Mark transition registration denial
-                MarkNavigationAnomaly(NavigationAnomalyReason.TransitionRegistrationDenied, currentTime);
 
                 return false;
             }
@@ -702,42 +651,22 @@ namespace RAWSimO.Core.Bots
             }
         }
 
+        /// <summary>
+        /// Returns the traffic task stage for FRPWS priority computation.
+        /// </summary>
+        internal TrafficTaskStage GetTrafficTaskStage()
+        {
+            if (Pod != null && DestinationWaypoint != null &&
+                Instance.OutputStations.Any(s => s.Waypoint == DestinationWaypoint))
+                return TrafficTaskStage.Delivery;
+            if (Pod != null)
+                return TrafficTaskStage.Return;
+            if (DestinationWaypoint != null && DestinationWaypoint != CurrentWaypoint)
+                return TrafficTaskStage.Pickup;
+            return TrafficTaskStage.Idle;
+        }
+
         #endregion
-
-        #region Stage C Helper Methods
-
-        /// <summary>
-        /// [Stage C] Records a navigation anomaly reason and increments counters as appropriate.
-        /// </summary>
-        public void MarkNavigationAnomaly(NavigationAnomalyReason reason, double currentTime)
-        {
-            LastNavigationAnomalyReason = reason;
-
-            // Increment movement anomaly counter for movement-related failures
-            if (reason == NavigationAnomalyReason.MoveOverrideReportedInvalid ||
-                reason == NavigationAnomalyReason.TransitionRegistrationDenied)
-            {
-                ConsecutiveMovementAnomalies++;
-            }
-        }
-
-        /// <summary>
-        /// [Stage C] Requests soft recovery from a navigation anomaly.
-        /// Does not forcibly reset movement state or clear CurrentWaypoint.
-        /// </summary>
-        public void RequestSoftRecovery(double currentTime)
-        {
-            RequestReoptimization = true;
-
-            // Clear pending path if it's likely stale
-            if (PendingPlannedPath != null)
-            {
-                PendingPlannedPath = null;
-            }
-
-            // Note: we do NOT clear CurrentWaypoint or forcibly rewrite Path
-            // The bot will attempt replanning at the next planning interval
-        }
 
         #endregion
 
@@ -902,8 +831,7 @@ namespace RAWSimO.Core.Bots
                 if (!_isDecentralizedMode.HasValue && Instance.Controller?.PathManager != null)
                 {
                     var pt = Instance.ControllerConfig.PathPlanningConfig.GetMethodType();
-                    _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar
-                                        || pt == PathPlanningMethodType.JunctionArbitration;
+                    _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar;
                 }
 
                 if (!(_isDecentralizedMode == true && _arrivedAtWaypointThisTick))
@@ -1605,8 +1533,6 @@ namespace RAWSimO.Core.Bots
                 {
                     self.StatTotalStateCounts[Type]++;
                     _initialized = true;
-                    // ── Energy Hook: E6 start timer ──
-                    bot.StationEnterTime = currentTime;
                 }
 
                 //#RealWorldIntegration.start
@@ -1720,8 +1646,6 @@ namespace RAWSimO.Core.Bots
                 {
                     self.StatTotalStateCounts[Type]++;
                     _initialized = true;
-                    // ── Energy Hook: E6 start timer ──
-                    bot.StationEnterTime = currentTime;
                 }
 
                 //#RealWorldIntegration.start

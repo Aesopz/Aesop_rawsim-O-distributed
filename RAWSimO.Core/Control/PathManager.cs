@@ -200,8 +200,8 @@ namespace RAWSimO.Core.Control
 
         /// <summary>
         /// Updates all lock and obstacle information for all connections.
-        /// Called once per Update() tick by decentralized planners (AgentAStar,
-        /// JunctionArbitration) so the graph reflects current pod positions before
+        /// Called once per Update() tick by AgentAStar so the graph reflects current
+        /// pod positions before
         /// per-bot A* replanning runs. Must be called AFTER queue management so
         /// queue-locked waypoints are already marked.
         /// </summary>
@@ -446,8 +446,7 @@ namespace RAWSimO.Core.Control
 
         /// <summary>
         /// The next event when this element has to be updated.
-        /// Declared <c>virtual</c> so decentralized subclasses (e.g.
-        /// <c>JunctionArbitrationPathManager</c>) can drive their own retry cadence
+        /// Declared <c>virtual</c> so decentralized subclasses can drive their own retry cadence
         /// when bots are arbitration-blocked, instead of relying on other updateables
         /// to advance the simulation timeline.
         /// </summary>

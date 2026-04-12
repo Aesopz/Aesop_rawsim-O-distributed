@@ -161,8 +161,7 @@ namespace RAWSimO.Core.IO
                 ep.RollingFriction,
                 ep.InertiaCoeff,
                 ep.LiftHeight,
-                ep.PodFrameMass,
-                ep.StationHoldPowerW);
+                ep.PodFrameMass);
             // --> HANDLE OVERRIDES
             // If an override is specified, remove the specified amount of input stations
             if (instance.SettingConfig.OverrideConfig != null && instance.SettingConfig.OverrideConfig.OverrideInputStationCount)

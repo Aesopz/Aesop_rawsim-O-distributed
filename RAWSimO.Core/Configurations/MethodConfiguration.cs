@@ -93,12 +93,11 @@ namespace RAWSimO.Core.Configurations
         AgentAStar,
 
         /// <summary>
-        /// Decentralized A* + junction arbitration. Builds on AgentAStar by adding a
-        /// reservation table, total-order priority arbitration at the RegisterNextWaypoint
-        /// gate, and a wait-for-graph cycle breaker. Engineered for collision-free and
-        /// deadlock-free operation in unidirectional RMFS layouts.
+        /// Fixed-Route Priority Wait Scheduler.
+        /// Each bot computes a candidate A* path; a central scheduler resolves
+        /// pairwise conflicts by inserting wait actions into lower-priority bots.
         /// </summary>
-        JunctionArbitration
+        FixedRoutePriorityScheduler,
 
     }
     /// <summary>
@@ -507,8 +506,8 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(CBSPathPlanningConfiguration))]
     [XmlInclude(typeof(PASPathPlanningConfiguration))]
     [XmlInclude(typeof(DecentralAStarPathPlanningConfiguration))]
-    [XmlInclude(typeof(JunctionArbitrationPathPlanningConfiguration))]
-    [XmlInclude(typeof(PathPlanningConfiguration))]
+    [XmlInclude(typeof(FixedRoutePrioritySchedulerPathPlanningConfiguration))]
+[XmlInclude(typeof(PathPlanningConfiguration))]
     public abstract class PathPlanningConfiguration : ControllerConfigurationBase
     {
         /// <summary>

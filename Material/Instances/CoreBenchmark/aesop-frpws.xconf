@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ControlConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Name>aesop-junction</Name>
-  <PathPlanningConfig xsi:type="JunctionArbitrationPathPlanningConfiguration">
+  <Name>aesop</Name>
+  <PathPlanningConfig xsi:type="FixedRoutePrioritySchedulerPathPlanningConfiguration">
     <Name />
-    <Clocking>1</Clocking>
-    <!-- Empty bots may shortcut through pod-storage aisles (tunnel).
-         Loaded bots always use aisle-only paths (CanGoThroughObstacles=false).
-         This mirrors the default FAR/WHCAv* behaviour. -->
+    <AutoSetParameter>false</AutoSetParameter>
     <CanTunnel>true</CanTunnel>
-    <ReplanInterval>0.5</ReplanInterval>
-    <RuntimeLimitPerAgentMs>10</RuntimeLimitPerAgentMs>
-    <LookaheadK>3</LookaheadK>
-    <BlockedRetryIntervalSec>0.1</BlockedRetryIntervalSec>
-    <StarvationBoostPerSec>1.0</StarvationBoostPerSec>
-    <DeadlockTimeoutSec>5.0</DeadlockTimeoutSec>
-    <ForcedReplanBlacklistSec>8.0</ForcedReplanBlacklistSec>
-    <EnableWaitForGraphCycleCheck>true</EnableWaitForGraphCycleCheck>
+    <LengthOfAWaitStep>2</LengthOfAWaitStep>
+    <RuntimeLimitPerAgent>0.1</RuntimeLimitPerAgent>
+    <RunTimeLimitOverall>1</RunTimeLimitOverall>
+    <Clocking>1</Clocking>
+    <TreatIdleBotsAsObstacles>true</TreatIdleBotsAsObstacles>
+    <AutoInferResourceZones>true</AutoInferResourceZones>
+    <RecomputeOnWaypointArrival>true</RecomputeOnWaypointArrival>
+    <MaxConflictResolutionIterations>10000</MaxConflictResolutionIterations>
+    <MaxAdditionalWaitPerBot>300</MaxAdditionalWaitPerBot>
   </PathPlanningConfig>
   <TaskAllocationConfig xsi:type="BalancedTaskAllocationConfiguration">
     <Name />

@@ -34,9 +34,8 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
         private readonly Graph _graph;
 
         /// <summary>
-        /// Per-bot planners. <c>internal</c> so in-assembly subclasses (e.g.
-        /// JunctionArbitrationPathManager) can iterate the planners while still
-        /// running their own arbitration logic. BotAStarPlanner is <c>internal</c>,
+        /// Per-bot planners. <c>internal</c> so in-assembly subclasses can iterate
+        /// the planners. BotAStarPlanner is <c>internal</c>,
         /// so the field cannot be <c>protected</c> (CS0052).
         /// </summary>
         internal Dictionary<BotNormal, BotAStarPlanner> _planners;
@@ -134,8 +133,7 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar
         /// <summary>
         /// Calls into the base PathManager so its queue managers and reservation table get
         /// updated, but suppresses the centralized <c>_reoptimize()</c> batch replan path.
-        /// Subclasses (e.g. <c>JunctionArbitrationPathManager</c>) call this once per update
-        /// before running their own per-bot planning + arbitration logic.
+        /// Called once per update before per-bot planning logic.
         /// </summary>
         protected void RunQueueManagement(double lastTime, double currentTime)
         {

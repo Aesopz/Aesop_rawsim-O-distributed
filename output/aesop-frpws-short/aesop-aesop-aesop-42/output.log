@@ -1,0 +1,194 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/12/2026 02:01:07
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-frpws.xconf
+StatisticsDir: output/aesop-frpws-short/
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+LayoutConfiguration recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing layout config ...
+Generating instance...
+Info about all directions within the generated instance:
+# # # # # e p e p p p p p p p p p p p p p p p p p e p p p p p p p p p p p p p p p p p e p p p p p p p p p e s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n w d d d d d d d d d w d d d d d d d d d d d d d d d d d w d d d d d d d d d d d d d d d d d w d w # # # # # 
+
+
+Info about all types within the generated instance:
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+
+
+StatisticsFolder: aesop-aesop-aesop-42
+Done!
+Executing ... 
+ 02:01:10 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 149.44MB  
+ 00:00:05 | 00:00:19 | 0.00:01:00 |  20.20%  |    0    |    0     | 70%  |   749    |   0    | 149.43MB  
+ 00:00:10 | 00:00:35 | 0.00:01:06 |  22.23%  |    1    |    0     | 70%  |   798    |   0    | 147.80MB  
+ 00:00:15 | 00:00:46 | 0.00:01:13 |  24.59%  |    1    |    0     | 70%  |   861    |   0    | 147.79MB  
+ 00:00:20 | 00:00:54 | 0.00:01:20 |  26.67%  |    1    |    0     | 70%  |   919    |   0    | 147.37MB  
+ 00:00:25 | 00:01:02 | 0.00:01:25 |  28.41%  |    1    |    0     | 70%  |   961    |   0    | 147.47MB  
+ 00:00:30 | 00:01:08 | 0.00:01:31 |  30.44%  |    2    |    0     | 70%  |   1021   |   0    | 147.45MB  
+ 00:00:35 | 00:01:12 | 0.00:01:37 |  32.56%  |    2    |    0     | 70%  |   1067   |   0    | 147.58MB  
+ 00:00:40 | 00:01:17 | 0.00:01:41 |  33.92%  |    3    |    0     | 70%  |   1104   |   0    | 147.93MB  
+ 00:00:45 | 00:01:20 | 0.00:01:47 |  35.95%  |    3    |    1     | 70%  |   1152   |   0    | 147.99MB  
+ 00:00:50 | 00:01:20 | 0.00:01:55 |  38.38%  |    4    |    2     | 70%  |   1208   |   0    | 148.70MB  
+ 00:00:55 | 00:01:21 | 0.00:02:01 |  40.43%  |    5    |    2     | 70%  |   1251   |   0    | 148.72MB  
+ 00:01:00 | 00:01:19 | 0.00:02:08 |  42.90%  |    6    |    3     | 70%  |   1298   |   0    | 147.50MB  
+ 00:01:05 | 00:01:19 | 0.00:02:14 |  44.93%  |    8    |    4     | 70%  |   1338   |   0    | 147.63MB  
+ 00:01:10 | 00:01:20 | 0.00:02:19 |  46.64%  |    8    |    4     | 70%  |   1375   |   0    | 147.68MB  
+ 00:01:15 | 00:01:19 | 0.00:02:25 |  48.66%  |    8    |    6     | 70%  |   1429   |   0    | 147.93MB  
+ 00:01:20 | 00:01:16 | 0.00:02:33 |  51.04%  |   10    |    7     | 70%  |   1485   |   0    | 147.94MB  
+ 00:01:25 | 00:01:14 | 0.00:02:40 |  53.44%  |   10    |    8     | 70%  |   1541   |   0    | 147.57MB  
+ 00:01:30 | 00:01:13 | 0.00:02:45 |  55.15%  |   11    |    10    | 70%  |   1584   |   0    | 147.55MB  
+ 00:01:35 | 00:01:10 | 0.00:02:52 |  57.57%  |   12    |    10    | 70%  |   1652   |   0    | 147.60MB  
+ 00:01:40 | 00:01:09 | 0.00:02:56 |  58.94%  |   14    |    12    | 70%  |   1678   |   0    | 147.64MB  
+ 00:01:45 | 00:01:05 | 0.00:03:05 |  61.68%  |   16    |    14    | 70%  |   1737   |   0    | 147.59MB  
+ 00:01:50 | 00:01:00 | 0.00:03:13 |  64.49%  |   17    |    15    | 70%  |   1793   |   0    | 147.56MB  
+ 00:01:55 | 00:00:56 | 0.00:03:21 |  67.24%  |   19    |    16    | 70%  |   1837   |   0    | 147.28MB  
+ 00:02:00 | 00:00:51 | 0.00:03:29 |  69.99%  |   21    |    19    | 70%  |   1885   |   0    | 147.38MB  
+ 00:02:05 | 00:00:46 | 0.00:03:39 |  73.09%  |   24    |    22    | 70%  |   1937   |   0    | 147.14MB  
+ 00:02:10 | 00:00:40 | 0.00:03:48 |  76.18%  |   27    |    24    | 70%  |   1987   |   0    | 147.32MB  
+ 00:02:15 | 00:00:35 | 0.00:03:57 |  79.26%  |   31    |    26    | 70%  |   2040   |   0    | 147.29MB  
+ 00:02:20 | 00:00:30 | 0.00:04:06 |  82.07%  |   34    |    27    | 70%  |   2105   |   0    | 147.63MB  
+ 00:02:25 | 00:00:25 | 0.00:04:15 |  85.10%  |   37    |    28    | 70%  |   2143   |   0    | 147.17MB  
+ 00:02:30 | 00:00:22 | 0.00:04:21 |  87.05%  |   38    |    30    | 70%  |   2174   |   0    | 147.35MB  
+ 00:02:35 | 00:00:18 | 0.00:04:28 |  89.50%  |   40    |    31    | 70%  |   2221   |   0    | 148.39MB  
+ 00:02:40 | 00:00:14 | 0.00:04:34 |  91.61%  |   41    |    32    | 70%  |   2267   |   0    | 147.22MB  
+ 00:02:45 | 00:00:11 | 0.00:04:41 |  93.69%  |   42    |    34    | 70%  |   2310   |   0    | 147.22MB  
+ 00:02:50 | 00:00:08 | 0.00:04:45 |  95.04%  |   42    |    34    | 70%  |   2339   |   0    | 147.22MB  
+ 00:02:55 | 00:00:05 | 0.00:04:50 |  96.85%  |   44    |    35    | 70%  |   2373   |   0    | 147.17MB  
+ 00:03:00 | 00:00:02 | 0.00:04:55 |  98.53%  |   45    |    36    | 70%  |   2409   |   0    | 147.17MB  
+ 00:03:04 | 00:00:00 | 0.00:05:00 | 100.00%  |   46    |    36    | 70%  |   2432   |   0    | 147.39MB  
+ 00:03:04 | >>> Simulation finished - writing results ...
+ 00:03:04 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0
+StatTimingPathPlanningOverall: 0
+StatTimingPathPlanningCount: 0
+StatTimingTaskAllocationAverage: 0.012820572352941172
+StatTimingTaskAllocationOverall: 4.358994599999998
+StatTimingTaskAllocationCount: 340
+StatTimingItemStorageAverage: 6.749493670886077E-05
+StatTimingItemStorageOverall: 0.005332100000000001
+StatTimingItemStorageCount: 79
+StatTimingPodStorageAverage: 0.0719018695652174
+StatTimingPodStorageOverall: 1.653743
+StatTimingPodStorageCount: 23
+StatTimingReplenishmentBatchingAverage: 0.00021169583333333333
+StatTimingReplenishmentBatchingOverall: 0.0101614
+StatTimingReplenishmentBatchingCount: 48
+StatTimingOrderBatchingAverage: 0.0004750208000000002
+StatTimingOrderBatchingOverall: 0.05937760000000002
+StatTimingOrderBatchingCount: 125
+>>> Overall
+StatOverallBundlesPlaced: 118
+StatOverallItemsOrdered: 93
+StatOverallOrdersPlaced: 64
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 36
+StatOverallItemsHandled: 73
+StatOverallLinesHandled: 68
+StatOverallOrdersHandled: 46
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 2432.0658952282874
+StatOverallDistanceEstimated: 2731
+StatOverallAssignedTasks: 340
+StatMaxMemoryUsed: 153.71875
+StatRealTimeUsed: 184.0905324
+StatAverageTurnoverTime: 195.83898362467144
+StatMedianTurnoverTime: 203.62666666666786
+StatLowerQuartileTurnoverTime: 147.95166666666742
+StatUpperQuartileTurnoverTime: 243.84333333333475
+StatAverageThroughputTime: 82.96009473578205
+StatMedianThroughputTime: 40.172222222222445
+StatLowerQuartileThroughputTime: 29.810000000001025
+StatUpperQuartileThroughputTime: 146.35444444444516
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 305.3806105318009
+StatEnergyE1AccelKJ: 178.77808570401206
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 32.036156348856025
+StatEnergyE4RotationKJ: 41.11692101505806
+StatEnergyE5LiftLowerKJ: 40.90545990992794
+StatEnergyE6StationKJ: 12.543987553946959
+StatEnergyConflictKJ: 146.22472045797065
+StatEnergyPerOrderKJ: 6.638708924604368
+StatEnergyPerMeterJoule: 125.2073023910623
+StatDistanceTraveledRizqiM: 2439
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

@@ -2,7 +2,6 @@ using RAWSimO.Core;
 using RAWSimO.Core.Bots;
 using RAWSimO.Core.Configurations;
 using RAWSimO.Core.Control.Defaults.PathPlanning.AgentAStar;
-using RAWSimO.Core.Control.Defaults.PathPlanning.JunctionArbitration;
 using RAWSimO.Core.IO;
 using RAWSimO.Core.Randomization;
 using RAWSimO.Core.Waypoints;
@@ -147,7 +146,6 @@ namespace RAWSimO.GymServer
                            _instance.SettingConfig.SimulationDuration;
             bool truncated = _stepCount >= _maxSteps;
 
-            var junctionPM = _instance.Controller.PathManager as JunctionArbitrationPathManager;
             var infos = _bots.ToDictionary(
                 b => "bot_" + b.GetInfoID(),
                 b =>
@@ -157,23 +155,8 @@ namespace RAWSimO.GymServer
                         ["action_mask"] = GetActionMask(b),
                         ["collision_count"] = collisionMap.TryGetValue(b, out var c) ? c : 0
                     };
-                    if (junctionPM != null &&
-                        junctionPM.TryGetArbitrationStop(b, out bool stopped, out double dur, out int blockedAt))
-                    {
-                        d["arbitration_stopped"] = stopped;
-                        d["arbitration_stop_duration"] = dur;
-                        d["arbitration_blocked_at_wp"] = blockedAt;
-                    }
                     return (object)d;
                 });
-            if (junctionPM != null)
-            {
-                infos["__global__"] = new Dictionary<string, object>
-                {
-                    ["wait_for_graph_cycle_count"] = junctionPM.LastCycleCount,
-                    ["total_arbitration_stops"] = junctionPM.TotalArbitrationStops
-                };
-            }
 
             return new GymStepResult(observations, rewards, simDone, truncated, infos);
         }

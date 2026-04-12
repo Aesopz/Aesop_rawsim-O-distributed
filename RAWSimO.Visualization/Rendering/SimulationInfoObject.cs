@@ -58,8 +58,8 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockStatEnergyE3;
         private TextBlock _blockStatEnergyE4;
         private TextBlock _blockStatEnergyE5;
-        private TextBlock _blockStatEnergyE6;
-        private TextBlock _blockStatEnergyConflict;
+        private TextBlock _blockStatTurningCount;
+        private TextBlock _blockStatStopAndGoCount;
         // Per-bot dynamic blocks
         private Dictionary<IBotInfo, TextBlock> _blocksBotLoad = new Dictionary<IBotInfo, TextBlock>();
         private Dictionary<IBotInfo, TextBlock> _blocksBotEnergy = new Dictionary<IBotInfo, TextBlock>();
@@ -146,7 +146,8 @@ namespace RAWSimO.Visualization.Rendering
             // Update fleet energy stats (sum over all BotNormal instances)
             if (_blockStatEnergyTotal != null)
             {
-                double sumTotal = 0, sumE1 = 0, sumE2 = 0, sumE3 = 0, sumE4 = 0, sumE5 = 0, sumE6 = 0, sumConflict = 0;
+                double sumTotal = 0, sumE1 = 0, sumE2 = 0, sumE3 = 0, sumE4 = 0, sumE5 = 0;
+                int sumTurning = 0, sumStopAndGo = 0;
                 foreach (var b in _instance.GetInfoBots())
                 {
                     if (b is RAWSimO.Core.Bots.BotNormal bn)
@@ -157,8 +158,8 @@ namespace RAWSimO.Visualization.Rendering
                         sumE3 += bn.StatEnergyE3CruiseJ;
                         sumE4 += bn.StatEnergyE4RotationJ;
                         sumE5 += bn.StatEnergyE5LiftLowerJ;
-                        sumE6 += bn.StatEnergyE6StationJ;
-                        sumConflict += bn.StatEnergyConflictStopGoJ;
+                        sumTurning += bn.StatTurningCount;
+                        sumStopAndGo += bn.StatStopAndGoCount;
                     }
                 }
                 _blockStatEnergyTotal.Text = (sumTotal / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
@@ -167,8 +168,8 @@ namespace RAWSimO.Visualization.Rendering
                 _blockStatEnergyE3.Text = (sumE3 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
                 _blockStatEnergyE4.Text = (sumE4 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
                 _blockStatEnergyE5.Text = (sumE5 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
-                _blockStatEnergyE6.Text = (sumE6 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
-                _blockStatEnergyConflict.Text = (sumConflict / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
+                if (_blockStatTurningCount != null) _blockStatTurningCount.Text = sumTurning.ToString();
+                if (_blockStatStopAndGoCount != null) _blockStatStopAndGoCount.Text = sumStopAndGo.ToString();
             }
         }
 
@@ -299,18 +300,18 @@ namespace RAWSimO.Visualization.Rendering
                 _blockStatEnergyE5 = new TextBlock { Text = "0.00 kJ", MinWidth = _infoPanelRightColumnWidth };
                 eE5Panel.Children.Add(_blockStatEnergyE5);
                 energyNode.Items.Add(eE5Panel);
-                // E6
-                WrapPanel eE6Panel = new WrapPanel { Orientation = Orientation.Horizontal };
-                eE6Panel.Children.Add(new TextBlock { Text = "E6 Station: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockStatEnergyE6 = new TextBlock { Text = "0.00 kJ", MinWidth = _infoPanelRightColumnWidth };
-                eE6Panel.Children.Add(_blockStatEnergyE6);
-                energyNode.Items.Add(eE6Panel);
-                // E7 Conflict
-                WrapPanel eConflictPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                eConflictPanel.Children.Add(new TextBlock { Text = "E7 Conflict: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockStatEnergyConflict = new TextBlock { Text = "0.00 kJ", MinWidth = _infoPanelRightColumnWidth };
-                eConflictPanel.Children.Add(_blockStatEnergyConflict);
-                energyNode.Items.Add(eConflictPanel);
+                // Turning count
+                WrapPanel turningPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                turningPanel.Children.Add(new TextBlock { Text = "Turning: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockStatTurningCount = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                turningPanel.Children.Add(_blockStatTurningCount);
+                energyNode.Items.Add(turningPanel);
+                // Stop-and-Go count
+                WrapPanel sagPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                sagPanel.Children.Add(new TextBlock { Text = "Stop&Go: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockStatStopAndGoCount = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                sagPanel.Children.Add(_blockStatStopAndGoCount);
+                energyNode.Items.Add(sagPanel);
                 _root.Items.Add(energyNode);
                 // Per-bot stats panel
                 TreeViewItem botStatsNode = new TreeViewItem { Header = "Per-Bot Stats" };
@@ -940,8 +941,8 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockEnergyE3;
         private TextBlock _blockEnergyE4;
         private TextBlock _blockEnergyE5;
-        private TextBlock _blockEnergyE6;
-        private TextBlock _blockEnergyConflict;
+        private TextBlock _blockBotTurning;
+        private TextBlock _blockBotStopAndGo;
 
         public SimulationInfoBot(TreeView infoHost, IBotInfo bot) : base(infoHost) { _bot = bot; }
 
@@ -988,8 +989,8 @@ namespace RAWSimO.Visualization.Rendering
                 _blockEnergyE3.Text = (botNormal.StatEnergyE3CruiseJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 _blockEnergyE4.Text = (botNormal.StatEnergyE4RotationJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 _blockEnergyE5.Text = (botNormal.StatEnergyE5LiftLowerJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
-                _blockEnergyE6.Text = (botNormal.StatEnergyE6StationJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
-                _blockEnergyConflict.Text = (botNormal.StatEnergyConflictStopGoJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotTurning != null) _blockBotTurning.Text = botNormal.StatTurningCount.ToString();
+                if (_blockBotStopAndGo != null) _blockBotStopAndGo.Text = botNormal.StatStopAndGoCount.ToString();
             }
         }
 
@@ -1164,18 +1165,18 @@ namespace RAWSimO.Visualization.Rendering
                 _blockEnergyE5 = new TextBlock { Text = "0.0000", MinWidth = _infoPanelRightColumnWidth };
                 e5Panel.Children.Add(_blockEnergyE5);
                 energyNode.Items.Add(e5Panel);
-                // E6 Station
-                WrapPanel e6Panel = new WrapPanel { Orientation = Orientation.Horizontal };
-                e6Panel.Children.Add(new TextBlock { Text = "E6 Station: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockEnergyE6 = new TextBlock { Text = "0.0000", MinWidth = _infoPanelRightColumnWidth };
-                e6Panel.Children.Add(_blockEnergyE6);
-                energyNode.Items.Add(e6Panel);
-                // E7 Conflict
-                WrapPanel e7Panel = new WrapPanel { Orientation = Orientation.Horizontal };
-                e7Panel.Children.Add(new TextBlock { Text = "E7 Conflict: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockEnergyConflict = new TextBlock { Text = "0.0000", MinWidth = _infoPanelRightColumnWidth };
-                e7Panel.Children.Add(_blockEnergyConflict);
-                energyNode.Items.Add(e7Panel);
+                // Turning
+                WrapPanel turnPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                turnPanel.Children.Add(new TextBlock { Text = "Turning: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotTurning = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                turnPanel.Children.Add(_blockBotTurning);
+                energyNode.Items.Add(turnPanel);
+                // Stop-and-Go
+                WrapPanel sagPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                sagPanel.Children.Add(new TextBlock { Text = "Stop&Go: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotStopAndGo = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                sagPanel.Children.Add(_blockBotStopAndGo);
+                energyNode.Items.Add(sagPanel);
                 root.Items.Add(energyNode);
             }
             // Expand root node

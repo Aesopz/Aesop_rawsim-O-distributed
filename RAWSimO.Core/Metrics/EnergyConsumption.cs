@@ -43,12 +43,6 @@ namespace RAWSimO.Core.Metrics
         /// </summary>
         public static double POD_FRAME_MASS = 40.0;
 
-        /// <summary>
-        /// Continuous hold power while AGV supports a pod at a station [W].
-        /// Replaces the dimensionally-incorrect mu_lift formula.
-        /// From xinst EnergyParameters.StationHoldPowerW.
-        /// </summary>
-        public static double STATION_HOLD_POWER_W = 15.0;
 
         #endregion
 
@@ -67,8 +61,7 @@ namespace RAWSimO.Core.Metrics
             double rollingFriction,
             double inertiaCoeff,
             double liftHeight,
-            double podFrameMass,
-            double stationHoldPowerW)
+            double podFrameMass)
         {
             ROBOT_MASS          = robotMass;
             ROBOT_WIDTH         = robotWidth;
@@ -78,7 +71,6 @@ namespace RAWSimO.Core.Metrics
             INERTIA             = inertiaCoeff;
             LIFT_HEIGHT         = liftHeight;
             POD_FRAME_MASS      = podFrameMass;
-            STATION_HOLD_POWER_W = stationHoldPowerW;
         }
 
         #endregion
@@ -217,27 +209,6 @@ namespace RAWSimO.Core.Metrics
 
         #endregion
 
-        #region E6 — Station Processing Energy (corrected to power model)
-
-        /// <summary>
-        /// E6 — Energy consumed while AGV holds a pod stationary at a station.
-        /// Uses a constant power model: P_hold [W] × duration [s] = energy [J].
-        /// P_hold (STATION_HOLD_POWER_W) represents the motor/actuator power needed to
-        /// maintain the lifted pod position. Configured via xinst EnergyParameters.StationHoldPowerW.
-        ///
-        /// Replaces the previous formula mLoad·g·μ_lift·t which had incorrect units (N·s ≠ J).
-        /// </summary>
-        /// <param name="duration">Station dwell time [s].</param>
-        /// <returns>Station processing energy [J].</returns>
-        public static double E6_StationProcessing(double duration)
-        {
-            if (duration <= 0.0)
-                return 0.0;
-
-            return STATION_HOLD_POWER_W * duration;
-        }
-
-        #endregion
 
         #region Mass Helpers
 

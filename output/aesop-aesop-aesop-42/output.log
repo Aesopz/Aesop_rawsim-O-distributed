@@ -1,5 +1,5 @@
 <<< Welcome to the RAWSimO CLI >>>
-The time is: 03/29/2026 00:07:30
+The time is: 04/03/2026 01:01:49
 Starting RAWSimO wrapper with the following arguments:
 Instance: Material/Instances/CoreBenchmark/aesop.xlayo
 Setting: Material/Instances/CoreBenchmark/aesop.xsett
@@ -90,48 +90,48 @@ i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r 
 StatisticsFolder: aesop-aesop-aesop-42
 Done!
 Executing ... 
- 00:07:31 | >>> Warming up ...
+ 01:01:52 | >>> Warming up ...
  00:00:00 | >>> Warmup finished - starting simulation ...
  Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
- 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 148.55MB  
- 00:00:05 | 00:09:42 | 0.00:04:05 |  0.85%   |   52    |    70    | 71%  |   2862   |   0    | 151.12MB  
- 00:00:10 | 00:05:29 | 0.00:14:09 |  2.95%   |   202   |   292    | 73%  |  10328   |   0    | 158.89MB  
- 00:00:15 | 00:04:14 | 0.00:26:42 |  5.57%   |   381   |   551    | 75%  |  20318   |   0    | 167.93MB  
- 00:00:20 | 00:03:20 | 0.00:43:35 |  9.08%   |   608   |   890    | 77%  |  34635   |   0    | 181.82MB  
- 00:00:25 | 00:02:37 | 0.01:05:38 |  13.68%  |   925   |   1305   | 81%  |  52994   |   0    | 196.75MB  
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 149.04MB  
+ 00:00:05 | 00:09:21 | 0.00:04:15 |  0.89%   |   55    |    74    | 71%  |   2949   |   0    | 152.71MB  
+ 00:00:10 | 00:05:16 | 0.00:14:44 |  3.07%   |   211   |   302    | 73%  |  10808   |   0    | 159.81MB  
+ 00:00:15 | 00:04:03 | 0.00:27:49 |  5.80%   |   397   |   573    | 75%  |  21278   |   0    | 170.38MB  
+ 00:00:20 | 00:03:12 | 0.00:45:13 |  9.42%   |   632   |   925    | 78%  |  35871   |   0    | 183.85MB  
+ 00:00:25 | 00:02:34 | 0.01:07:02 |  13.97%  |   945   |   1329   | 81%  |  54163   |   0    | 198.52MB  
  00:00:26 | Pausing bundle generation due to inventory+reserved+backlog level (currently at: 0.850094741451487)
- 00:00:30 | 00:02:11 | 0.01:29:11 |  18.58%  |  1255   |   1711   | 84%  |  73459   |   0    | 208.88MB  
- 00:00:35 | 00:01:39 | 0.02:05:03 |  26.05%  |  1756   |   1729   | 84%  |  100107  |   0    | 208.91MB  
- 00:00:40 | 00:01:16 | 0.02:44:58 |  34.37%  |  2309   |   1729   | 83%  |  126798  |   0    | 209.55MB  
- 00:00:45 | 00:00:58 | 0.03:29:01 |  43.55%  |  2917   |   1729   | 81%  |  158356  |   0    | 219.52MB  
- 00:00:50 | 00:00:45 | 0.04:12:34 |  52.62%  |  3511   |   1729   | 80%  |  190136  |   0    | 239.89MB  
- 00:00:55 | 00:00:33 | 0.04:58:12 |  62.13%  |  4147   |   1729   | 79%  |  223594  |   0    | 239.30MB  
- 00:01:00 | 00:00:24 | 0.05:42:14 |  71.30%  |  4756   |   1729   | 78%  |  256784  |   0    | 238.06MB  
- 00:01:05 | 00:00:15 | 0.06:25:59 |  80.42%  |  5328   |   1729   | 76%  |  290002  |   0    | 238.22MB  
- 00:01:10 | 00:00:07 | 0.07:11:48 |  89.96%  |  5949   |   1729   | 75%  |  323698  |   0    | 238.85MB  
- 00:01:15 | 00:00:00 | 0.07:56:51 |  99.34%  |  6573   |   1729   | 74%  |  356414  |   0    | 244.54MB  
- 00:01:15 | 00:00:00 | 0.08:00:00 | 100.00%  |  6615   |   1729   | 74%  |  358792  |   0    | 246.99MB  
- 00:01:15 | >>> Simulation finished - writing results ...
- 00:01:15 | >>> Results written
+ 00:00:30 | 00:02:07 | 0.01:31:43 |  19.11%  |  1298   |   1728   | 85%  |  75521   |   0    | 209.24MB  
+ 00:00:35 | 00:01:39 | 0.02:05:12 |  26.09%  |  1757   |   1729   | 84%  |  100218  |   0    | 209.77MB  
+ 00:00:40 | 00:01:16 | 0.02:45:06 |  34.40%  |  2311   |   1729   | 83%  |  126897  |   0    | 210.75MB  
+ 00:00:45 | 00:00:58 | 0.03:29:28 |  43.64%  |  2924   |   1729   | 81%  |  158702  |   0    | 220.77MB  
+ 00:00:50 | 00:00:46 | 0.04:08:45 |  51.82%  |  3461   |   1729   | 80%  |  187133  |   0    | 239.54MB  
+ 00:00:55 | 00:00:34 | 0.04:53:52 |  61.22%  |  4082   |   1729   | 79%  |  220806  |   0    | 239.57MB  
+ 00:01:00 | 00:00:25 | 0.05:37:28 |  70.31%  |  4691   |   1729   | 78%  |  252707  |   0    | 238.36MB  
+ 00:01:05 | 00:00:17 | 0.06:16:29 |  78.44%  |  5200   |   1729   | 77%  |  282712  |   0    | 238.49MB  
+ 00:01:10 | 00:00:10 | 0.06:56:59 |  86.87%  |  5750   |   1729   | 76%  |  312110  |   0    | 239.75MB  
+ 00:01:15 | 00:00:03 | 0.07:40:38 |  95.97%  |  6358   |   1729   | 74%  |  344302  |   0    | 240.90MB  
+ 00:01:17 | 00:00:00 | 0.08:00:00 | 100.00%  |  6615   |   1729   | 74%  |  358792  |   0    | 248.46MB  
+ 00:01:17 | >>> Simulation finished - writing results ...
+ 00:01:18 | >>> Results written
 Simulation finished.
 >>> Timings
-StatTimingPathPlanningAverage: 0.00048573017586371386
-StatTimingPathPlanningOverall: 13.229832799999974
+StatTimingPathPlanningAverage: 0.000497156008370965
+StatTimingPathPlanningOverall: 13.541038199999972
 StatTimingPathPlanningCount: 27237
-StatTimingTaskAllocationAverage: 0.000676810443329297
-StatTimingTaskAllocationOverall: 29.40335289999798
+StatTimingTaskAllocationAverage: 0.0006760817627290825
+StatTimingTaskAllocationOverall: 29.37169610000226
 StatTimingTaskAllocationCount: 43444
-StatTimingItemStorageAverage: 1.776330807372184E-06
-StatTimingItemStorageOverall: 0.018987200000001276
+StatTimingItemStorageAverage: 1.872017962391376E-06
+StatTimingItemStorageOverall: 0.02001000000000142
 StatTimingItemStorageCount: 10689
-StatTimingPodStorageAverage: 0.001977692104554035
-StatTimingPodStorageOverall: 7.3392154000000245
+StatTimingPodStorageAverage: 0.0020319597413096333
+StatTimingPodStorageOverall: 7.5406026000000494
 StatTimingPodStorageCount: 3711
-StatTimingReplenishmentBatchingAverage: 1.1313918017159176E-05
-StatTimingReplenishmentBatchingOverall: 0.02373659999999995
+StatTimingReplenishmentBatchingAverage: 1.048937082936126E-05
+StatTimingReplenishmentBatchingOverall: 0.02200669999999992
 StatTimingReplenishmentBatchingCount: 2098
-StatTimingOrderBatchingAverage: 0.00015021637887067442
-StatTimingOrderBatchingOverall: 2.0617198000000063
+StatTimingOrderBatchingAverage: 0.0001530932823315124
+StatTimingOrderBatchingOverall: 2.1012053000000077
 StatTimingOrderBatchingCount: 13725
 >>> Overall
 StatOverallBundlesPlaced: 1529
@@ -147,8 +147,8 @@ StatOverallCollisions: 0
 StatOverallDistanceTraveled: 358791.6531822827
 StatOverallDistanceEstimated: 310225
 StatOverallAssignedTasks: 43444
-StatMaxMemoryUsed: 246.9921875
-StatRealTimeUsed: 75.412796
+StatMaxMemoryUsed: 248.44921875
+StatRealTimeUsed: 77.4989169
 StatAverageTurnoverTime: 886.4828802957703
 StatMedianTurnoverTime: 466.5981529433957
 StatLowerQuartileTurnoverTime: 181.30398268027784

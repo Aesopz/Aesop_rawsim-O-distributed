@@ -118,10 +118,10 @@ namespace RAWSimO.Core
         public double StatOverallEnergyE4J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE4RotationJ); } }
         /// <summary>Fleet pod lift/lower energy E5 [J].</summary>
         public double StatOverallEnergyE5J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE5LiftLowerJ); } }
-        /// <summary>Fleet station processing energy E6 [J].</summary>
-        public double StatOverallEnergyE6J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE6StationJ); } }
-        /// <summary>Fleet conflict stop-go energy E7 [J].</summary>
-        public double StatOverallEnergyConflictJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyConflictStopGoJ); } }
+        /// <summary>Total turning events across all bots.</summary>
+        public int StatOverallTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurningCount); } }
+        /// <summary>Total stop-and-go events across all bots.</summary>
+        public int StatOverallStopAndGoCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatStopAndGoCount); } }
         /// <summary>Total orders completed across all bots.</summary>
         public int StatOverallOrdersCompletedByBots { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatOrdersCompleted); } }
         /// <summary>Total distance traveled by bots (Rizqi tracker) [m].</summary>
@@ -1032,11 +1032,12 @@ namespace RAWSimO.Core
             sb.AppendLine("StatEnergyE3CruiseKJ: " + (StatOverallEnergyE3J / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyE4RotationKJ: " + (StatOverallEnergyE4J / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyE5LiftLowerKJ: " + (StatOverallEnergyE5J / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatEnergyE6StationKJ: " + (StatOverallEnergyE6J / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatEnergyConflictKJ: " + (StatOverallEnergyConflictJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatEnergyPerMeterJoule: " + (StatOverallDistanceTraveledRizqi > 0 ? (StatOverallEnergyTotalJ / StatOverallDistanceTraveledRizqi).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatDistanceTraveledRizqiM: " + StatOverallDistanceTraveledRizqi.ToString(IOConstants.FORMATTER));
+            sb.AppendLine(">>> Motion Behavior");
+            sb.AppendLine("StatTurningCount: " + StatOverallTurningCount);
+            sb.AppendLine("StatStopAndGoCount: " + StatOverallStopAndGoCount);
             // Write output
             writer(sb.ToString());
         }

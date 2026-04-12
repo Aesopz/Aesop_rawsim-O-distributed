@@ -82,8 +82,7 @@ namespace RAWSimO.Core.Bots
             if (!_isDecentralizedMode.HasValue && _instance.ControllerConfig != null)
             {
                 var pt = _instance.ControllerConfig.PathPlanningConfig.GetMethodType();
-                _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar
-                                    || pt == PathPlanningMethodType.JunctionArbitration;
+                _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar;
             }
 
             if (_isDecentralizedMode == true)
