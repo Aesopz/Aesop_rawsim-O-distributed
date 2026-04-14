@@ -9,7 +9,8 @@
     <RunTimeLimitOverall>1</RunTimeLimitOverall>
     <Clocking>1</Clocking>
     <SearchMethod>BestFirst</SearchMethod>
-    <EnergyWeight>0.01</EnergyWeight>
+    <Lambda>1.0</Lambda>
+    <PRef>300</PRef>
   </PathPlanningConfig>
   <TaskAllocationConfig xsi:type="BalancedTaskAllocationConfiguration">
     <Name />

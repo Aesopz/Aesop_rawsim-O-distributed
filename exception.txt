@@ -1,0 +1,503 @@
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Unknown path planning engine: ECBS timestamp: 04/13/2026 23:07:19
+-----------------------------------------------------------
+Time: 2026/4/13 下午 11:07:19
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/PP/aesop-ecbs.xconf
+Seed: 42
+Tag: ECBS-energy
+Stacktrace:
+   at RAWSimO.Core.Instance.CreateBot(Int32 id, Tier tier, Double x, Double y, Double radius, Double orientation, Double podTransferTime, Double maxAcceleration, Double maxDeceleration, Double maxVelocity, Double turnSpeed, Double collisionPenaltyTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\InstanceCreation.cs:line 260
+   at RAWSimO.Core.Generator.LayoutGenerator.generateRobots(Tier tier, Tile[,] tiles) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\LayoutGenerator.cs:line 388
+   at RAWSimO.Core.Generator.LayoutGenerator.fillTiers() in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\LayoutGenerator.cs:line 343
+   at RAWSimO.Core.Generator.LayoutGenerator.GenerateLayout() in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\LayoutGenerator.cs:line 361
+   at RAWSimO.Core.Generator.InstanceGenerator.GenerateLayout(LayoutConfiguration layoutConfiguration, SettingConfiguration settingConfig, ControlConfiguration controlConfig, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\InstanceGenerator.cs:line 41
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 108
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_6\1-4-4-32-550-PPMinimal-aesop-cbs-6\output.log' because it is being used by another process. timestamp: 04/14/2026 12:48:53
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:48:53
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 6
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_9\1-4-4-32-550-PPMinimal-aesop-cbs-9\output.log' because it is being used by another process. timestamp: 04/14/2026 12:51:53
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:51:53
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 9
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_10\1-4-4-32-550-PPMinimal-aesop-cbs-10\output.log' because it is being used by another process. timestamp: 04/14/2026 12:51:56
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:51:56
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 10
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_11\1-4-4-32-550-PPMinimal-aesop-cbs-11\output.log' because it is being used by another process. timestamp: 04/14/2026 12:51:59
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:51:59
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 11
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_12\1-4-4-32-550-PPMinimal-aesop-cbs-12\output.log' because it is being used by another process. timestamp: 04/14/2026 12:52:02
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:52:02
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 12
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_13\1-4-4-32-550-PPMinimal-aesop-cbs-13\output.log' because it is being used by another process. timestamp: 04/14/2026 12:55:21
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:55:21
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 13
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_14\1-4-4-32-550-PPMinimal-aesop-cbs-14\output.log' because it is being used by another process. timestamp: 04/14/2026 12:55:27
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:55:27
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 14
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_15\1-4-4-32-550-PPMinimal-aesop-cbs-15\output.log' because it is being used by another process. timestamp: 04/14/2026 12:55:32
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:55:32
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 15
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_16\1-4-4-32-550-PPMinimal-aesop-cbs-16\output.log' because it is being used by another process. timestamp: 04/14/2026 12:55:33
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:55:33
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 16
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_17\1-4-4-32-550-PPMinimal-aesop-cbs-17\output.log' because it is being used by another process. timestamp: 04/14/2026 12:58:25
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:58:25
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 17
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_18\1-4-4-32-550-PPMinimal-aesop-cbs-18\output.log' because it is being used by another process. timestamp: 04/14/2026 12:58:25
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:58:25
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 18
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_19\1-4-4-32-550-PPMinimal-aesop-cbs-19\output.log' because it is being used by another process. timestamp: 04/14/2026 12:58:30
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:58:30
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 19
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_20\1-4-4-32-550-PPMinimal-aesop-cbs-20\output.log' because it is being used by another process. timestamp: 04/14/2026 12:58:30
+-----------------------------------------------------------
+Time: 2026/4/14 下午 12:58:30
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 20
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_21\1-4-4-32-550-PPMinimal-aesop-cbs-21\output.log' because it is being used by another process. timestamp: 04/14/2026 13:02:07
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:02:07
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 21
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_22\1-4-4-32-550-PPMinimal-aesop-cbs-22\output.log' because it is being used by another process. timestamp: 04/14/2026 13:02:13
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:02:13
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 22
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_23\1-4-4-32-550-PPMinimal-aesop-cbs-23\output.log' because it is being used by another process. timestamp: 04/14/2026 13:02:15
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:02:15
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 23
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_24\1-4-4-32-550-PPMinimal-aesop-cbs-24\output.log' because it is being used by another process. timestamp: 04/14/2026 13:02:16
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:02:16
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 24
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_25\1-4-4-32-550-PPMinimal-aesop-cbs-25\output.log' because it is being used by another process. timestamp: 04/14/2026 13:04:56
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:04:56
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 25
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_26\1-4-4-32-550-PPMinimal-aesop-cbs-26\output.log' because it is being used by another process. timestamp: 04/14/2026 13:04:57
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:04:57
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 26
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_27\1-4-4-32-550-PPMinimal-aesop-cbs-27\output.log' because it is being used by another process. timestamp: 04/14/2026 13:05:02
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:05:02
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 27
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_28\1-4-4-32-550-PPMinimal-aesop-cbs-28\output.log' because it is being used by another process. timestamp: 04/14/2026 13:05:04
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:05:04
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 28
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_29\1-4-4-32-550-PPMinimal-aesop-cbs-29\output.log' because it is being used by another process. timestamp: 04/14/2026 13:08:18
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:08:18
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 29
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_30\1-4-4-32-550-PPMinimal-aesop-cbs-30\output.log' because it is being used by another process. timestamp: 04/14/2026 13:08:23
+-----------------------------------------------------------
+Time: 2026/4/14 下午 01:08:23
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+Seed: 30
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamWriter..ctor(String path, Boolean append)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 179
+InnerException: 
+None
+-----------------------------------------------------------

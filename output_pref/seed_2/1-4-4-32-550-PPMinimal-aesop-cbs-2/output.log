@@ -1,0 +1,327 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/14/2026 14:06:07
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-cbs.xconf
+StatisticsDir: C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_pref\seed_2
+Seed: 2
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: 1-4-4-32-550-PPMinimal-aesop-cbs-2
+Done!
+Executing ... 
+ 14:06:09 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 60%  |    0     |   0    | 123.14MB  
+ 00:00:05 | 05:24:03 | 0.00:00:07 |  0.03%   |    0    |    0     | 60%  |   138    |   0    | 133.19MB  
+ 00:00:10 | 02:11:38 | 0.00:00:36 |  0.13%   |    0    |    0     | 60%  |   839    |   0    | 143.88MB  
+ 00:00:15 | 02:51:29 | 0.00:00:41 |  0.15%   |    0    |    0     | 60%  |   949    |   0    | 150.33MB  
+ 00:00:20 | 03:09:07 | 0.00:00:50 |  0.18%   |    2    |    0     | 60%  |   1142   |   0    | 154.55MB  
+ 00:00:25 | 03:34:32 | 0.00:00:55 |  0.19%   |    3    |    0     | 60%  |   1240   |   0    | 162.75MB  
+ 00:00:30 | 03:57:02 | 0.00:01:00 |  0.21%   |    4    |    0     | 60%  |   1340   |   0    | 166.56MB  
+ 00:00:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(41->32)
+ 00:00:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(41->32)
+ 00:00:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(41->34)
+ 00:00:33 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(1->0)
+ 00:00:33 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(1->0)
+ 00:00:35 | 01:06:51 | 0.00:04:09 |  0.87%   |   77    |    69    | 60%  |   2638   |   0    | 168.79MB  
+ 00:00:40 | 00:24:39 | 0.00:12:38 |  2.63%   |   277   |   267    | 60%  |   6210   |   0    | 168.43MB  
+ 00:00:45 | 00:15:58 | 0.00:21:31 |  4.48%   |   486   |   477    | 60%  |  10393   |   0    | 168.79MB  
+ 00:00:50 | 00:11:59 | 0.00:31:11 |  6.50%   |   714   |   703    | 60%  |  14546   |   0    | 169.53MB  
+ 00:00:52 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:00:52 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->2)
+ 00:00:55 | 00:10:35 | 0.00:38:15 |  7.97%   |   875   |   866    | 60%  |  18669   |   0    | 169.57MB  
+ 00:00:55 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(2->1)
+ 00:00:56 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(9->8)
+ 00:01:00 | 00:09:00 | 0.00:47:59 |  10.00%  |  1103   |   1094   | 60%  |  23869   |   0    | 167.54MB  
+ 00:01:05 | 00:08:14 | 0.00:55:46 |  11.62%  |  1286   |   1278   | 60%  |  27970   |   0    | 168.39MB  
+ 00:01:10 | 00:07:18 | 0.01:06:01 |  13.75%  |  1526   |   1516   | 60%  |  33330   |   0    | 167.77MB  
+ 00:01:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:14 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:14 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:14 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(40->39)
+ 00:01:15 | 00:06:57 | 0.01:13:09 |  15.24%  |  1693   |   1683   | 60%  |  37302   |   0    | 168.62MB  
+ 00:01:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(58->57)
+ 00:01:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(58->57)
+ 00:01:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(58->57)
+ 00:01:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->56)
+ 00:01:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->56)
+ 00:01:18 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:01:20 | 00:06:36 | 0.01:20:33 |  16.78%  |  1863   |   1857   | 60%  |  41470   |   0    | 171.13MB  
+ 00:01:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(8->4)
+ 00:01:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(8->4)
+ 00:01:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(8->6)
+ 00:01:21 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:01:24 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(9->8)
+ 00:01:24 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(9->8)
+ 00:01:24 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(9->2)
+ 00:01:24 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(25->24)
+ 00:01:24 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(25->24)
+ 00:01:25 | 00:06:03 | 0.01:31:03 |  18.97%  |  2108   |   2104   | 60%  |  47013   |   0    | 170.38MB  
+ 00:01:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:01:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:30 | 00:05:34 | 0.01:41:42 |  21.19%  |  2359   |   2351   | 60%  |  52630   |   0    | 169.84MB  
+ 00:01:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:01:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:01:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:01:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(3->1)
+ 00:01:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(3->2)
+ 00:01:35 | 00:05:11 | 0.01:52:16 |  23.39%  |  2603   |   2599   | 60%  |  57807   |   0    | 169.76MB  
+ 00:01:37 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:01:38 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:01:40 | 00:04:56 | 0.02:00:55 |  25.19%  |  2803   |   2800   | 60%  |  62584   |   0    | 169.61MB  
+ 00:01:40 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:01:42 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(56->50)
+ 00:01:42 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(56->50)
+ 00:01:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(24->17)
+ 00:01:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(24->18)
+ 00:01:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(24->18)
+ 00:01:45 | 00:04:46 | 0.02:08:43 |  26.82%  |  2986   |   2982   | 60%  |  67004   |   0    | 169.48MB  
+ 00:01:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->56)
+ 00:01:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->56)
+ 00:01:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->56)
+ 00:01:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->56)
+ 00:01:50 | 00:04:48 | 0.02:12:27 |  27.59%  |  3072   |   3069   | 60%  |  69195   |   0    | 170.09MB  
+ 00:01:50 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(9->8)
+ 00:01:54 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent28(42->34)
+ 00:01:54 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent28(42->34)
+ 00:01:54 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent28(42->34)
+ 00:01:55 | 00:04:32 | 0.02:22:21 |  29.66%  |  3302   |   3300   | 60%  |  74789   |   0    | 169.71MB  
+ 00:01:59 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:01:59 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(58->57)
+ 00:02:00 | 00:04:23 | 0.02:30:06 |  31.27%  |  3483   |   3481   | 60%  |  78877   |   0    | 170.41MB  
+ 00:02:01 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(8->7)
+ 00:02:01 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(8->7)
+ 00:02:01 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:02:02 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->2)
+ 00:02:04 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->2)
+ 00:02:04 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->2)
+ 00:02:05 | 00:04:14 | 0.02:38:07 |  32.94%  |  3665   |   3668   | 60%  |  83664   |   0    | 171.65MB  
+ 00:02:10 | 00:03:59 | 0.02:48:49 |  35.17%  |  3916   |   3920   | 60%  |  89496   |   0    | 169.26MB  
+ 00:02:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(8->1)
+ 00:02:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(8->2)
+ 00:02:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:02:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:02:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:02:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:02:15 | 00:03:51 | 0.02:56:55 |  36.86%  |  4106   |   4109   | 60%  |  93965   |   0    | 170.38MB  
+ 00:02:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(56->55)
+ 00:02:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(41->40)
+ 00:02:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(41->40)
+ 00:02:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:02:20 | 00:03:34 | 0.03:09:25 |  39.46%  |  4397   |   4401   | 60%  |  100459  |   0    | 169.65MB  
+ 00:02:23 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(56->55)
+ 00:02:25 | 00:03:21 | 0.03:21:04 |  41.89%  |  4671   |   4676   | 60%  |  106721  |   0    | 170.25MB  
+ 00:02:30 | 00:03:11 | 0.03:31:01 |  43.96%  |  4901   |   4909   | 60%  |  112304  |   0    | 171.35MB  
+ 00:02:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(41->40)
+ 00:02:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(41->40)
+ 00:02:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->50)
+ 00:02:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->50)
+ 00:02:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(3->2)
+ 00:02:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->39)
+ 00:02:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->39)
+ 00:02:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->40)
+ 00:02:35 | 00:02:57 | 0.03:43:32 |  46.57%  |  5196   |   5204   | 60%  |  118946  |   0    | 171.46MB  
+ 00:02:36 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:02:36 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:02:37 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(40->39)
+ 00:02:40 | 00:02:50 | 0.03:52:42 |  48.48%  |  5405   |   5417   | 60%  |  124368  |   0    | 169.95MB  
+ 00:02:45 | 00:02:47 | 0.03:58:03 |  49.59%  |  5530   |   5544   | 60%  |  127346  |   0    | 170.94MB  
+ 00:02:50 | 00:02:40 | 0.04:06:59 |  51.46%  |  5738   |   5753   | 60%  |  132233  |   0    | 171.86MB  
+ 00:02:51 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:02:55 | 00:02:33 | 0.04:15:32 |  53.24%  |  5939   |   5953   | 60%  |  137116  |   0    | 172.48MB  
+ 00:02:57 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent14(3->1)
+ 00:02:57 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent14(3->1)
+ 00:02:57 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent14(3->2)
+ 00:03:00 | 00:02:24 | 0.04:26:33 |  55.53%  |  6194   |   6212   | 60%  |  142657  |   0    | 171.86MB  
+ 00:03:00 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(2->1)
+ 00:03:00 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(2->1)
+ 00:03:05 | 00:02:17 | 0.04:35:33 |  57.41%  |  6406   |   6421   | 60%  |  147512  |   0    | 171.62MB  
+ 00:03:05 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(9->8)
+ 00:03:10 | 00:02:07 | 0.04:47:30 |  59.90%  |  6685   |   6702   | 60%  |  153742  |   0    | 172.12MB  
+ 00:03:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(8->1)
+ 00:03:15 | 00:01:59 | 0.04:57:33 |  61.99%  |  6915   |   6937   | 60%  |  159463  |   0    | 171.38MB  
+ 00:03:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(51->49)
+ 00:03:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(43->42)
+ 00:03:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(43->42)
+ 00:03:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(43->42)
+ 00:03:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(43->42)
+ 00:03:20 | 00:01:52 | 0.05:07:28 |  64.06%  |  7143   |   7169   | 60%  |  164543  |   0    | 171.77MB  
+ 00:03:21 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(26->25)
+ 00:03:25 | 00:01:44 | 0.05:17:58 |  66.25%  |  7388   |   7416   | 60%  |  170114  |   0    | 171.88MB  
+ 00:03:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->1)
+ 00:03:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->2)
+ 00:03:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->2)
+ 00:03:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(3->2)
+ 00:03:30 | 00:01:38 | 0.05:26:20 |  67.99%  |  7584   |   7613   | 60%  |  175165  |   0    | 171.23MB  
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->34)
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->34)
+ 00:03:30 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->35)
+ 00:03:31 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent29(57->50)
+ 00:03:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:03:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:03:35 | 00:01:32 | 0.05:35:13 |  69.84%  |  7787   |   7820   | 60%  |  180084  |   0    | 171.27MB  
+ 00:03:35 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(40->34)
+ 00:03:36 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(9->2)
+ 00:03:39 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(41->40)
+ 00:03:39 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(41->40)
+ 00:03:39 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent30(41->40)
+ 00:03:40 | 00:01:23 | 0.05:48:09 |  72.53%  |  8085   |   8124   | 60%  |  186558  |   0    | 171.30MB  
+ 00:03:44 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:03:44 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:03:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:03:45 | 00:01:16 | 0.05:58:16 |  74.64%  |  8323   |   8360   | 60%  |  191832  |   0    | 172.50MB  
+ 00:03:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(25->24)
+ 00:03:46 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(42->41)
+ 00:03:46 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(42->41)
+ 00:03:46 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(42->41)
+ 00:03:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:03:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:03:47 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:03:50 | 00:01:08 | 0.06:10:01 |  77.09%  |  8596   |   8635   | 60%  |  198337  |   0    | 172.45MB  
+ 00:03:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:03:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:03:54 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(9->8)
+ 00:03:55 | 00:01:02 | 0.06:18:48 |  78.92%  |  8802   |   8841   | 60%  |  203122  |   0    | 172.72MB  
+ 00:03:58 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(26->25)
+ 00:03:58 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(26->25)
+ 00:03:58 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(3->1)
+ 00:03:58 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(3->1)
+ 00:04:00 | 00:00:58 | 0.06:25:40 |  80.35%  |  8960   |   9000   | 60%  |  207277  |   0    | 172.75MB  
+ 00:04:00 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:04:01 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:04:04 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(9->8)
+ 00:04:05 | 00:00:52 | 0.06:35:46 |  82.45%  |  9194   |   9236   | 60%  |  212808  |   0    | 173.13MB  
+ 00:04:10 | 00:00:45 | 0.06:46:07 |  84.61%  |  9435   |   9480   | 60%  |  218659  |   0    | 172.49MB  
+ 00:04:11 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->2)
+ 00:04:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:04:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(25->24)
+ 00:04:13 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:04:14 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent19(2->1)
+ 00:04:15 | 00:00:38 | 0.06:57:07 |  86.90%  |  9692   |   9737   | 60%  |  224507  |   0    | 172.66MB  
+ 00:04:20 | 00:00:35 | 0.07:02:30 |  88.02%  |  9817   |   9863   | 60%  |  227437  |   0    | 172.90MB  
+ 00:04:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->56)
+ 00:04:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->56)
+ 00:04:25 | 00:00:30 | 0.07:11:10 |  89.83%  |  10018  |  10068   | 60%  |  232189  |   0    | 173.23MB  
+ 00:04:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(8->1)
+ 00:04:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(8->1)
+ 00:04:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(8->2)
+ 00:04:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(57->56)
+ 00:04:30 | 00:00:23 | 0.07:21:27 |  91.97%  |  10257  |  10309   | 60%  |  238042  |   0    | 173.11MB  
+ 00:04:33 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:04:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(51->48)
+ 00:04:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(51->48)
+ 00:04:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(51->49)
+ 00:04:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(51->49)
+ 00:04:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(51->49)
+ 00:04:35 | 00:00:17 | 0.07:30:46 |  93.91%  |  10470  |  10527   | 60%  |  243083  |   0    | 172.92MB  
+ 00:04:38 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(3->2)
+ 00:04:40 | 00:00:12 | 0.07:39:07 |  95.65%  |  10666  |  10721   | 60%  |  247738  |   0    | 172.93MB  
+ 00:04:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(25->24)
+ 00:04:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(9->8)
+ 00:04:45 | 00:00:06 | 0.07:49:27 |  97.80%  |  10907  |  10964   | 60%  |  252994  |   0    | 172.83MB  
+ 00:04:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(59->50)
+ 00:04:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(59->50)
+ 00:04:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(59->50)
+ 00:04:45 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(59->50)
+ 00:04:50 | 00:00:01 | 0.07:57:56 |  99.57%  |  11105  |  11165   | 60%  |  257662  |   0    | 172.84MB  
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->40)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->33)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->34)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent21(41->35)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->17)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->17)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->17)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->18)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->18)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent26(19->18)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent24(19->18)
+ 00:04:53 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent27(9->8)
+ 00:04:53 | 00:00:00 | 0.08:00:00 | 100.00%  |  11150  |  11211   | 60%  |  258868  |   0    | 173.47MB  
+ 00:04:53 | >>> Simulation finished - writing results ...
+ 00:04:54 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.0146688973282685
+StatTimingPathPlanningOverall: 231.69523330000095
+StatTimingPathPlanningCount: 15795
+StatTimingTaskAllocationAverage: 0.0014443020672494002
+StatTimingTaskAllocationOverall: 22.63654629999985
+StatTimingTaskAllocationCount: 15673
+StatTimingItemStorageAverage: 3.6261544011545985E-06
+StatTimingItemStorageOverall: 0.04020680000000219
+StatTimingItemStorageCount: 11088
+StatTimingPodStorageAverage: 0.0019812602154047044
+StatTimingPodStorageOverall: 6.070581300000015
+StatTimingPodStorageCount: 3064
+StatTimingReplenishmentBatchingAverage: 8.289489001112745E-06
+StatTimingReplenishmentBatchingOverall: 0.0968461000000002
+StatTimingReplenishmentBatchingCount: 11683
+StatTimingOrderBatchingAverage: 0.00010915119231654915
+StatTimingOrderBatchingOverall: 3.3185237000000436
+StatTimingOrderBatchingCount: 30403
+>>> Overall
+StatOverallBundlesPlaced: 15192
+StatOverallItemsOrdered: 11194
+StatOverallOrdersPlaced: 11194
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 11211
+StatOverallItemsHandled: 11154
+StatOverallLinesHandled: 11154
+StatOverallOrdersHandled: 11150
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 258868.3816529483
+StatOverallDistanceEstimated: 238403
+StatOverallAssignedTasks: 15673
+StatMaxMemoryUsed: 176.265625
+StatRealTimeUsed: 293.8953037
+StatAverageTurnoverTime: 367.8485341089252
+StatMedianTurnoverTime: 220.13602531605284
+StatLowerQuartileTurnoverTime: 122.59444844261816
+StatUpperQuartileTurnoverTime: 496.1458526580809
+StatAverageThroughputTime: 114.15438252904427
+StatMedianThroughputTime: 117.16659871668708
+StatLowerQuartileThroughputTime: 81.13509539831102
+StatUpperQuartileThroughputTime: 141.8704401472387
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 19829.945512980634
+StatEnergyE1AccelKJ: 5435.767186499976
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 9708.865880000005
+StatEnergyE4RotationKJ: 3861.996668702828
+StatEnergyE5LiftLowerKJ: 823.315777777778
+StatEnergyPerOrderKJ: 1.7784704495946757
+StatEnergyPerMeterJoule: 76.5794625635485
+StatDistanceTraveledRizqiM: 258946
+>>> Motion Behavior
+StatTurningCount: 32668
+StatStopAndGoCount: 44264
+StatLoadedDistanceM: 174986
+StatLoadedTurningCount: 24021
+StatWaitTimeSec: 604922.6636709487
+StatMoveEnergyEmptyKJ: 4313.404574999999
+StatMoveTimeEmptySec: 83190.10695741617
+StatTurnEnergyEmptyKJ: 887.9735188125466
+StatTurnTimeEmptySec: 5822.736277039383
+StatMoveEnergyLoadedKJ: 10831.228491499984
+StatMoveTimeLoadedSec: 204739.24979846049
+StatTurnEnergyLoadedKJ: 2974.0231498903036
+StatTurnTimeLoadedSec: 15209.951919088557
+StatPrefEmptyW: 58.43401811255894
+StatPrefLoadedW: 62.76563649054977
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

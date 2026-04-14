@@ -9,7 +9,7 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
     public static class EnergyModel
     {
         public static double GRAVITY = 9.8;
-        public static double FRICTION = 0.02;
+        public static double FRICTION = 0.01;
         public static double INERTIA = 0.15;
         public static double ROBOT_MASS = 300.0;
         public static double ROBOT_WIDTH = 0.6;
@@ -17,11 +17,14 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         public static double ROBOT_RADIUS = 0.3;
 
         /// <summary>
-        /// Wait energy. First version: coefficient = 0 (idle consumes negligible energy).
-        /// Interface kept for future refinement.
+        /// Standby (idle) power from literature: 43.27 W.
+        /// E_wait = P_idle × waitDuration [J].
+        /// Independent of mass (control system / motor standby draw).
         /// </summary>
+        public static double P_IDLE = 43.27;
+
         public static double ComputeWaitEnergy(double mTotal, double waitDuration)
-            => 0.0;
+            => P_IDLE * waitDuration;
 
         /// <summary>
         /// Real transition cost (E1+E2+E3) — mirrors EnergyConsumption.ComputeSegmentEnergy.

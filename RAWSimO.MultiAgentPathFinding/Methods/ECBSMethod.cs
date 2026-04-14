@@ -24,9 +24,15 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         public ECBSSearchMethod SearchMethod = ECBSSearchMethod.BestFirst;
 
         /// <summary>
-        /// Weight for energy in the low-level A* search ordering.
+        /// Dimensionless energy preference weight. gPrime = T + Lambda * (E / PRef).
+        /// Lambda=0 → pure time-optimal. Lambda=1 → 1 J costs as much as 1/PRef seconds.
         /// </summary>
-        public double EnergyWeight = 0.0;
+        public double Lambda = 0.0;
+
+        /// <summary>
+        /// Reference power [W] for energy-to-time conversion. Default 300 W (typical AGV cruise power).
+        /// </summary>
+        public double PRef = 300.0;
 
         /// <summary>
         /// The reservation table for finding a way through constraints
@@ -263,7 +269,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             //We can use WHCA Star here in a low level approach.
             //Window = Infinitively long
             var rraStar = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
-            var aStar = new ESpaceTimeAStar(Graph, LengthOfAWaitStep, double.PositiveInfinity, _reservationTable, agent, rraStar, energyWeight: EnergyWeight);
+            var aStar = new ESpaceTimeAStar(Graph, LengthOfAWaitStep, double.PositiveInfinity, _reservationTable, agent, rraStar, lambda: Lambda, pRef: PRef);
 
             //execute
             var found = aStar.Search();

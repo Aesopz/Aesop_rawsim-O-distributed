@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
 {
-    // NOTE:
-    // g(node) remains pure time for compatibility with reservation-based logic.
-    // Weighted search ordering is driven by gPrime(node) = time + alpha * energy.
-
     /// <summary>
     /// Energy-aware Space-Time A* (based on WHCA*)
     /// </summary>
@@ -78,21 +74,6 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         public Dictionary<int, double> BiasedCost;
 
         /// <summary>
-        /// Cumulative energy cost per generated node.
-        /// </summary>
-        public List<double> NodeEnergy;
-
-        /// <summary>
-        /// Temporary energy cost buffer (parallel to NodeTimeTemp).
-        /// </summary>
-        public List<double> NodeEnergyTemp;
-
-        /// <summary>
-        /// Weight for energy in the search ordering: f = time + _energyWeight * energy.
-        /// </summary>
-        private double _energyWeight;
-
-        /// <summary>
         /// Class is initiated.
         /// </summary>
         protected bool _init = false;
@@ -148,9 +129,15 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         public bool FinalReservation = false;
 
         /// <summary>
+        /// Aesop ECBS needed
+        /// </summary>
+        public List<double> NodeEnergy;
+        public List<double> NodeEnergyTemp;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ESpaceTimeAStar"/> class.
         /// </summary>
-        public ESpaceTimeAStar(Graph graph, double lengthOfAWaitStep, double lengthOfAWindow, ReservationTable reservationTable, Agent agent, ReverseResumableAStar rraStar, bool tieBreaking = true, double energyWeight = 0.0)
+        public ESpaceTimeAStar(Graph graph, double lengthOfAWaitStep, double lengthOfAWindow, ReservationTable reservationTable, Agent agent, ReverseResumableAStar rraStar, bool tieBreaking = true, double lambda = 0.0, double pRef = 1.0)
             : base(0, -1)
         {
             this._graph = graph;
@@ -160,28 +147,51 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
             this._agent = agent;
             this._RRAStar = rraStar;
             this._tieBreaking = tieBreaking;
-            this._energyWeight = energyWeight;
 
             //built mappings
+            //NodeTime = new List<double>();
+            //NodeBackpointerId = new List<int>();
+            //NodeBackpointerLastStopId = new List<int>();
+            //NodeBackpointerEdge = new List<Edge>();
+            //NodeTimeTemp = new List<double>();
+            //NodeBackpointerIdTemp = new List<int>();
+            //NodeBackpointerLastTurnIdTemp = new List<int>();
+            //NodeBackpointerEdgeTemp = new List<Edge>();
+
+            //aesop changed
             NodeTime = new List<double>();
+            NodeEnergy = new List<double>();
+
             NodeBackpointerId = new List<int>();
             NodeBackpointerLastStopId = new List<int>();
             NodeBackpointerEdge = new List<Edge>();
+
             NodeTimeTemp = new List<double>();
+            NodeEnergyTemp = new List<double>();
+
             NodeBackpointerIdTemp = new List<int>();
             NodeBackpointerLastTurnIdTemp = new List<int>();
             NodeBackpointerEdgeTemp = new List<Edge>();
-            NodeEnergy = new List<double>();
-            NodeEnergyTemp = new List<double>();
+            //aesop changed
 
             StartAngle = Graph.RadToDegree(agent.OrientationAtNextNode);
 
+            //NodeTime.Add(agent.ArrivalTimeAtNextNode);
+            //NodeBackpointerId.Add(-1);
+            //NodeBackpointerLastStopId.Add(0);
+            //NodeBackpointerEdge.Add(null);
+            //_numNodeId++;
+
+            //aesop changed
             NodeTime.Add(agent.ArrivalTimeAtNextNode);
+            NodeEnergy.Add(0.0);
+
             NodeBackpointerId.Add(-1);
             NodeBackpointerLastStopId.Add(0);
             NodeBackpointerEdge.Add(null);
-            NodeEnergy.Add(0.0);
+
             _numNodeId++;
+            //aesop changed
 
             _init = true;
 
@@ -217,51 +227,41 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         /// <returns>
         /// h value
         /// </returns>
+        //public override double h(int node)
+        //{
+        //    if (!_init)
+        //        return 0;
+
+        //    var node2d = NodeTo2D(node);
+
+        //    //already found in RRA*?
+        //    if (_RRAStar.Closed.Contains(node2d))
+        //        return
+        //            // Costs obtained by RRA*
+        //            _RRAStar.g(node2d) +
+        //            // Costs for turning
+        //            ((node2d == _RRAStar.StartNode) ? 0 : _agent.Physics.getTimeNeededToTurn(Graph.DegreeToRad(GetLastStopAngleAfterTurn(node)), Graph.DegreeToRad(_RRAStar.getAngle(node2d)))) +
+        //            // Biased costs
+        //            ((this.BiasedCost == null || !this.BiasedCost.ContainsKey(node2d)) ? 0 : this.BiasedCost[node2d]);
+        //    //find RRA* solution
+        //    if (_RRAStar.Search(node2d))
+        //        return
+        //            // Costs obtained by RRA*
+        //            _RRAStar.g(node2d) +
+        //            // Costs for turning
+        //            ((node2d == _RRAStar.StartNode) ? 0 : _agent.Physics.getTimeNeededToTurn(Graph.DegreeToRad(GetLastStopAngleAfterTurn(node)), Graph.DegreeToRad(_RRAStar.getAngle(node2d)))) +
+        //            // Biased costs
+        //            ((this.BiasedCost == null || !this.BiasedCost.ContainsKey(node2d)) ? 0 : this.BiasedCost[node2d]);
+        //    // No solution
+        //    return double.PositiveInfinity;
+        //} 測試完改回來
+
+        //aesop changed
         public override double h(int node)
         {
-            if (!_init)
-                return 0;
-
-            var node2d = NodeTo2D(node);
-
-            // Energy heuristic lower bound (admissible)
-            double energyH = 0.0;
-
-            //already found in RRA*?
-            if (_RRAStar.Closed.Contains(node2d))
-            {
-                if (_energyWeight > 0.0)
-                    energyH = _energyWeight * EnergyModel.ComputeMoveEnergyLowerBound(
-                        _agent.CurrentEnergyState.TotalWeight, _RRAStar.g(node2d));
-                return
-                    // Costs obtained by RRA*
-                    _RRAStar.g(node2d) +
-                    // Costs for turning
-                    ((node2d == _RRAStar.StartNode) ? 0 : _agent.Physics.getTimeNeededToTurn(Graph.DegreeToRad(GetLastStopAngleAfterTurn(node)), Graph.DegreeToRad(_RRAStar.getAngle(node2d)))) +
-                    // Biased costs
-                    ((this.BiasedCost == null || !this.BiasedCost.ContainsKey(node2d)) ? 0 : this.BiasedCost[node2d]) +
-                    // Energy heuristic
-                    energyH;
-            }
-            //find RRA* solution
-            if (_RRAStar.Search(node2d))
-            {
-                if (_energyWeight > 0.0)
-                    energyH = _energyWeight * EnergyModel.ComputeMoveEnergyLowerBound(
-                        _agent.CurrentEnergyState.TotalWeight, _RRAStar.g(node2d));
-                return
-                    // Costs obtained by RRA*
-                    _RRAStar.g(node2d) +
-                    // Costs for turning
-                    ((node2d == _RRAStar.StartNode) ? 0 : _agent.Physics.getTimeNeededToTurn(Graph.DegreeToRad(GetLastStopAngleAfterTurn(node)), Graph.DegreeToRad(_RRAStar.getAngle(node2d)))) +
-                    // Biased costs
-                    ((this.BiasedCost == null || !this.BiasedCost.ContainsKey(node2d)) ? 0 : this.BiasedCost[node2d]) +
-                    // Energy heuristic
-                    energyH;
-            }
-            // No solution
-            return double.PositiveInfinity;
+            return 0.0;
         }
+        //aesop changed
 
         /// <summary>
         /// g value for the node
@@ -270,11 +270,17 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         /// <returns>
         /// g value
         /// </returns>
+        //public override double g(int node)
+        //{
+        //    return NodeTime[node];
+        //}
+
+        //aesop changed
         public override double g(int node)
         {
             return NodeTime[node];
         }
-
+        //aesop changed
 
         /// <summary>
         /// g value for the node, if the backpointer would come from parent
@@ -285,11 +291,18 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         /// g value
         /// </returns>
         /// <exception cref="System.NotImplementedException"></exception>
+        //public override double gPrime(int parent, int node)
+        //{
+        //    //no parent discarding possible
+        //    return NodeTime[node];
+        //}
+
+        //aesop changed
         public override double gPrime(int parent, int node)
         {
-            //no parent discarding possible
-            return NodeTime[node] + _energyWeight * NodeEnergy[node];
+            return NodeEnergy[node];
         }
+        //aesop changed
 
         /// <summary>
         /// Condition to stop searching.
@@ -355,11 +368,10 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                 //add successor
                 successorGenerated = true;
                 NodeTime.Add(NodeTime[n] + _lengthOfAWaitStep);
+                NodeEnergy.Add(NodeEnergy[n] + EnergyModel.ComputeWaitEnergy(0, _lengthOfAWaitStep));
                 NodeBackpointerId.Add(n);
                 NodeBackpointerLastStopId.Add(_numNodeId);
                 NodeBackpointerEdge.Add(null);
-                NodeEnergy.Add(NodeEnergy[n] + EnergyModel.ComputeWaitEnergy(
-                    _agent.CurrentEnergyState.TotalWeight, _lengthOfAWaitStep));
                 yield return _numNodeId;
                 _numNodeId++;
             }
@@ -386,10 +398,10 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
 
                 //clear temporary data structures
                 NodeTimeTemp.Clear();
+                NodeEnergyTemp.Clear();
                 NodeBackpointerIdTemp.Clear();
                 NodeBackpointerLastTurnIdTemp.Clear();
                 NodeBackpointerEdgeTemp.Clear();
-                NodeEnergyTemp.Clear();
 
                 //initiate checkpoints
                 checkPointTimes = null;
@@ -474,25 +486,26 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                             //check if driving action is collision free
                             pathFree = _reservationTable.IntersectionFree(checkPointNodes, checkPointTimes, false);
 
+                            // Energy calculation
+                            double mTotal = _agent.CurrentEnergyState.TotalWeight;
+                            double turnE = 0.0;
+                            if (lastStopId == n)
+                            {
+                                double turnRad = Math.Abs(Graph.DegreeToRad(lastStopAngleAfterTurn) - Graph.DegreeToRad(direction.Angle));
+                                if (turnRad > Math.PI) turnRad = 2.0 * Math.PI - turnRad;
+                                if (turnRad > 0.0)
+                                    turnE = EnergyModel.ComputeTurnEnergy(mTotal, turnRad, _agent.Physics.TurnSpeed);
+                            }
+                            double moveE = EnergyModel.ComputeMoveEnergy(mTotal,
+                                _agent.Physics.Acceleration, _agent.Physics.Deceleration,
+                                _agent.Physics.MaxSpeed, driveDistance);
+
                             //add node to temp => will be added, if a valid successor will be found
                             NodeTimeTemp.Add(NodeTime[lastStopId] + timeToTurn + timeToMove);
+                            NodeEnergyTemp.Add(NodeEnergy[n] + turnE + moveE);
                             NodeBackpointerIdTemp.Add(backpointerNode);
                             NodeBackpointerLastTurnIdTemp.Add(lastStopId);
                             NodeBackpointerEdgeTemp.Add(edge);
-
-                            // Energy tracking for move successor
-                            {
-                                double mTotal = _agent.CurrentEnergyState.TotalWeight;
-                                short lastStopAngleBeforeTurnE = GetLastStopAngleAfterTurn(lastStopId);
-                                double turnRad = Math.Abs(Graph.DegreeToRad(direction.Angle) - Graph.DegreeToRad(lastStopAngleBeforeTurnE));
-                                if (turnRad > Math.PI) turnRad = 2.0 * Math.PI - turnRad;
-                                double turnE = (lastStopId == n && turnRad < 0.01) ? 0.0
-                                    : (turnRad < 0.01 ? 0.0 : EnergyModel.ComputeTurnEnergy(mTotal, turnRad, _agent.Physics.TurnSpeed));
-                                double moveE = EnergyModel.ComputeMoveEnergy(mTotal,
-                                    _agent.Physics.Acceleration, _agent.Physics.Deceleration,
-                                    _agent.Physics.MaxSpeed, driveDistance);
-                                NodeEnergyTemp.Add(NodeEnergy[lastStopId] + turnE + moveE);
-                            }
 
                             if (pathFree)
                             {
@@ -502,10 +515,10 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
 
                                 //add temporary successors
                                 NodeTime.AddRange(NodeTimeTemp);
+                                NodeEnergy.AddRange(NodeEnergyTemp);
                                 NodeBackpointerId.AddRange(NodeBackpointerIdTemp);
                                 NodeBackpointerLastStopId.AddRange(NodeBackpointerLastTurnIdTemp);
                                 NodeBackpointerEdge.AddRange(NodeBackpointerEdgeTemp);
-                                NodeEnergy.AddRange(NodeEnergyTemp);
 
                                 // Return it
                                 yield return succ;

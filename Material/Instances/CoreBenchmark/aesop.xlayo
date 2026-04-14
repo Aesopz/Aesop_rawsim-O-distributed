@@ -13,11 +13,11 @@
   <Seed>0</Seed>
   <TierCount>1</TierCount>
   <TierHeight>4</TierHeight>
-  <BotCount>35</BotCount>
+  <BotCount>26</BotCount>
   <BotRadius>0.35</BotRadius>
   <MaxAcceleration>1</MaxAcceleration>
   <MaxDeceleration>1</MaxDeceleration>
-  <MaxVelocity>1.5</MaxVelocity>
+  <MaxVelocity>1.372</MaxVelocity>
   <TurnSpeed>2.5</TurnSpeed>
   <CollisionPenaltyTime>0.5</CollisionPenaltyTime>
   <PodTransferTime>4</PodTransferTime>

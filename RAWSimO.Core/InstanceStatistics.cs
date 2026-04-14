@@ -132,6 +132,15 @@ namespace RAWSimO.Core
         public int StatOverallLoadedTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedTurningCount); } }
         /// <summary>Total wait time across all bots (stationary, not rotating) [s].</summary>
         public double StatOverallWaitTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeSec); } }
+        // ── Pref calibration: event-level 8-accumulator aggregation ───────────────
+        public double StatOverallMoveEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveEnergyEmptyJ); } }
+        public double StatOverallMoveTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeEmptySec); } }
+        public double StatOverallTurnEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnEnergyEmptyJ); } }
+        public double StatOverallTurnTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnTimeEmptySec); } }
+        public double StatOverallMoveEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveEnergyLoadedJ); } }
+        public double StatOverallMoveTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeLoadedSec); } }
+        public double StatOverallTurnEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnEnergyLoadedJ); } }
+        public double StatOverallTurnTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnTimeLoadedSec); } }
         /// <summary>
         /// The estimated distance by the bots.
         /// </summary>
@@ -1047,6 +1056,22 @@ namespace RAWSimO.Core
             sb.AppendLine("StatLoadedDistanceM: " + StatOverallLoadedDistanceM.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatLoadedTurningCount: " + StatOverallLoadedTurningCount);
             sb.AppendLine("StatWaitTimeSec: " + StatOverallWaitTimeSec.ToString(IOConstants.FORMATTER));
+            // ── Pref calibration output (event-level, move/turn split) ───────────
+            sb.AppendLine("StatMoveEnergyEmptyKJ: "  + (StatOverallMoveEnergyEmptyJ  / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveTimeEmptySec: "   + StatOverallMoveTimeEmptySec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnEnergyEmptyKJ: "  + (StatOverallTurnEnergyEmptyJ  / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnTimeEmptySec: "   + StatOverallTurnTimeEmptySec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveEnergyLoadedKJ: " + (StatOverallMoveEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveTimeLoadedSec: "  + StatOverallMoveTimeLoadedSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnEnergyLoadedKJ: " + (StatOverallTurnEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnTimeLoadedSec: "  + StatOverallTurnTimeLoadedSec.ToString(IOConstants.FORMATTER));
+            // Pref = (moveE + turnE) / (moveT + turnT)  — power during active motion only
+            double prefEmpty  = (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  > 0
+                ? (StatOverallMoveEnergyEmptyJ  + StatOverallTurnEnergyEmptyJ)  / (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  : 0.0;
+            double prefLoaded = (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) > 0
+                ? (StatOverallMoveEnergyLoadedJ + StatOverallTurnEnergyLoadedJ) / (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) : 0.0;
+            sb.AppendLine("StatPrefEmptyW: "  + prefEmpty.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatPrefLoadedW: " + prefLoaded.ToString(IOConstants.FORMATTER));
             // Write output
             writer(sb.ToString());
         }

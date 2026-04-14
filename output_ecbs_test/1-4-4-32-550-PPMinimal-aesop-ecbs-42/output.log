@@ -1,0 +1,76 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/13/2026 23:34:24
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-ecbs.xconf
+StatisticsDir: output_ecbs_test/
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: 1-4-4-32-550-PPMinimal-aesop-ecbs-42
+Done!
+Executing ... 
+ 23:34:25 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 60%  |    0     |   0    | 123.09MB  
+ 00:00:05 | 01:46:54 | 0.00:00:22 |  0.08%   |    0    |    0     | 60%  |   504    |   0    | 170.32MB  
+ 00:00:06 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(19->18)
+ 00:00:06 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(19->18)
+ 00:00:10 | 02:14:29 | 0.00:00:35 |  0.12%   |    0    |    0     | 60%  |   821    |   0    | 178.78MB  
+ 00:00:15 | 02:55:38 | 0.00:00:40 |  0.14%   |    0    |    0     | 60%  |   939    |   0    | 187.54MB  
+ 00:00:20 | 03:17:34 | 0.00:00:48 |  0.17%   |    2    |    0     | 60%  |   1085   |   0    | 185.40MB  
+ 00:00:23 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(41->40)
+ 00:00:23 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(41->40)
+ 00:00:23 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(17->16)
+ 00:00:23 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(17->16)
+ 00:00:24 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent4(9->8)
+ 00:00:25 | 01:00:34 | 0.00:03:16 |  0.68%   |   58    |    49    | 60%  |   2411   |   0    | 184.80MB  
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(56->55)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(56->55)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(8->7)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent4(8->7)
+ 00:00:29 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:00:29 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:00:29 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:00:30 | 00:18:00 | 0.00:12:58 |  2.70%   |   287   |   275    | 60%  |   6268   |   0    | 185.43MB  
+ 00:00:31 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(42->34)
+ 00:00:31 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(42->34)
+ 00:00:31 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(42->34)
+ 00:00:35 | 00:11:34 | 0.00:23:02 |  4.80%   |   524   |   511    | 60%  |  10772   |   0    | 186.25MB  
+ 00:00:37 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent7(56->55)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(3->1)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent28(41->40)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent28(41->40)
+ 00:00:40 | 00:09:17 | 0.00:32:07 |  6.69%   |   736   |   725    | 60%  |  15238   |   0    | 185.64MB  
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent28(41->40)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(40->37)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(40->38)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(40->38)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent16(57->56)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(18->17)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(18->17)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(18->17)
+ 00:00:45 | 00:07:42 | 0.00:42:31 |  8.86%   |   982   |   968    | 60%  |  20505   |   0    | 186.68MB  
+ 00:00:45 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent7(57->56)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(25->24)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(3->0)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(3->0)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(3->1)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(3->2)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(57->56)
+ 00:00:46 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(25->24),Agent28(40->38)
+ 00:00:50 | 00:06:46 | 0.00:52:35 |  10.96%  |  1217   |   1203   | 60%  |  25760   |   0    | 185.71MB  
+ 00:00:50 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent2(25->24)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(3->2)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(3->2)
+ 00:00:55 | 00:06:06 | 0.01:02:37 |  13.05%  |  1453   |   1437   | 60%  |  31169   |   0    | 186.63MB  

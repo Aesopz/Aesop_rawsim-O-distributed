@@ -19,7 +19,7 @@ namespace RAWSimO.Core.Metrics
         public static double GRAVITY = 9.8;
 
         /// <summary>Rolling friction coefficient (straight-line movement).</summary>
-        public static double FRICTION = 0.02;
+        public static double FRICTION = 0.01;
 
         /// <summary>Drivetrain inertia equivalent coefficient (rotational → translational).</summary>
         public static double INERTIA = 0.15;
@@ -154,24 +154,27 @@ namespace RAWSimO.Core.Metrics
         /// <param name="thetaRad">Actual rotation angle [radians].</param>
         /// <param name="turnSpeed">Seconds for a full 360° rotation [s] (from xinst Bot.TurnSpeed).</param>
         /// <returns>Rotation energy [J].</returns>
-        public static double E4_Rotation(double thetaRad, double turnSpeed)
+        /// <param name="mTotal">Total dynamic mass [kg] = ROBOT_MASS + pod load.
+        /// Use GetTotalMass(Pod) so loaded robots correctly reflect increased rotational inertia.</param>
+        public static double E4_Rotation(double thetaRad, double turnSpeed, double mTotal)
         {
-            if (thetaRad <= 0.0 || turnSpeed <= 0.0)
+            if (thetaRad <= 0.0 || turnSpeed <= 0.0 || mTotal <= 0.0)
                 return 0.0;
 
             // ω = 2π / T  where T = turnSpeed [s/rev]
             double omega = 2.0 * Math.PI / turnSpeed;
 
             // Moment of inertia for uniform rectangular body about vertical centroid axis
-            // I = (1/12)·m·(L² + W²)
-            double momentOfInertia = (1.0 / 12.0) * ROBOT_MASS
+            // I = (1/12)·mTotal·(L² + W²)
+            // mTotal includes pod mass when loaded — pod sits on robot, shifts rotational inertia.
+            double momentOfInertia = (1.0 / 12.0) * mTotal
                 * (ROBOT_LENGTH * ROBOT_LENGTH + ROBOT_WIDTH * ROBOT_WIDTH);
 
             // Kinetic energy to spin up: (1/2)·I·ω²
             double eKinetic = 0.5 * momentOfInertia * omega * omega;
 
-            // Friction energy while rotating: m·g·μ_r·r·θ
-            double eFriction = ROBOT_MASS * GRAVITY * FRICTION * ROBOT_RADIUS * thetaRad;
+            // Friction energy while rotating: mTotal·g·μ_r·r·θ
+            double eFriction = mTotal * GRAVITY * FRICTION * ROBOT_RADIUS * thetaRad;
 
             return eKinetic + eFriction;
         }

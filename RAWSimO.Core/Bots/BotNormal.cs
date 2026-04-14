@@ -123,6 +123,12 @@ namespace RAWSimO.Core.Bots
         private double _rotateDuration = -1.0;
 
         /// <summary>
+        /// True only during the tick where _updateDrive() is executing the rotation phase.
+        /// Used to distinguish actual turns from CBS waits, pickup/setdown waits, and rest waits.
+        /// </summary>
+        private bool _isRotatingThisTick = false;
+
+        /// <summary>
         /// rotate until
         /// </summary>
         private double _waitUntil = -1.0;
@@ -256,6 +262,32 @@ namespace RAWSimO.Core.Bots
         public int StatLoadedTurningCount;
         /// <summary>Total time spent waiting (not moving, not rotating) [s].</summary>
         public double StatWaitTimeSec;
+        // ── Pref calibration: event-level 8-accumulator model ─────────────────────
+        // All values accumulated at setNextWaypoint() — event-driven, not tick-delta.
+        // isLoaded = (Pod != null) at the exact moment the move/turn is committed.
+        // Empty = Pod == null (any task; no phase filter).
+        // Loaded = Pod != null (any task).
+        //
+        // move* = E1+E2+E3 drive energy / _driveDuration
+        // turn* = E4 rotation energy / _rotateDuration  (0 when no turn this segment)
+
+        /// <summary>Drive energy while empty [J].</summary>
+        public double StatMoveEnergyEmptyJ;
+        /// <summary>Drive time while empty [s].</summary>
+        public double StatMoveTimeEmptySec;
+        /// <summary>Turn energy while empty [J].</summary>
+        public double StatTurnEnergyEmptyJ;
+        /// <summary>Turn time while empty [s].</summary>
+        public double StatTurnTimeEmptySec;
+
+        /// <summary>Drive energy while loaded [J].</summary>
+        public double StatMoveEnergyLoadedJ;
+        /// <summary>Drive time while loaded [s].</summary>
+        public double StatMoveTimeLoadedSec;
+        /// <summary>Turn energy while loaded [J].</summary>
+        public double StatTurnEnergyLoadedJ;
+        /// <summary>Turn time while loaded [s].</summary>
+        public double StatTurnTimeLoadedSec;
         /// <summary>Current total dynamic mass [kg] = ROBOT_MASS + pod load (0 if no pod).</summary>
         public double CurrentTotalMassKg => RAWSimO.Core.Metrics.EnergyConsumption.GetTotalMass(Pod);
 
@@ -276,6 +308,14 @@ namespace RAWSimO.Core.Bots
             StatLoadedDistanceM = 0.0;
             StatLoadedTurningCount = 0;
             StatWaitTimeSec = 0.0;
+            StatMoveEnergyEmptyJ   = 0.0;
+            StatMoveTimeEmptySec   = 0.0;
+            StatTurnEnergyEmptyJ   = 0.0;
+            StatTurnTimeEmptySec   = 0.0;
+            StatMoveEnergyLoadedJ  = 0.0;
+            StatMoveTimeLoadedSec  = 0.0;
+            StatTurnEnergyLoadedJ  = 0.0;
+            StatTurnTimeLoadedSec  = 0.0;
         }
 
         #endregion
@@ -573,17 +613,39 @@ namespace RAWSimO.Core.Bots
                 StatEnergyE3CruiseJ += e3;
 
                 // E4: rotation energy (θ derived from rotateDuration and TurnSpeed)
+                // mTotal used here so loaded robots correctly pay heavier rotational inertia.
                 double e4 = 0.0;
                 if (_rotateDuration > 0.0 && TurnSpeed > 0.0)
                 {
                     double thetaRad = _rotateDuration / TurnSpeed * 2.0 * Math.PI;
-                    e4 = EnergyConsumption.E4_Rotation(thetaRad, TurnSpeed);
+                    e4 = EnergyConsumption.E4_Rotation(thetaRad, TurnSpeed, mTotal);
                     StatEnergyE4RotationJ += e4;
                 }
 
                 double segmentTotal = e1 + e2 + e3 + e4;
                 StatEnergyTotalJ += segmentTotal;
                 StatDistanceTraveledM += segmentDistance;
+
+                // ── Pref calibration: event-level 8-accumulator split ──────────────
+                // isLoaded judged at the instant of commitment (Pod != null at this tick).
+                // moveE = drive energy (E1+E2+E3); moveT = physical drive time.
+                // turnE = rotation energy (E4);     turnT = physical rotation time.
+                double moveE = e1 + e2 + e3;
+                double turnE = e4;
+                if (Pod != null)
+                {
+                    StatMoveEnergyLoadedJ += moveE;
+                    StatMoveTimeLoadedSec += _driveDuration;
+                    StatTurnEnergyLoadedJ += turnE;
+                    StatTurnTimeLoadedSec += _rotateDuration;
+                }
+                else
+                {
+                    StatMoveEnergyEmptyJ  += moveE;
+                    StatMoveTimeEmptySec  += _driveDuration;
+                    StatTurnEnergyEmptyJ  += turnE;
+                    StatTurnTimeEmptySec  += _rotateDuration;
+                }
 
                 // Motion behavior counters
                 StatStopAndGoCount++;
@@ -794,6 +856,8 @@ namespace RAWSimO.Core.Bots
             //wait short start time
             if (currentTime < 0.2)
                 return;
+            // Reset per-tick rotation flag; only _updateDrive sets it true when a turn is active.
+            _isRotatingThisTick = false;
             //bot is blocked
             if (this._waitUntil >= currentTime)
             {
@@ -868,6 +932,7 @@ namespace RAWSimO.Core.Bots
             if (_waitUntil + _rotateDuration >= currentTime)
             {
                 // --> First rotate
+                _isRotatingThisTick = true;  // mark: this tick is a real turn (not a wait/pickup)
                 _updateRotation(currentTime);
             }
             else
@@ -1004,10 +1069,14 @@ namespace RAWSimO.Core.Bots
             // Measure queueing time
             if (IsQueueing)
                 StatTotalTimeQueueing += delta;
-            // Measure wait time: stationary AND not rotating
-            bool isRotating = (_waitUntil + _rotateDuration) >= Instance.Controller.CurrentTime;
-            if (!Moving && !isRotating)
+            // Measure wait time: stationary AND not in a real rotation phase.
+            // _isRotatingThisTick is only set by _updateDrive(), so pickup/setdown/CBS-wait
+            // are correctly excluded from rotation and counted here as wait.
+            if (!Moving && !_isRotatingThisTick)
                 StatWaitTimeSec += delta;
+
+            // Pref time denominators are now accumulated event-by-event in setNextWaypoint()
+            // (StatMoveTimeLoadedSec, StatTurnTimeLoadedSec, etc.) — no delta-based tracking here.
 
             // Set moving flag bot
             if (XVelocity == 0.0 && YVelocity == 0.0)
