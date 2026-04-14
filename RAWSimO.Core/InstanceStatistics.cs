@@ -126,6 +126,12 @@ namespace RAWSimO.Core
         public int StatOverallOrdersCompletedByBots { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatOrdersCompleted); } }
         /// <summary>Total distance traveled by bots (Rizqi tracker) [m].</summary>
         public double StatOverallDistanceTraveledRizqi { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatDistanceTraveledM); } }
+        /// <summary>Total distance traveled while carrying a pod [m].</summary>
+        public double StatOverallLoadedDistanceM { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedDistanceM); } }
+        /// <summary>Total turning events while carrying a pod.</summary>
+        public int StatOverallLoadedTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedTurningCount); } }
+        /// <summary>Total wait time across all bots (stationary, not rotating) [s].</summary>
+        public double StatOverallWaitTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeSec); } }
         /// <summary>
         /// The estimated distance by the bots.
         /// </summary>
@@ -1038,6 +1044,9 @@ namespace RAWSimO.Core
             sb.AppendLine(">>> Motion Behavior");
             sb.AppendLine("StatTurningCount: " + StatOverallTurningCount);
             sb.AppendLine("StatStopAndGoCount: " + StatOverallStopAndGoCount);
+            sb.AppendLine("StatLoadedDistanceM: " + StatOverallLoadedDistanceM.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatLoadedTurningCount: " + StatOverallLoadedTurningCount);
+            sb.AppendLine("StatWaitTimeSec: " + StatOverallWaitTimeSec.ToString(IOConstants.FORMATTER));
             // Write output
             writer(sb.ToString());
         }

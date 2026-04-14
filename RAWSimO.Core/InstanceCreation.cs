@@ -252,6 +252,7 @@ namespace RAWSimO.Core
                 case PathPlanningMethodType.BCP:
                 case PathPlanningMethodType.OD_ID:
                 case PathPlanningMethodType.CBS:
+                case PathPlanningMethodType.ECBS:
                 case PathPlanningMethodType.PAS:
                 case PathPlanningMethodType.AgentAStar:
                 case PathPlanningMethodType.FixedRoutePriorityScheduler:

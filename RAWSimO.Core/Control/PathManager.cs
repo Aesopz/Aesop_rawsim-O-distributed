@@ -384,6 +384,12 @@ namespace RAWSimO.Core.Control
                     Queueing = bot.IsQueueing,
                     NextNodeObject = nextWaypoint,
                     DestinationNodeObject = destination,
+                    CurrentEnergyState = new RAWSimO.MultiAgentPathFinding.Elements.Agent.EnergyState
+                    {
+                        CarryingPod = bot.Pod != null,
+                        RobotWeight = (bot as RAWSimO.Core.Bots.BotNormal)?.CurrentTotalMassKg ?? RAWSimO.Core.Metrics.EnergyConsumption.ROBOT_MASS,
+                        PayloadWeight = 0.0,
+                    },
                 };
                 // Add agent
                 botAgentDictionary.Add(bot, agent);

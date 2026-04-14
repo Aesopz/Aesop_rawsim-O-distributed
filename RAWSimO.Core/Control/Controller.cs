@@ -36,6 +36,7 @@ namespace RAWSimO.Core.Control
                 case PathPlanningMethodType.FAR: PathManager = new FARPathManager(instance); break;
                 case PathPlanningMethodType.BCP: PathManager = new BCPPathManager(instance); break;
                 case PathPlanningMethodType.CBS: PathManager = new CBSPathManager(instance); break;
+                case PathPlanningMethodType.ECBS: PathManager = new ECBSPathManager(instance); break;
                 case PathPlanningMethodType.OD_ID: PathManager = new ODIDPathManager(instance); break;
                 case PathPlanningMethodType.WHCAnStar: PathManager = new WHCAnStarPathManager(instance); break;
                 case PathPlanningMethodType.PAS: PathManager = new PASPathManager(instance); break;

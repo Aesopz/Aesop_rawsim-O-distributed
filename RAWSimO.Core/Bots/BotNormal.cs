@@ -250,6 +250,12 @@ namespace RAWSimO.Core.Bots
         public int StatOrdersCompleted;
         /// <summary>Total distance traveled [m].</summary>
         public double StatDistanceTraveledM;
+        /// <summary>Distance traveled while carrying a pod [m].</summary>
+        public double StatLoadedDistanceM;
+        /// <summary>Number of turning events while carrying a pod.</summary>
+        public int StatLoadedTurningCount;
+        /// <summary>Total time spent waiting (not moving, not rotating) [s].</summary>
+        public double StatWaitTimeSec;
         /// <summary>Current total dynamic mass [kg] = ROBOT_MASS + pod load (0 if no pod).</summary>
         public double CurrentTotalMassKg => RAWSimO.Core.Metrics.EnergyConsumption.GetTotalMass(Pod);
 
@@ -267,6 +273,9 @@ namespace RAWSimO.Core.Bots
             StatStopAndGoCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
+            StatLoadedDistanceM = 0.0;
+            StatLoadedTurningCount = 0;
+            StatWaitTimeSec = 0.0;
         }
 
         #endregion
@@ -579,6 +588,12 @@ namespace RAWSimO.Core.Bots
                 // Motion behavior counters
                 StatStopAndGoCount++;
                 if (_rotateDuration > 0) StatTurningCount++;
+                // Loaded-specific counters
+                if (Pod != null)
+                {
+                    StatLoadedDistanceM += segmentDistance;
+                    if (_rotateDuration > 0) StatLoadedTurningCount++;
+                }
 
                 return true;
 
@@ -989,6 +1004,10 @@ namespace RAWSimO.Core.Bots
             // Measure queueing time
             if (IsQueueing)
                 StatTotalTimeQueueing += delta;
+            // Measure wait time: stationary AND not rotating
+            bool isRotating = (_waitUntil + _rotateDuration) >= Instance.Controller.CurrentTime;
+            if (!Moving && !isRotating)
+                StatWaitTimeSec += delta;
 
             // Set moving flag bot
             if (XVelocity == 0.0 && YVelocity == 0.0)

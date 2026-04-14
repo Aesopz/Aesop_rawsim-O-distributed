@@ -80,6 +80,11 @@ namespace RAWSimO.Core.Configurations
         CBS,
 
         /// <summary>
+        /// Energy-aware Conflict-based Search (ECBS)
+        /// </summary>
+        ECBS,
+
+        /// <summary>
         /// Erdmann - Parallel Multi-Agent Pathfinding
         /// </summary>
         PAS,
@@ -504,6 +509,7 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(ODIDPathPlanningConfiguration))]
     [XmlInclude(typeof(BCPPathPlanningConfiguration))]
     [XmlInclude(typeof(CBSPathPlanningConfiguration))]
+    [XmlInclude(typeof(ECBSPathPlanningConfiguration))]
     [XmlInclude(typeof(PASPathPlanningConfiguration))]
     [XmlInclude(typeof(DecentralAStarPathPlanningConfiguration))]
     [XmlInclude(typeof(FixedRoutePrioritySchedulerPathPlanningConfiguration))]

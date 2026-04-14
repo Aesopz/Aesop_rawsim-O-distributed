@@ -315,6 +315,52 @@ namespace RAWSimO.Core.Configurations
         }
     }
     /// <summary>
+    /// The configuration for the ECBS method.
+    /// </summary>
+    public class ECBSPathPlanningConfiguration : PathPlanningConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.ECBS; }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            string name = "ppECBS";
+            switch (SearchMethod)
+            {
+                case ECBSMethod.ECBSSearchMethod.BestFirst: name += "O"; break;
+                case ECBSMethod.ECBSSearchMethod.DepthFirst: name += "D"; break;
+                case ECBSMethod.ECBSSearchMethod.BreathFirst: name += "B"; break;
+                default: throw new ArgumentException("Unexpected argument!");
+            }
+            return name;
+        }
+        /// <summary>
+        /// The search method
+        /// </summary>
+        public ECBSMethod.ECBSSearchMethod SearchMethod = ECBSMethod.ECBSSearchMethod.BestFirst;
+        /// <summary>
+        /// Weight for energy in the low-level A* search ordering: f = time + EnergyWeight * energy.
+        /// 0 = pure time-optimal (original CBS behavior).
+        /// </summary>
+        public double EnergyWeight = 0.0;
+        /// <summary>
+        /// Parses the specified arguments.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        public override void Parse(string[] args)
+        {
+            base.Parse(args);
+            SearchMethod = (ECBSMethod.ECBSSearchMethod)Enum.Parse(typeof(ECBSMethod.ECBSSearchMethod), (args[2]));
+        }
+    }
+    /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
     public class BCPPathPlanningConfiguration : PathPlanningConfiguration
