@@ -47,8 +47,6 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning
             method.RuntimeLimitPerAgent = config.RuntimeLimitPerAgent;
             method.RunTimeLimitOverall = config.RunTimeLimitOverall;
             method.SearchMethod = config.SearchMethod;
-            method.Lambda = config.Lambda;
-            method.PRef   = config.PRef;
 
             if (config.AutoSetParameter)
             {

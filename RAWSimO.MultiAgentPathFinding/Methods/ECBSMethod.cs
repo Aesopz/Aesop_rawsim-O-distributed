@@ -24,17 +24,6 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         public ECBSSearchMethod SearchMethod = ECBSSearchMethod.BestFirst;
 
         /// <summary>
-        /// Dimensionless energy preference weight. gPrime = T + Lambda * (E / PRef).
-        /// Lambda=0 → pure time-optimal. Lambda=1 → 1 J costs as much as 1/PRef seconds.
-        /// </summary>
-        public double Lambda = 0.0;
-
-        /// <summary>
-        /// Reference power [W] for energy-to-time conversion. Default 300 W (typical AGV cruise power).
-        /// </summary>
-        public double PRef = 300.0;
-
-        /// <summary>
         /// The reservation table for finding a way through constraints
         /// </summary>
         private ReservationTable _reservationTable;
@@ -82,11 +71,11 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             Stopwatch.Restart();
 
             //initialization data structures
-            var conflictTree = new ConflictTree();
-            var Open = new FibonacciHeap<double, ConflictTree.Node>();
+            var conflictTree = new EnergyConflictTree();
+            var Open = new FibonacciHeap<double, EnergyConflictTree.Node>();
             var solvable = true;
             var generatedNodes = 0;
-            ConflictTree.Node bestNode = null;
+            EnergyConflictTree.Node bestNode = null;
             double bestTime = 0.0;
 
             //deadlock handling
@@ -139,7 +128,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             bestNode = conflictTree.Root;
 
             //search loop
-            ConflictTree.Node p = conflictTree.Root;
+            EnergyConflictTree.Node p = conflictTree.Root;
             while (Open.Count > 0)
             {
 
@@ -176,13 +165,13 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 }
 
                 //append child 1
-                var node1 = new ConflictTree.Node(agentId1, interval, p);
+                var node1 = new EnergyConflictTree.Node(agentId1, interval, p);
                 solvable = Solve(node1, currentTime, agents.First(a => a.ID == agentId1));
                 if (solvable)
                     Open.Enqueue(node1.SolutionCost, node1);
 
                 //append child 2
-                var node2 = new ConflictTree.Node(agentId2, interval, p);
+                var node2 = new EnergyConflictTree.Node(agentId2, interval, p);
                 solvable = Solve(node2, currentTime, agents.First(a => a.ID == agentId2));
                 if (solvable)
                     Open.Enqueue(node2.SolutionCost, node2);
@@ -200,7 +189,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             }
         }
 
-        private bool ValidatePath(ConflictTree.Node node, List<Agent> agents, out int agentId1, out int agentId2, out ReservationTable.Interval interval)
+        private bool ValidatePath(EnergyConflictTree.Node node, List<Agent> agents, out int agentId1, out int agentId2, out ReservationTable.Interval interval)
         {
             //clear
             _agentReservationTable.Clear();
@@ -252,7 +241,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// <param name="obstacleNodes">The obstacle nodes.</param>
         /// <param name="lockedNodes">The locked nodes.</param>
         /// <returns></returns>
-        private bool Solve(ConflictTree.Node node, double currentTime, Agent agent)
+        private bool Solve(EnergyConflictTree.Node node, double currentTime, Agent agent)
         {
             //clear reservation table
             _reservationTable.Clear();
@@ -269,7 +258,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             //We can use WHCA Star here in a low level approach.
             //Window = Infinitively long
             var rraStar = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
-            var aStar = new ESpaceTimeAStar(Graph, LengthOfAWaitStep, double.PositiveInfinity, _reservationTable, agent, rraStar, lambda: Lambda, pRef: PRef);
+            var aStar = new ESpaceTimeAStar(Graph, LengthOfAWaitStep, double.PositiveInfinity, _reservationTable, agent, rraStar);
 
             //execute
             var found = aStar.Search();
@@ -291,7 +280,8 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 if (path.Count == 0 || path.NextAction.Node != agent.NextNode || path.NextAction.StopAtNode == false)
                     path.AddFirst(agent.NextNode, true, 0);
 
-                node.setSolution(agent.ID, path, reservations);
+                double energyCost = aStar.NodeEnergy[aStar.GoalNode];
+                node.setSolution(agent.ID, path, reservations, energyCost);
 
                 //found
                 return true;

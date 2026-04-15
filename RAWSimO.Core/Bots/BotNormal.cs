@@ -1,6 +1,5 @@
 using RAWSimO.Core.Configurations;
 using RAWSimO.Core.Control;
-using RAWSimO.Core.Control.Defaults.PathPlanning.FixedRoutePriority;
 using RAWSimO.Core.Elements;
 using RAWSimO.Core.Waypoints;
 using RAWSimO.MultiAgentPathFinding;
@@ -726,21 +725,6 @@ namespace RAWSimO.Core.Bots
                 PendingPlannedPath = null;
                 LastPathAssignmentTime = currentTime;
             }
-        }
-
-        /// <summary>
-        /// Returns the traffic task stage for FRPWS priority computation.
-        /// </summary>
-        internal TrafficTaskStage GetTrafficTaskStage()
-        {
-            if (Pod != null && DestinationWaypoint != null &&
-                Instance.OutputStations.Any(s => s.Waypoint == DestinationWaypoint))
-                return TrafficTaskStage.Delivery;
-            if (Pod != null)
-                return TrafficTaskStage.Return;
-            if (DestinationWaypoint != null && DestinationWaypoint != CurrentWaypoint)
-                return TrafficTaskStage.Pickup;
-            return TrafficTaskStage.Idle;
         }
 
         #endregion

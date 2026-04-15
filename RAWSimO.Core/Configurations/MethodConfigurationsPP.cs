@@ -346,17 +346,6 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public ECBSMethod.ECBSSearchMethod SearchMethod = ECBSMethod.ECBSSearchMethod.BestFirst;
         /// <summary>
-        /// Dimensionless energy preference weight. gPrime = T + Lambda * (E / PRef).
-        /// 0 = pure time-optimal (original CBS behavior).
-        /// Suggested range: 0.1 – 2.0.
-        /// </summary>
-        public double Lambda = 0.0;
-        /// <summary>
-        /// Reference power [W] for converting energy to equivalent time: t_eq = E / PRef.
-        /// Default 300 W matches typical AGV cruise power. Affects the scale of Lambda.
-        /// </summary>
-        public double PRef = 300.0;
-        /// <summary>
         /// Parses the specified arguments.
         /// </summary>
         /// <param name="args">The arguments.</param>

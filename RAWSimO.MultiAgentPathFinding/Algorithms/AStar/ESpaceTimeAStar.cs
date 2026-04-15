@@ -137,7 +137,7 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         /// <summary>
         /// Initializes a new instance of the <see cref="ESpaceTimeAStar"/> class.
         /// </summary>
-        public ESpaceTimeAStar(Graph graph, double lengthOfAWaitStep, double lengthOfAWindow, ReservationTable reservationTable, Agent agent, ReverseResumableAStar rraStar, bool tieBreaking = true, double lambda = 0.0, double pRef = 1.0)
+        public ESpaceTimeAStar(Graph graph, double lengthOfAWaitStep, double lengthOfAWindow, ReservationTable reservationTable, Agent agent, ReverseResumableAStar rraStar, bool tieBreaking = true)
             : base(0, -1)
         {
             this._graph = graph;
@@ -259,7 +259,15 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         //aesop changed
         public override double h(int node)
         {
-            return 0.0;
+            if (!_init) return 0.0;
+            int node2d = NodeTo2D(node);
+            if (node2d == _agent.DestinationNode) return 0.0;
+            double dist = _graph.getDistance(node2d, _RRAStar.GoalNode);
+            if (dist <= 0.0) return 0.0;
+            double mTotal = _agent.CurrentEnergyState.TotalWeight;
+            double frictionLB = EnergyModel.ComputeMoveEnergyLowerBound(mTotal, dist);
+            double supportLB  = EnergyModel.P_IDLE * (dist / _agent.Physics.MaxSpeed);
+            return frictionLB + supportLB;
         }
         //aesop changed
 
@@ -498,11 +506,14 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                             }
                             double moveE = EnergyModel.ComputeMoveEnergy(mTotal,
                                 _agent.Physics.Acceleration, _agent.Physics.Deceleration,
-                                _agent.Physics.MaxSpeed, driveDistance);
+                                _agent.Physics.MaxSpeed, driveDistance)
+                                + EnergyModel.P_IDLE * timeToMove;
+
+                            double supportTurn = (timeToTurn > 0.0) ? EnergyModel.P_IDLE * timeToTurn : 0.0;
 
                             //add node to temp => will be added, if a valid successor will be found
                             NodeTimeTemp.Add(NodeTime[lastStopId] + timeToTurn + timeToMove);
-                            NodeEnergyTemp.Add(NodeEnergy[n] + turnE + moveE);
+                            NodeEnergyTemp.Add(NodeEnergy[n] + turnE + supportTurn + moveE);
                             NodeBackpointerIdTemp.Add(backpointerNode);
                             NodeBackpointerLastTurnIdTemp.Add(lastStopId);
                             NodeBackpointerEdgeTemp.Add(edge);
