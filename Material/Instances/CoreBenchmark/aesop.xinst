@@ -10,7 +10,7 @@
     <RollingFriction>0.02</RollingFriction>  <!-- Rolling friction coefficient μ_r -->
     <InertiaCoeff>0.15</InertiaCoeff>    <!-- Drivetrain inertia equiv. coeff. η -->
     <LiftHeight>0.2</LiftHeight>         <!-- Pod lift height h [m] -->
-    <PodFrameMass>40</PodFrameMass>      <!-- Pod shelf frame mass (excl. cargo) [kg] -->
+    <PodFrameMass>50</PodFrameMass>      <!-- Pod shelf frame mass (excl. cargo) [kg] -->
     <StationHoldPowerW>15</StationHoldPowerW>  <!-- Station hold power P [W] -->
   </EnergyParameters>
   <Bots>

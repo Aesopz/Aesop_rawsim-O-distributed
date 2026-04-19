@@ -1,5 +1,6 @@
 ﻿using RAWSimO.MultiAgentPathFinding.DataStructures;
 using RAWSimO.MultiAgentPathFinding.Elements;
+using RAWSimO.MultiAgentPathFinding.Toolbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -649,6 +650,58 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Diagnostic: dump the final search path (start → GoalNode) with per-step time.
+        /// Same format as ESpaceTimeAStar.DumpPathDiagnostic but with e=0/de=0 (CBS has
+        /// no NodeEnergy). Enables CBS vs ECBS path structure diff.
+        /// Zero overhead when logger disabled.
+        /// </summary>
+        public void DumpPathDiagnostic(int agentId, double currentTime, string tag)
+        {
+            if (!PathDiagnosticLogger.Enabled || GoalNode < 0) return;
+
+            // Backtrack from GoalNode → start (node 0)
+            var seq = new List<int>();
+            int cur = GoalNode;
+            int guard = 0;
+            while (cur >= 0 && guard++ < 1000000)
+            {
+                seq.Add(cur);
+                if (cur == 0) break;
+                cur = NodeBackpointerId[cur];
+            }
+            seq.Reverse();
+
+            var sb = new StringBuilder();
+            double totalT = NodeTime[GoalNode];
+            sb.AppendLine(
+                $"{tag}|agent={agentId}|currentTime={currentTime:F3}" +
+                $"|start={_agent.NextNode}|goal={_agent.DestinationNode}" +
+                $"|totalTime={totalT:F3}|totalEnergy=NA|steps={seq.Count}");
+
+            for (int i = 0; i < seq.Count; i++)
+            {
+                int n = seq[i];
+                int n2d = NodeTo2D(n);
+                double t = NodeTime[n];
+                double dt = i == 0 ? 0.0 : t - NodeTime[seq[i - 1]];
+                int lastStop = NodeBackpointerLastStopId[n];
+                short angle = GetLastStopAngleAfterTurn(n);
+
+                string act;
+                if (n == 0) act = "START";
+                else if (NodeBackpointerEdge[n] == null) act = "WAIT";
+                else if (lastStop == n) act = "TURN+MOVE";
+                else act = "MOVE";
+
+                sb.AppendLine(
+                    $"  step={i} node2d={n2d} t={t:F3} e=NA dt={dt:F3} de=NA" +
+                    $" act={act} angle={angle} lastStop={lastStop}");
+            }
+
+            PathDiagnosticLogger.WriteLine(sb.ToString());
         }
     }
 }

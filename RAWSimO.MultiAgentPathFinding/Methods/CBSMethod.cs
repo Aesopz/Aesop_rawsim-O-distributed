@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RAWSimO.MultiAgentPathFinding.Methods
@@ -46,6 +47,14 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         private DeadlockHandler _deadlockHandler;
 
         /// <summary>
+        /// When true, suppress the post-search RandomHop deadlock mutation so that the executed
+        /// path exactly matches the high-level bestNode solution.
+        /// Default: true (disabled). Set env var RMFS_CBS_ENABLE_RANDOMHOP=1 to re-enable.
+        /// </summary>
+        public bool DisableRandomHopMutation { get; set; } =
+            Environment.GetEnvironmentVariable("RMFS_CBS_ENABLE_RANDOMHOP") != "1";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FARMethod"/> class.
         /// </summary>
         /// <param name="graph">graph</param>
@@ -66,9 +75,19 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// </summary>
         /// <param name="currentTime">The current Time.</param>
         /// <param name="agents">agents</param>
+        // Static counter: limits diagnostic dumps to first N FindPaths() calls.
+        private static int _diagFindPathsCount = 0;
+
         public override void FindPaths(double currentTime, List<Agent> agents)
         {
             Stopwatch.Restart();
+
+            // Diagnostic: only dump root-level Solve on first N FindPaths() calls
+            bool shouldDiag = PathDiagnosticLogger.Enabled &&
+                              Interlocked.Increment(ref _diagFindPathsCount) <= PathDiagnosticLogger.MaxCalls;
+            if (shouldDiag)
+                PathDiagnosticLogger.WriteLine(
+                    $"=== CBS FindPaths #{_diagFindPathsCount} currentTime={currentTime:F3} agents={agents.Count} ===");
 
             //initialization data structures
             var conflictTree = new ConflictTree();
@@ -92,7 +111,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             List<Agent> unsolvableAgents = null;
             foreach (var agent in agents.Where(a => !a.FixedPosition))
             {
-                bool agentSolved = Solve(conflictTree.Root, currentTime, agent);
+                bool agentSolved = Solve(conflictTree.Root, currentTime, agent, shouldDiag);
                 if (!agentSolved)
                 {
                     if (unsolvableAgents == null)
@@ -184,7 +203,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             foreach (var agent in agents)
             {
                 agent.Path = bestNode.getSolution(agent.ID);
-                if (_deadlockHandler.IsInDeadlock(agent, currentTime))
+                if (_deadlockHandler.IsInDeadlock(agent, currentTime) && !DisableRandomHopMutation)
                     _deadlockHandler.RandomHop(agent);
             }
         }
@@ -241,7 +260,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// <param name="obstacleNodes">The obstacle nodes.</param>
         /// <param name="lockedNodes">The locked nodes.</param>
         /// <returns></returns>
-        private bool Solve(ConflictTree.Node node, double currentTime, Agent agent)
+        private bool Solve(ConflictTree.Node node, double currentTime, Agent agent, bool diagDump = false)
         {
             //clear reservation table
             _reservationTable.Clear();
@@ -281,6 +300,10 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                     path.AddFirst(agent.NextNode, true, 0);
 
                 node.setSolution(agent.ID, path, reservations);
+
+                // Diagnostic: dump this agent's CBS path (root-level only, controlled by caller)
+                if (diagDump)
+                    aStar.DumpPathDiagnostic(agent.ID, currentTime, "CBS");
 
                 //found
                 return true;

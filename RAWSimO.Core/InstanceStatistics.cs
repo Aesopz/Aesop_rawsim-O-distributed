@@ -118,6 +118,10 @@ namespace RAWSimO.Core
         public double StatOverallEnergyE4J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE4RotationJ); } }
         /// <summary>Fleet pod lift/lower energy E5 [J].</summary>
         public double StatOverallEnergyE5J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE5LiftLowerJ); } }
+        /// <summary>Fleet idle (base electronics) energy [J] = P_IDLE × Σ bot existence time.</summary>
+        public double StatOverallEnergyIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyIdleJ); } }
+        /// <summary>Fleet total energy including idle [J] = E_mech + P_IDLE×t (aligns with planner objective).</summary>
+        public double StatOverallEnergyTotalWithIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyTotalWithIdleJ); } }
         /// <summary>Total turning events across all bots.</summary>
         public int StatOverallTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurningCount); } }
         /// <summary>Total stop-and-go events across all bots.</summary>
@@ -130,8 +134,22 @@ namespace RAWSimO.Core
         public double StatOverallLoadedDistanceM { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedDistanceM); } }
         /// <summary>Total turning events while carrying a pod.</summary>
         public int StatOverallLoadedTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedTurningCount); } }
+        /// <summary>Total stop-and-go events while carrying a pod.</summary>
+        public int StatOverallLoadedStopAndGoCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedStopAndGoCount); } }
+        /// <summary>Total stop-and-go events while empty.</summary>
+        public int StatOverallEmptyStopAndGoCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyStopAndGoCount); } }
+        /// <summary>Total turning events while empty.</summary>
+        public int StatOverallEmptyTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyTurningCount); } }
         /// <summary>Total wait time across all bots (stationary, not rotating) [s].</summary>
         public double StatOverallWaitTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeSec); } }
+        /// <summary>Fleet E_support (P_IDLE while task-assigned AND stationary) [J].</summary>
+        public double StatOverallESupportJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportJ); } }
+        /// <summary>Fleet E_support while loaded [J].</summary>
+        public double StatOverallESupportLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportLoadedJ); } }
+        /// <summary>Fleet E_support while empty [J].</summary>
+        public double StatOverallESupportEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportEmptyJ); } }
+        /// <summary>Fleet idle time (no task assigned) [s].</summary>
+        public double StatOverallTimeIdleSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTimeIdleSec); } }
         // ── Pref calibration: event-level 8-accumulator aggregation ───────────────
         public double StatOverallMoveEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveEnergyEmptyJ); } }
         public double StatOverallMoveTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeEmptySec); } }
@@ -1049,13 +1067,20 @@ namespace RAWSimO.Core
             sb.AppendLine("StatEnergyE5LiftLowerKJ: " + (StatOverallEnergyE5J / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatEnergyPerMeterJoule: " + (StatOverallDistanceTraveledRizqi > 0 ? (StatOverallEnergyTotalJ / StatOverallDistanceTraveledRizqi).ToString(IOConstants.FORMATTER) : "0"));
+            sb.AppendLine("StatEnergyIdleKJ: " + (StatOverallEnergyIdleJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEnergyTotalWithIdleKJ: " + (StatOverallEnergyTotalWithIdleJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEnergyPerOrderWithIdleKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalWithIdleJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatDistanceTraveledRizqiM: " + StatOverallDistanceTraveledRizqi.ToString(IOConstants.FORMATTER));
             sb.AppendLine(">>> Motion Behavior");
             sb.AppendLine("StatTurningCount: " + StatOverallTurningCount);
             sb.AppendLine("StatStopAndGoCount: " + StatOverallStopAndGoCount);
             sb.AppendLine("StatLoadedDistanceM: " + StatOverallLoadedDistanceM.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatLoadedTurningCount: " + StatOverallLoadedTurningCount);
+            sb.AppendLine("StatLoadedStopAndGoCount: " + StatOverallLoadedStopAndGoCount);
+            sb.AppendLine("StatEmptyTurningCount: " + StatOverallEmptyTurningCount);
+            sb.AppendLine("StatEmptyStopAndGoCount: " + StatOverallEmptyStopAndGoCount);
             sb.AppendLine("StatWaitTimeSec: " + StatOverallWaitTimeSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatPathPlanningTimeouts: " + StatOverallPathPlanningTimeouts);
             // ── Pref calibration output (event-level, move/turn split) ───────────
             sb.AppendLine("StatMoveEnergyEmptyKJ: "  + (StatOverallMoveEnergyEmptyJ  / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatMoveTimeEmptySec: "   + StatOverallMoveTimeEmptySec.ToString(IOConstants.FORMATTER));
@@ -1072,6 +1097,20 @@ namespace RAWSimO.Core
                 ? (StatOverallMoveEnergyLoadedJ + StatOverallTurnEnergyLoadedJ) / (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) : 0.0;
             sb.AppendLine("StatPrefEmptyW: "  + prefEmpty.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatPrefLoadedW: " + prefLoaded.ToString(IOConstants.FORMATTER));
+            sb.AppendLine(">>> Support & Utilization");
+            int botCount = Bots.OfType<Bots.BotNormal>().Count();
+            double utilization = (StatTime > 0 && botCount > 0)
+                ? 1.0 - (StatOverallTimeIdleSec / (StatTime * botCount))
+                : double.NaN;
+            sb.AppendLine("StatESupportKJ: " + (StatOverallESupportJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportLoadedKJ: " + (StatOverallESupportLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportEmptyKJ: " + (StatOverallESupportEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallESupportJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            sb.AppendLine("StatTimeIdleSec: " + StatOverallTimeIdleSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatRobotUtilization: " + (double.IsNaN(utilization) ? "NaN" : utilization.ToString(IOConstants.FORMATTER)));
+            double eSupportToMechRatio = StatOverallEnergyTotalJ > 0
+                ? StatOverallESupportJ / StatOverallEnergyTotalJ : double.NaN;
+            sb.AppendLine("StatESupportToMechRatio: " + (double.IsNaN(eSupportToMechRatio) ? "NaN" : eSupportToMechRatio.ToString(IOConstants.FORMATTER)));
             // Write output
             writer(sb.ToString());
         }

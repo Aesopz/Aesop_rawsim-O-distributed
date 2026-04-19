@@ -943,8 +943,30 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockEnergyE5;
         private TextBlock _blockBotTurning;
         private TextBlock _blockBotStopAndGo;
+        // Per-bot personal stats (Lift up/down, orders, distance, wait, loaded distance/turning)
+        private TextBlock _blockBotPickup;
+        private TextBlock _blockBotSetdown;
+        private TextBlock _blockBotOrders;
+        private TextBlock _blockBotDistance;
+        private TextBlock _blockBotLoadedDistance;
+        private TextBlock _blockBotLoadedTurning;
+        private TextBlock _blockBotWaitTime;
+        private TextBlock _blockBotESupport;
+        private TextBlock _blockBotESupportLoaded;
+        private TextBlock _blockBotESupportEmpty;
+        private TextBlock _blockBotIdleTime;
+        private TextBlock _blockBotUtilization;
+        private TextBlock _blockBotESupportRatio;
+        // Payload display: pod frame mass + cargo (item total weight). 0 when no pod carried.
+        private TextBlock _blockPayload;
 
-        public SimulationInfoBot(TreeView infoHost, IBotInfo bot) : base(infoHost) { _bot = bot; }
+        public SimulationInfoBot(TreeView infoHost, IBotInfo bot) : base(infoHost)
+        {
+            _bot = bot;
+            // DEBUG: Log POD_FRAME_MASS to verify it was loaded from xlayo
+            System.Diagnostics.Debug.WriteLine(
+                $"[SimulationInfoBot] Creating info panel for Bot{bot.GetInfoID()}, POD_FRAME_MASS={RAWSimO.Core.Metrics.EnergyConsumption.POD_FRAME_MASS} kg");
+        }
 
         public override void InfoPanelUpdate()
         {
@@ -991,6 +1013,47 @@ namespace RAWSimO.Visualization.Rendering
                 _blockEnergyE5.Text = (botNormal.StatEnergyE5LiftLowerJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 if (_blockBotTurning != null) _blockBotTurning.Text = botNormal.StatTurningCount.ToString();
                 if (_blockBotStopAndGo != null) _blockBotStopAndGo.Text = botNormal.StatStopAndGoCount.ToString();
+                if (_blockBotPickup != null) _blockBotPickup.Text = botNormal.StatPickupCount.ToString();
+                if (_blockBotSetdown != null) _blockBotSetdown.Text = botNormal.StatSetdownCount.ToString();
+                if (_blockBotOrders != null) _blockBotOrders.Text = botNormal.StatOrdersCompleted.ToString();
+                if (_blockBotDistance != null) _blockBotDistance.Text = botNormal.StatDistanceTraveledM.ToString("F2", IOConstants.FORMATTER) + " m";
+                if (_blockBotLoadedDistance != null) _blockBotLoadedDistance.Text = botNormal.StatLoadedDistanceM.ToString("F2", IOConstants.FORMATTER) + " m";
+                if (_blockBotLoadedTurning != null) _blockBotLoadedTurning.Text = botNormal.StatLoadedTurningCount.ToString();
+                if (_blockBotWaitTime != null) _blockBotWaitTime.Text = botNormal.StatWaitTimeSec.ToString("F2", IOConstants.FORMATTER) + " s";
+                if (_blockBotESupport != null) _blockBotESupport.Text = (botNormal.StatESupportJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotESupportLoaded != null) _blockBotESupportLoaded.Text = (botNormal.StatESupportLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotESupportEmpty != null) _blockBotESupportEmpty.Text = (botNormal.StatESupportEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotIdleTime != null) _blockBotIdleTime.Text = botNormal.StatTimeIdleSec.ToString("F2", IOConstants.FORMATTER) + " s";
+                if (_blockBotUtilization != null)
+                {
+                    double simT = botNormal.Instance.Controller.CurrentTime;
+                    double util = simT > 0 ? 1.0 - botNormal.StatTimeIdleSec / simT : double.NaN;
+                    _blockBotUtilization.Text = double.IsNaN(util) ? "n/a" : util.ToString("P1", IOConstants.FORMATTER);
+                }
+                if (_blockBotESupportRatio != null)
+                {
+                    double ratio = botNormal.StatEnergyTotalJ > 0
+                        ? botNormal.StatESupportJ / botNormal.StatEnergyTotalJ : double.NaN;
+                    _blockBotESupportRatio.Text = double.IsNaN(ratio) ? "n/a" : ratio.ToString("P2", IOConstants.FORMATTER);
+                }
+            }
+            // Update payload (pod frame mass + cargo); 0 when no pod carried
+            // DEBUG: also show POD_FRAME_MASS value to verify it was loaded from xlayo
+            if (_blockPayload != null && botNormal != null)
+            {
+                double podFrameKg = RAWSimO.Core.Metrics.EnergyConsumption.POD_FRAME_MASS;
+                double payloadKg = RAWSimO.Core.Metrics.EnergyConsumption.GetLoadMass(botNormal.Pod);
+                if (botNormal.Pod == null)
+                {
+                    _blockPayload.Text = "0.00 kg (no pod) [POD_FRAME=" + podFrameKg.ToString("F0", IOConstants.FORMATTER) + " kg]";
+                }
+                else
+                {
+                    double cargoKg = botNormal.Pod.GetInfoCapacityUsed();
+                    _blockPayload.Text = payloadKg.ToString("F2", IOConstants.FORMATTER) + " kg (pod " +
+                        podFrameKg.ToString("F0", IOConstants.FORMATTER) + " + items " +
+                        cargoKg.ToString("F2", IOConstants.FORMATTER) + ")";
+                }
             }
         }
 
@@ -1002,6 +1065,16 @@ namespace RAWSimO.Visualization.Rendering
             _infoHost.Items.Clear();
             TreeViewItem root = new TreeViewItem { Header = "Bot" + _bot.GetInfoID() };
             _infoHost.Items.Add(root);
+
+            // DEBUG: Add diagnostic line showing current energy config
+            WrapPanel diagPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+            diagPanel.Children.Add(new TextBlock
+            {
+                Text = $"[DIAG] RobotMass={RAWSimO.Core.Metrics.EnergyConsumption.ROBOT_MASS} kg, PodFrameMass={RAWSimO.Core.Metrics.EnergyConsumption.POD_FRAME_MASS} kg",
+                Foreground = System.Windows.Media.Brushes.Red,
+                FontSize = 10
+            });
+            root.Items.Add(diagPanel);
             // Add position
             WrapPanel xyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
             xyPanel.Children.Add(new TextBlock { Text = "X/Y: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
@@ -1124,6 +1197,16 @@ namespace RAWSimO.Visualization.Rendering
             };
             pathPanel.Children.Add(_blockPath);
             root.Items.Add(pathPanel);
+            // Add payload (pod frame mass + items weight); 0 when no pod carried
+            WrapPanel payloadPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+            payloadPanel.Children.Add(new TextBlock { Text = "Payload: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+            _blockPayload = new TextBlock
+            {
+                Text = "0.00 kg (no pod)",
+                MinWidth = _infoPanelRightColumnWidth
+            };
+            payloadPanel.Children.Add(_blockPayload);
+            root.Items.Add(payloadPanel);
             // Add energy sub-panel (Rizqi model)
             var botNormal = _bot as RAWSimO.Core.Bots.BotNormal;
             if (botNormal != null)
@@ -1178,6 +1261,89 @@ namespace RAWSimO.Visualization.Rendering
                 sagPanel.Children.Add(_blockBotStopAndGo);
                 energyNode.Items.Add(sagPanel);
                 root.Items.Add(energyNode);
+
+                // ── Per-bot Activity sub-panel ──
+                TreeViewItem activityNode = new TreeViewItem { Header = "Activity (per bot)" };
+                // Pickup (lift up) count
+                WrapPanel pickupPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                pickupPanel.Children.Add(new TextBlock { Text = "Lift Up: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotPickup = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                pickupPanel.Children.Add(_blockBotPickup);
+                activityNode.Items.Add(pickupPanel);
+                // Setdown (lift down) count
+                WrapPanel setdownPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                setdownPanel.Children.Add(new TextBlock { Text = "Lift Down: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotSetdown = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                setdownPanel.Children.Add(_blockBotSetdown);
+                activityNode.Items.Add(setdownPanel);
+                // Orders completed
+                WrapPanel ordersPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                ordersPanel.Children.Add(new TextBlock { Text = "Orders: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotOrders = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                ordersPanel.Children.Add(_blockBotOrders);
+                activityNode.Items.Add(ordersPanel);
+                // Total distance
+                WrapPanel distPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                distPanel.Children.Add(new TextBlock { Text = "Distance: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotDistance = new TextBlock { Text = "0.00 m", MinWidth = _infoPanelRightColumnWidth };
+                distPanel.Children.Add(_blockBotDistance);
+                activityNode.Items.Add(distPanel);
+                // Loaded distance
+                WrapPanel loadedDistPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                loadedDistPanel.Children.Add(new TextBlock { Text = "Loaded Dist: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotLoadedDistance = new TextBlock { Text = "0.00 m", MinWidth = _infoPanelRightColumnWidth };
+                loadedDistPanel.Children.Add(_blockBotLoadedDistance);
+                activityNode.Items.Add(loadedDistPanel);
+                // Loaded turning
+                WrapPanel loadedTurnPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                loadedTurnPanel.Children.Add(new TextBlock { Text = "Loaded Turn: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotLoadedTurning = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                loadedTurnPanel.Children.Add(_blockBotLoadedTurning);
+                activityNode.Items.Add(loadedTurnPanel);
+                // Wait time
+                WrapPanel waitPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                waitPanel.Children.Add(new TextBlock { Text = "Wait Time: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotWaitTime = new TextBlock { Text = "0.00 s", MinWidth = _infoPanelRightColumnWidth };
+                waitPanel.Children.Add(_blockBotWaitTime);
+                activityNode.Items.Add(waitPanel);
+                // E_support (P_IDLE × wait while task-assigned)
+                WrapPanel eSupportPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                eSupportPanel.Children.Add(new TextBlock { Text = "E_support: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotESupport = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                eSupportPanel.Children.Add(_blockBotESupport);
+                activityNode.Items.Add(eSupportPanel);
+                // E_support loaded
+                WrapPanel eSupportLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                eSupportLoadedPanel.Children.Add(new TextBlock { Text = "E_sup Loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotESupportLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                eSupportLoadedPanel.Children.Add(_blockBotESupportLoaded);
+                activityNode.Items.Add(eSupportLoadedPanel);
+                // E_support empty
+                WrapPanel eSupportEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                eSupportEmptyPanel.Children.Add(new TextBlock { Text = "E_sup Empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotESupportEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                eSupportEmptyPanel.Children.Add(_blockBotESupportEmpty);
+                activityNode.Items.Add(eSupportEmptyPanel);
+                // Idle time
+                WrapPanel idleTimePanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                idleTimePanel.Children.Add(new TextBlock { Text = "Idle Time: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotIdleTime = new TextBlock { Text = "0.00 s", MinWidth = _infoPanelRightColumnWidth };
+                idleTimePanel.Children.Add(_blockBotIdleTime);
+                activityNode.Items.Add(idleTimePanel);
+                // Utilization (approx: 1 - idle/currentTime, no warmup correction)
+                WrapPanel utilPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                utilPanel.Children.Add(new TextBlock { Text = "Utilization≈: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotUtilization = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
+                utilPanel.Children.Add(_blockBotUtilization);
+                activityNode.Items.Add(utilPanel);
+                // E_support / E_mech ratio
+                WrapPanel eSupportRatioPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                eSupportRatioPanel.Children.Add(new TextBlock { Text = "E_sup/E_mech: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotESupportRatio = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
+                eSupportRatioPanel.Children.Add(_blockBotESupportRatio);
+                activityNode.Items.Add(eSupportRatioPanel);
+                activityNode.IsExpanded = true;
+                root.Items.Add(activityNode);
             }
             // Expand root node
             root.IsExpanded = true;

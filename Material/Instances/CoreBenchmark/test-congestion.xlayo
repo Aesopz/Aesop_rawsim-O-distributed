@@ -13,7 +13,7 @@
   <Seed>0</Seed>
   <TierCount>1</TierCount>
   <TierHeight>4</TierHeight>
-  <BotCount>26</BotCount>
+  <BotCount>20</BotCount>
   <BotRadius>0.35</BotRadius>
   <MaxAcceleration>0.25</MaxAcceleration>
   <MaxDeceleration>0.25</MaxDeceleration>
@@ -34,19 +34,19 @@
   <AisleLayoutType>HighwayHallway</AisleLayoutType>
   <AislesTwoDirectional>false</AislesTwoDirectional>
   <SingleLane>true</SingleLane>
-  <NameLayout>aesop</NameLayout>
-  <NrHorizontalAisles>10</NrHorizontalAisles>
+  <NameLayout>test-congestion</NameLayout>
+  <NrHorizontalAisles>6</NrHorizontalAisles>
   <NrVerticalAisles>4</NrVerticalAisles>
-  <HorizontalLengthBlock>8</HorizontalLengthBlock>
+  <HorizontalLengthBlock>4</HorizontalLengthBlock>
   <WidthHall>2</WidthHall>
   <WidthBuffer>5</WidthBuffer>
   <DistanceEntryExitStation>3</DistanceEntryExitStation>
   <CounterClockwiseRingwayDirection>true</CounterClockwiseRingwayDirection>
   <NPickStationWest>0</NPickStationWest>
-  <NPickStationEast>4</NPickStationEast>
+  <NPickStationEast>2</NPickStationEast>
   <NPickStationSouth>0</NPickStationSouth>
   <NPickStationNorth>0</NPickStationNorth>
-  <NReplenishmentStationWest>4</NReplenishmentStationWest>
+  <NReplenishmentStationWest>2</NReplenishmentStationWest>
   <NReplenishmentStationEast>0</NReplenishmentStationEast>
   <NReplenishmentStationSouth>0</NReplenishmentStationSouth>
   <NReplenishmentStationNorth>0</NReplenishmentStationNorth>

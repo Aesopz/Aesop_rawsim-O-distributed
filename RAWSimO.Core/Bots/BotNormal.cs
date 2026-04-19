@@ -247,6 +247,10 @@ namespace RAWSimO.Core.Bots
         public double StatEnergyE4RotationJ;
         /// <summary>Pod lift/lower energy (E5a + E5b) [J].</summary>
         public double StatEnergyE5LiftLowerJ;
+        /// <summary>Number of pod pickup (lift-up) events.</summary>
+        public int StatPickupCount;
+        /// <summary>Number of pod setdown (lift-down) events.</summary>
+        public int StatSetdownCount;
         /// <summary>Number of turning events (segments with rotation).</summary>
         public int StatTurningCount;
         /// <summary>Number of stop-and-go events (completed segments).</summary>
@@ -259,8 +263,27 @@ namespace RAWSimO.Core.Bots
         public double StatLoadedDistanceM;
         /// <summary>Number of turning events while carrying a pod.</summary>
         public int StatLoadedTurningCount;
+        /// <summary>Number of stop-and-go events while carrying a pod.</summary>
+        public int StatLoadedStopAndGoCount;
+        /// <summary>Number of stop-and-go events while empty (no pod).</summary>
+        public int StatEmptyStopAndGoCount;
+        /// <summary>Number of turning events while empty (no pod).</summary>
+        public int StatEmptyTurningCount;
         /// <summary>Total time spent waiting (not moving, not rotating) [s].</summary>
         public double StatWaitTimeSec;
+        /// <summary>Cumulative idle (base electronics) energy [J] = P_IDLE × total existence time.
+        /// Aligns statistics with planner objective (E_mech + P_IDLE×t).</summary>
+        public double StatEnergyIdleJ;
+        /// <summary>Total energy including idle = E_mech + P_IDLE×t [J].</summary>
+        public double StatEnergyTotalWithIdleJ => StatEnergyTotalJ + StatEnergyIdleJ;
+        /// <summary>E_support: P_IDLE accumulated while task-assigned AND stationary (CBS wait, congestion, etc.) [J].</summary>
+        public double StatESupportJ;
+        /// <summary>E_support while carrying a pod (loaded) [J].</summary>
+        public double StatESupportLoadedJ;
+        /// <summary>E_support while not carrying a pod (empty) [J].</summary>
+        public double StatESupportEmptyJ;
+        /// <summary>Idle time: seconds with no task assigned (BotTaskType.None).</summary>
+        public double StatTimeIdleSec => StatTotalTaskTimes.TryGetValue(BotTaskType.None, out var t) ? t : 0.0;
         // ── Pref calibration: event-level 8-accumulator model ─────────────────────
         // All values accumulated at setNextWaypoint() — event-driven, not tick-delta.
         // isLoaded = (Pod != null) at the exact moment the move/turn is committed.
@@ -300,13 +323,22 @@ namespace RAWSimO.Core.Bots
             StatEnergyE3CruiseJ = 0.0;
             StatEnergyE4RotationJ = 0.0;
             StatEnergyE5LiftLowerJ = 0.0;
+            StatPickupCount = 0;
+            StatSetdownCount = 0;
+            StatESupportJ = 0.0;
+            StatESupportLoadedJ = 0.0;
+            StatESupportEmptyJ = 0.0;
             StatTurningCount = 0;
             StatStopAndGoCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
             StatLoadedDistanceM = 0.0;
             StatLoadedTurningCount = 0;
+            StatLoadedStopAndGoCount = 0;
+            StatEmptyStopAndGoCount = 0;
+            StatEmptyTurningCount = 0;
             StatWaitTimeSec = 0.0;
+            StatEnergyIdleJ = 0.0;
             StatMoveEnergyEmptyJ   = 0.0;
             StatMoveTimeEmptySec   = 0.0;
             StatTurnEnergyEmptyJ   = 0.0;
@@ -649,11 +681,17 @@ namespace RAWSimO.Core.Bots
                 // Motion behavior counters
                 StatStopAndGoCount++;
                 if (_rotateDuration > 0) StatTurningCount++;
-                // Loaded-specific counters
+                // Loaded/Empty-specific counters
                 if (Pod != null)
                 {
                     StatLoadedDistanceM += segmentDistance;
+                    StatLoadedStopAndGoCount++;
                     if (_rotateDuration > 0) StatLoadedTurningCount++;
+                }
+                else
+                {
+                    StatEmptyStopAndGoCount++;
+                    if (_rotateDuration > 0) StatEmptyTurningCount++;
                 }
 
                 return true;
@@ -1058,6 +1096,19 @@ namespace RAWSimO.Core.Bots
             // are correctly excluded from rotation and counted here as wait.
             if (!Moving && !_isRotatingThisTick)
                 StatWaitTimeSec += delta;
+
+            // P_IDLE energy accumulates every tick (moving, rotating, or waiting)
+            StatEnergyIdleJ += EnergyConsumption.P_IDLE * delta;
+
+            // E_support: P_IDLE while task-assigned AND stationary (congestion wait / CBS hold)
+            if (!Moving && !_isRotatingThisTick && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
+            {
+                StatESupportJ += EnergyConsumption.P_IDLE * delta;
+                if (Pod != null)
+                    StatESupportLoadedJ += EnergyConsumption.P_IDLE * delta;
+                else
+                    StatESupportEmptyJ += EnergyConsumption.P_IDLE * delta;
+            }
 
             // Pref time denominators are now accumulated event-by-event in setNextWaypoint()
             // (StatMoveTimeLoadedSec, StatTurnTimeLoadedSec, etc.) — no delta-based tracking here.
@@ -1482,6 +1533,7 @@ namespace RAWSimO.Core.Bots
                     double e5a = EnergyConsumption.E5a_LiftPod(mL, bot.PodTransferTime);
                     bot.StatEnergyE5LiftLowerJ += e5a;
                     bot.StatEnergyTotalJ += e5a;
+                    bot.StatPickupCount++;
 
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked
@@ -1554,6 +1606,7 @@ namespace RAWSimO.Core.Bots
                     double e5b = EnergyConsumption.E5b_LowerPod(mLBeforeSetdown, bot.PodTransferTime);
                     bot.StatEnergyE5LiftLowerJ += e5b;
                     bot.StatEnergyTotalJ += e5b;
+                    bot.StatSetdownCount++;
 
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked

@@ -28,7 +28,13 @@ namespace RAWSimO.Core.Configurations
     public class LayoutConfiguration
     {
 
-        #region member variables 
+        #region member variables
+
+        /// <summary>
+        /// Energy model parameters (Rizqi model for robots).
+        /// Contains RobotMass, PodFrameMass, and other physical constants.
+        /// </summary>
+        public DTOEnergyParameters EnergyParameters = null;
 
         /// <summary>
         /// The seed used to initialize the RNG.

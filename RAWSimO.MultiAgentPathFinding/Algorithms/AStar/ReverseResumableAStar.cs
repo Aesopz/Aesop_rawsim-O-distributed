@@ -289,6 +289,25 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         }
 
         /// <summary>
+        /// Get the total path distance (sum of edge distances) from node to the RRA* start (= agent destination).
+        /// Only valid when node is in Closed (i.e., _backpointerEdge[node] exists).
+        /// </summary>
+        /// <param name="node">The start node.</param>
+        /// <returns>Total graph distance in metres.</returns>
+        public double getPathDistance(int node)
+        {
+            if (!_backpointerEdge.ContainsKey(node)) return 0.0;
+            double total = 0.0;
+            var current = node;
+            while (_backpointerEdge.ContainsKey(current) && _backpointerEdge[current] != null)
+            {
+                total += _backpointerEdge[current].Distance;
+                current = _backpointerEdge[current].To;
+            }
+            return total;
+        }
+
+        /// <summary>
         /// Get the path from the node to the destination as a node list.
         /// </summary>
         /// <param name="node">The node.</param>

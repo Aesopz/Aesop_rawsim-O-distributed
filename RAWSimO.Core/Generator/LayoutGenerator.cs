@@ -359,6 +359,28 @@ namespace RAWSimO.Core.Generator
             addTiersToCompound();
             // Fill the tiers
             fillTiers();
+            // ── Apply energy parameters from LayoutConfiguration ──
+            // This ensures .xlayo EnergyParameters are loaded into EnergyConsumption static state
+            // (required because xlayo → LayoutConfiguration → Instance path doesn't use DTOInstance.Submit)
+            if (lc.EnergyParameters != null)
+            {
+                RAWSimO.Core.Metrics.EnergyConsumption.Configure(
+                    lc.EnergyParameters.RobotMass,
+                    lc.EnergyParameters.RobotWidth,
+                    lc.EnergyParameters.RobotLength,
+                    lc.EnergyParameters.RollingFriction,
+                    lc.EnergyParameters.InertiaCoeff,
+                    lc.EnergyParameters.LiftHeight,
+                    lc.EnergyParameters.PodFrameMass);
+                _logAction?.Invoke($"[EnergyConsumption] Configured from LayoutConfiguration: RobotMass={lc.EnergyParameters.RobotMass} kg, PodFrameMass={lc.EnergyParameters.PodFrameMass} kg");
+                // Sync MAPF EnergyModel with same physical constants
+                RAWSimO.MultiAgentPathFinding.Elements.EnergyModel.Configure(
+                    lc.EnergyParameters.RobotMass,
+                    lc.EnergyParameters.RobotWidth,
+                    lc.EnergyParameters.RobotLength,
+                    lc.EnergyParameters.RollingFriction,
+                    lc.EnergyParameters.InertiaCoeff);
+            }
             // Return the instance
             return instance;
         }

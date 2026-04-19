@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace RAWSimO.MultiAgentPathFinding.Methods
 {
@@ -38,7 +39,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// </summary>
         /// <param name="node">The node.</param>
         /// <returns></returns>
-        delegate double NodeSelectionExpression(ConflictTree.Node node);
+        delegate double NodeSelectionExpression(EnergyConflictTree.Node node);
 
         /// <summary>
         /// The deadlock handler
@@ -66,9 +67,43 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// </summary>
         /// <param name="currentTime">The current Time.</param>
         /// <param name="agents">agents</param>
+        // Static counter: limits diagnostic dumps to first N FindPaths() calls.
+        // Enabled when PathDiagnosticLogger is active via RMFS_PATH_DIAG_FILE env var.
+        private static int _diagFindPathsCount = 0;
+
+        /// <summary>
+        /// Cumulative number of FindPaths() invocations that hit the high-level timeout
+        /// (i.e. returned a fallback best-LB node instead of a conflict-free optimum).
+        /// Exposed so experiments can gauge how often ECBS was forced into suboptimal fallback.
+        /// </summary>
+        public int StatHighLevelTimeouts { get; private set; } = 0;
+
+        /// <summary>
+        /// Cumulative number of times the deadlock handler mutated an agent path via RandomHop
+        /// after high-level search completed. These mutations break the correspondence between
+        /// bestNode.SolutionCost and the actually executed path, so they should be tracked.
+        /// </summary>
+        public int StatRandomHopMutations { get; private set; } = 0;
+
+        /// <summary>
+        /// When true, suppress the post-search RandomHop deadlock mutation so that the executed
+        /// path exactly matches the high-level bestNode solution. Useful for validating the
+        /// algorithm itself (CT SolutionCost == executed energy). Default: false (keep safety net).
+        /// Default: true (disabled). Set env var RMFS_ECBS_ENABLE_RANDOMHOP=1 to re-enable.
+        /// </summary>
+        public bool DisableRandomHopMutation { get; set; } =
+            Environment.GetEnvironmentVariable("RMFS_ECBS_ENABLE_RANDOMHOP") != "1";
+
         public override void FindPaths(double currentTime, List<Agent> agents)
         {
             Stopwatch.Restart();
+
+            // Diagnostic: only dump root-level Solve on first N FindPaths() calls
+            bool shouldDiag = PathDiagnosticLogger.Enabled &&
+                              Interlocked.Increment(ref _diagFindPathsCount) <= PathDiagnosticLogger.MaxCalls;
+            if (shouldDiag)
+                PathDiagnosticLogger.WriteLine(
+                    $"=== ECBS FindPaths #{_diagFindPathsCount} currentTime={currentTime:F3} agents={agents.Count} ===");
 
             //initialization data structures
             var conflictTree = new EnergyConflictTree();
@@ -76,7 +111,6 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             var solvable = true;
             var generatedNodes = 0;
             EnergyConflictTree.Node bestNode = null;
-            double bestTime = 0.0;
 
             //deadlock handling
             _deadlockHandler.LengthOfAWaitStep = LengthOfAWaitStep;
@@ -92,7 +126,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             List<Agent> unsolvableAgents = null;
             foreach (var agent in agents.Where(a => !a.FixedPosition))
             {
-                bool agentSolved = Solve(conflictTree.Root, currentTime, agent);
+                bool agentSolved = Solve(conflictTree.Root, currentTime, agent, shouldDiag);
                 if (!agentSolved)
                 {
                     if (unsolvableAgents == null)
@@ -121,7 +155,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
 
             //Enqueue first node
             if (solvable)
-                Open.Enqueue(conflictTree.Root.SolutionCost, conflictTree.Root);
+                Open.Enqueue(nodeObjectiveSelector(conflictTree.Root), conflictTree.Root);
             else
                 Communicator.LogDefault("WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: " +
                     string.Join(",", unsolvableAgents.Select(a => "Agent" + a.ID.ToString() + "(" + a.NextNode.ToString() + "->" + a.DestinationNode.ToString() + ")")));
@@ -129,6 +163,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
 
             //search loop
             EnergyConflictTree.Node p = conflictTree.Root;
+            bool timedOut = false;
             while (Open.Count > 0)
             {
 
@@ -143,50 +178,72 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 //check the path
                 var hasNoConflicts = ValidatePath(p, agents, out agentId1, out agentId2, out interval);
 
-                //has no conflicts?
+                //has no conflicts? => optimal: this is the lowest SolutionCost conflict-free node
                 if (hasNoConflicts)
                 {
                     bestNode = p;
                     break;
                 }
 
-                // time up? => return the best solution
+                // time up? => return the best-LB fallback (current pop has lowest SolutionCost among remaining)
                 if (Stopwatch.ElapsedMilliseconds / 1000.0 > RuntimeLimitPerAgent * agents.Count * 0.9 || Stopwatch.ElapsedMilliseconds / 1000.0 > RunTimeLimitOverall)
                 {
+                    // NOTE: timeout fallback `bestNode = p` only guarantees p is minimum SolutionCost
+                    // under BestFirst search order. DepthFirst/BreadthFirst do NOT dequeue by cost.
+                    if (SearchMethod != ECBSSearchMethod.BestFirst)
+                        Communicator.LogDefault("WARNING: ECBS timeout fallback assumes BestFirst search order; current mode=" + SearchMethod);
                     Communicator.SignalTimeout();
-                    break;
-                }
-
-                //save best node
-                if (bestNode == null || interval.Start > bestTime)
-                {
-                    bestTime = interval.Start;
+                    // FIX: previously bestNode was tracked by `interval.Start > bestTime`, which
+                    // selected the node whose first conflict occurred latest -- NOT the lowest-energy
+                    // feasible solution. Under Best-First by SolutionCost, the node currently popped
+                    // (p) is the minimum-cost candidate remaining in Open. Use it as the fallback.
                     bestNode = p;
+                    timedOut = true;
+                    StatHighLevelTimeouts++;
+                    break;
                 }
 
                 //append child 1
                 var node1 = new EnergyConflictTree.Node(agentId1, interval, p);
                 solvable = Solve(node1, currentTime, agents.First(a => a.ID == agentId1));
                 if (solvable)
-                    Open.Enqueue(node1.SolutionCost, node1);
+                    Open.Enqueue(nodeObjectiveSelector(node1), node1);
 
                 //append child 2
                 var node2 = new EnergyConflictTree.Node(agentId2, interval, p);
                 solvable = Solve(node2, currentTime, agents.First(a => a.ID == agentId2));
                 if (solvable)
-                    Open.Enqueue(node2.SolutionCost, node2);
+                    Open.Enqueue(nodeObjectiveSelector(node2), node2);
 
                 generatedNodes += 2;
 
             }
 
-            //return the solution => suboptimal
+            // Emit a brief search summary so experiments can track timeout frequency.
+            // Keep the message short to avoid log bloat on frequent FindPaths() calls.
+            if (timedOut)
+                Communicator.LogDefault($"ECBS timeout #{StatHighLevelTimeouts} fallback=bestLB SolutionCost={bestNode.SolutionCost:F2} generated={generatedNodes}");
+
+            //return the solution => suboptimal (may still contain conflicts if timed out)
+            int hopCountThisCall = 0;
             foreach (var agent in agents)
             {
                 agent.Path = bestNode.getSolution(agent.ID);
                 if (_deadlockHandler.IsInDeadlock(agent, currentTime))
-                    _deadlockHandler.RandomHop(agent);
+                {
+                    // RandomHop mutates agent.Path post-search, which decouples the executed
+                    // trajectory from bestNode.SolutionCost. We count every mutation so the
+                    // experimenter can see how much the deadlock handler distorts comparisons.
+                    StatRandomHopMutations++;
+                    hopCountThisCall++;
+                    if (!DisableRandomHopMutation)
+                        _deadlockHandler.RandomHop(agent);
+                }
             }
+            if (hopCountThisCall > 0)
+                Communicator.LogDefault($"ECBS RandomHop mutated {hopCountThisCall}/{agents.Count} agent paths" +
+                    (DisableRandomHopMutation ? " [SUPPRESSED]" : "") +
+                    $" (cumulative={StatRandomHopMutations})");
         }
 
         private bool ValidatePath(EnergyConflictTree.Node node, List<Agent> agents, out int agentId1, out int agentId2, out ReservationTable.Interval interval)
@@ -241,7 +298,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// <param name="obstacleNodes">The obstacle nodes.</param>
         /// <param name="lockedNodes">The locked nodes.</param>
         /// <returns></returns>
-        private bool Solve(EnergyConflictTree.Node node, double currentTime, Agent agent)
+        private bool Solve(EnergyConflictTree.Node node, double currentTime, Agent agent, bool diagDump = false)
         {
             //clear reservation table
             _reservationTable.Clear();
@@ -259,6 +316,11 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             //Window = Infinitively long
             var rraStar = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
             var aStar = new ESpaceTimeAStar(Graph, LengthOfAWaitStep, double.PositiveInfinity, _reservationTable, agent, rraStar);
+
+            // Low-level timeout: 10% of per-agent high-level budget.
+            // Prevents a single low-level A* from monopolizing the entire time budget.
+            if (RuntimeLimitPerAgent > 0)
+                aStar.SearchTimeoutMilliseconds = (long)(RuntimeLimitPerAgent * 1000 * 0.1);
 
             //execute
             var found = aStar.Search();
@@ -282,6 +344,10 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
 
                 double energyCost = aStar.NodeEnergy[aStar.GoalNode];
                 node.setSolution(agent.ID, path, reservations, energyCost);
+
+                // Diagnostic: dump this agent's ECBS path (root-level only, controlled by caller)
+                if (diagDump)
+                    aStar.DumpPathDiagnostic(agent.ID, currentTime, "ECBS");
 
                 //found
                 return true;

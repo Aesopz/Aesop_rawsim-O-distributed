@@ -1,0 +1,19 @@
+# scripts/config.example.yaml
+# 用法: python scripts/run_comparison.py --config scripts/config.example.yaml
+# CLI 參數會覆寫此處設定.
+
+scenario:
+  xlayo: Material/Instances/CoreBenchmark/aesop.xlayo
+  xsett: Material/Instances/CoreBenchmark/aesop.xsett
+
+methods:
+  CBS-time:   Material/Instances/CoreBenchmark/aesop-cbs.xconf
+  CBS-energy: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+  # 想加新方法? 準備新的 .xconf 後在此處多一行即可.
+
+seeds: [42, 43, 44]
+
+output_dir: results/aesop_cbs_vs_ecbs
+
+parallel: 1          # 建議 1; RAWSim-O CLI 吃 CPU 單核可能不友善多實例
+# timeout_sec: 3600  # 單次跑逾時 (秒); 留 0 = 不限

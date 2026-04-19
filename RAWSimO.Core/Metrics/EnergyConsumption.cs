@@ -19,7 +19,7 @@ namespace RAWSimO.Core.Metrics
         public static double GRAVITY = 9.8;
 
         /// <summary>Rolling friction coefficient (straight-line movement).</summary>
-        public static double FRICTION = 0.01;
+        public static double FRICTION = 0.02;
 
         /// <summary>Drivetrain inertia equivalent coefficient (rotational → translational).</summary>
         public static double INERTIA = 0.15;
@@ -41,8 +41,14 @@ namespace RAWSimO.Core.Metrics
         /// Added to mLoad for E5/E6 even when pod carries no items.
         /// From xinst EnergyParameters.PodFrameMass.
         /// </summary>
-        public static double POD_FRAME_MASS = 40.0;
+        public static double POD_FRAME_MASS = 50.0;
 
+        /// <summary>
+        /// Idle (base electronics) power draw [W].
+        /// Must match EnergyModel.P_IDLE in MultiAgentPathFinding so that
+        /// statistics-side idle energy aligns with planner-side cost.
+        /// </summary>
+        public const double P_IDLE = 90;
 
         #endregion
 
@@ -71,6 +77,10 @@ namespace RAWSimO.Core.Metrics
             INERTIA             = inertiaCoeff;
             LIFT_HEIGHT         = liftHeight;
             POD_FRAME_MASS      = podFrameMass;
+
+            // DEBUG: Log energy config to verify xlayo was loaded correctly
+            System.Diagnostics.Debug.WriteLine(
+                $"[EnergyConsumption.Configure] RobotMass={robotMass}, PodFrameMass={podFrameMass}");
         }
 
         #endregion

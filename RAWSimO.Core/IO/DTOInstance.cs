@@ -33,10 +33,10 @@ namespace RAWSimO.Core.IO
         public double InertiaCoeff = 0.15;
         /// <summary>Pod lift/lower height [m]. Default: 0.2.</summary>
         public double LiftHeight = 0.2;
-        /// <summary>Pod shelf frame mass [kg] (excludes cargo). Default: 40.</summary>
-        public double PodFrameMass = 40.0;
-        /// <summary>Power to hold pod at station [W]. Default: 15.</summary>
-        public double StationHoldPowerW = 15.0;
+        /// <summary>Pod shelf frame mass [kg] (excludes cargo). Default: 50.</summary>
+        public double PodFrameMass = 50.0;
+        /// <summary>Power to hold pod at station [W]. Default: 90.</summary>
+        public double StationHoldPowerW = 90.0;
     }
 
     [XmlRootAttribute("Instance")]
@@ -154,6 +154,12 @@ namespace RAWSimO.Core.IO
             instance.Name = Name;
             // ── Energy model: apply physical parameters from xinst EnergyParameters block ──
             var ep = EnergyParameters ?? new DTOEnergyParameters();
+            // DEBUG: Log what we're about to configure
+            if (EnergyParameters == null)
+                System.Diagnostics.Debug.WriteLine("[DTOInstance] EnergyParameters is NULL, using defaults");
+            else
+                System.Diagnostics.Debug.WriteLine($"[DTOInstance] Configuring energy: RobotMass={ep.RobotMass}, PodFrameMass={ep.PodFrameMass}");
+
             RAWSimO.Core.Metrics.EnergyConsumption.Configure(
                 ep.RobotMass,
                 ep.RobotWidth,
@@ -162,6 +168,13 @@ namespace RAWSimO.Core.IO
                 ep.InertiaCoeff,
                 ep.LiftHeight,
                 ep.PodFrameMass);
+            // Sync MAPF EnergyModel with same physical constants
+            RAWSimO.MultiAgentPathFinding.Elements.EnergyModel.Configure(
+                ep.RobotMass,
+                ep.RobotWidth,
+                ep.RobotLength,
+                ep.RollingFriction,
+                ep.InertiaCoeff);
             // --> HANDLE OVERRIDES
             // If an override is specified, remove the specified amount of input stations
             if (instance.SettingConfig.OverrideConfig != null && instance.SettingConfig.OverrideConfig.OverrideInputStationCount)

@@ -9,7 +9,7 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
     public static class EnergyModel
     {
         public static double GRAVITY = 9.8;
-        public static double FRICTION = 0.01;
+        public static double FRICTION = 0.02;
         public static double INERTIA = 0.15;
         public static double ROBOT_MASS = 300.0;
         public static double ROBOT_WIDTH = 0.6;
@@ -17,11 +17,28 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         public static double ROBOT_RADIUS = 0.3;
 
         /// <summary>
-        /// Standby (idle) power from literature: 43.27 W.
+        /// Standby (idle) power from literature: 90 W.
         /// E_wait = P_idle × waitDuration [J].
         /// Independent of mass (control system / motor standby draw).
         /// </summary>
-        public static double P_IDLE = 43.27;
+        public static double P_IDLE = 90;
+
+        /// <summary>
+        /// Synchronizes physical constants with EnergyConsumption (Core).
+        /// Must be called after EnergyConsumption.Configure() so that
+        /// low-level A* search uses the same friction/inertia/dimensions as BotNormal accounting.
+        /// </summary>
+        public static void Configure(
+            double robotMass, double robotWidth, double robotLength,
+            double rollingFriction, double inertiaCoeff)
+        {
+            ROBOT_MASS   = robotMass;
+            ROBOT_WIDTH  = robotWidth;
+            ROBOT_LENGTH = robotLength;
+            ROBOT_RADIUS = robotWidth / 2.0;
+            FRICTION     = rollingFriction;
+            INERTIA      = inertiaCoeff;
+        }
 
         public static double ComputeWaitEnergy(double mTotal, double waitDuration)
             => P_IDLE * waitDuration;
