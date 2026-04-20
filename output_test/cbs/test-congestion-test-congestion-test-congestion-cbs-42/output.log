@@ -1,0 +1,202 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/17/2026 23:09:38
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/test-congestion.xlayo
+Setting: Material/Instances/CoreBenchmark/test-congestion.xsett
+ControlConfig: Material/Instances/CoreBenchmark/test-congestion-cbs.xconf
+StatisticsDir: output_test/cbs
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+LayoutConfiguration recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing layout config ...
+Generating instance...
+Info about all directions within the generated instance:
+# # # # # e p e p p p p p p p p p e p p p p p p p p p e p p p p p e s # # # # # 
+# # # # # n q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q # # # # # 
+# # # # # b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b s # # # # # 
+s w w w w d q d < < < < q < < < < d < < < < q < < < < d < < < < q d q w w w w w 
+p e e e s b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b p e e e e n 
+s w w w w d q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q n w w w d 
+e e e e e b p b > > > > p > > > > b > > > > p > > > > b > > > > p b p e e e e n 
+# # # # # n q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q # # # # # 
+# # # # # b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b s # # # # # 
+s w w w w d q d < < < < q < < < < d < < < < q < < < < d < < < < q d q w w w w w 
+p e e e s b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b p e e e e n 
+s w w w w d q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q n w w w d 
+e e e e e b p b > > > > p > > > > b > > > > p > > > > b > > > > p b p e e e e n 
+# # # # # n q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q # # # # # 
+# # # # # b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b s # # # # # 
+# # # # # n q d < < < < q < < < < d < < < < q < < < < d < < < < q d q # # # # # 
+# # # # # b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b s # # # # # 
+# # # # # n q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q # # # # # 
+# # # # # b p b > > > > p > > > > b > > > > p > > > > b > > > > p b s # # # # # 
+# # # # # n q ^ + + + + v + + + + ^ + + + + v + + + + ^ + + + + q d q # # # # # 
+# # # # # b p b + + + + v + + + + ^ + + + + v + + + + ^ + + + + v b s # # # # # 
+# # # # # n w d d d d d w d d d d d d d d d w d d d d d d d d d w d w # # # # # 
+
+
+Info about all types within the generated instance:
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r b b b b b 
+b b b b b r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r b b b b b 
+b b b b b r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r s s s s r s s s s r s s s s r s s s s r s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+
+
+[EnergyConsumption] Configured from LayoutConfiguration: RobotMass=100 kg, PodFrameMass=50 kg
+StatisticsFolder: test-congestion-test-congestion-test-congestion-cbs-42
+Done!
+Executing ... 
+ 23:09:39 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    |  88.73MB  
+ 00:00:05 | 00:09:37 | 0.00:00:30 |  0.86%   |    0    |    0     | 70%  |   271    |   0    |  90.70MB  
+ 00:00:10 | 00:15:37 | 0.00:00:38 |  1.06%   |    0    |    0     | 70%  |   321    |   0    | 100.16MB  
+ 00:00:15 | 00:19:18 | 0.00:00:46 |  1.28%   |    0    |    0     | 70%  |   366    |   0    | 109.13MB  
+ 00:00:20 | 00:21:22 | 0.00:00:55 |  1.54%   |    0    |    0     | 70%  |   421    |   0    | 109.16MB  
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(34->23),Agent17(33->22)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(34->23),Agent17(33->22)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(34->23),Agent17(33->22)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(34->23),Agent17(33->22)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(54->43),Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(54->43),Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(54->43),Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(54->43),Agent17(33->23)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(54->43)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(12->11)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(12->11)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(12->11)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(12->11)
+ 00:00:20 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(12->11)
+ 00:00:21 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent9(10->2)
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(12->11)
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(12->11)
+ 00:00:23 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(32->31)
+ 00:00:23 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent18(51->50)
+ 00:00:25 | 00:00:52 | 0.00:19:18 |  32.17%  |   129   |   194    | 76%  |   5394   |   0    | 107.58MB  
+ 00:00:27 | Pausing bundle generation due to inventory+reserved+backlog level (currently at: 0.8503071424286316)
+ 00:00:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(34->32)
+ 00:00:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(34->32)
+ 00:00:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(34->33)
+ 00:00:27 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent11(34->33)
+ 00:00:29 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent17(32->31)
+ 00:00:30 | 00:00:23 | 0.00:33:52 |  56.45%  |   228   |   347    | 79%  |   9925   |   0    | 104.64MB  
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(14->13)
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(14->13)
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(14->13)
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent2(14->13)
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent15(11->10)
+ 00:00:32 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent15(11->10)
+ 00:00:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(32->31)
+ 00:00:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(32->30)
+ 00:00:34 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(32->30)
+ 00:00:35 | 00:00:10 | 0.00:46:33 |  77.59%  |   309   |   478    | 83%  |  13894   |   0    | 105.59MB  
+ 00:00:36 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent16(32->30)
+ 00:00:40 | 00:00:02 | 0.00:56:17 |  93.83%  |   363   |   517    | 84%  |  16798   |   0    | 107.32MB  
+ 00:00:43 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(22->21)
+ 00:00:43 | 00:00:00 | 0.01:00:00 | 100.00%  |   381   |   517    | 84%  |  17829   |   0    | 109.14MB  
+ 00:00:43 | >>> Simulation finished - writing results ...
+ 00:00:43 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.027131888659058488
+StatTimingPathPlanningOverall: 38.0389079
+StatTimingPathPlanningCount: 1402
+StatTimingTaskAllocationAverage: 0.0005644869731800778
+StatTimingTaskAllocationOverall: 1.7679732000000037
+StatTimingTaskAllocationCount: 3132
+StatTimingItemStorageAverage: 1.0008588957055205E-05
+StatTimingItemStorageOverall: 0.006525599999999994
+StatTimingItemStorageCount: 652
+StatTimingPodStorageAverage: 0.0017854374517374534
+StatTimingPodStorageOverall: 0.4624283000000004
+StatTimingPodStorageCount: 259
+StatTimingReplenishmentBatchingAverage: 3.580811744386873E-05
+StatTimingReplenishmentBatchingOverall: 0.020732899999999995
+StatTimingReplenishmentBatchingCount: 579
+StatTimingOrderBatchingAverage: 0.0001915057189542484
+StatTimingOrderBatchingOverall: 0.23440300000000003
+StatTimingOrderBatchingCount: 1224
+>>> Overall
+StatOverallBundlesPlaced: 317
+StatOverallItemsOrdered: 653
+StatOverallOrdersPlaced: 389
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 517
+StatOverallItemsHandled: 617
+StatOverallLinesHandled: 577
+StatOverallOrdersHandled: 381
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 17829.022506177258
+StatOverallDistanceEstimated: 16115
+StatOverallAssignedTasks: 3132
+StatMaxMemoryUsed: 109.734375
+StatRealTimeUsed: 43.7620491
+StatAverageTurnoverTime: 957.7479718980563
+StatMedianTurnoverTime: 701.9152945006208
+StatLowerQuartileTurnoverTime: 329.3584907242573
+StatUpperQuartileTurnoverTime: 1353.4928458083775
+StatAverageThroughputTime: 79.3361661210102
+StatMedianThroughputTime: 58.65769649557819
+StatLowerQuartileThroughputTime: 30.358152943429218
+StatUpperQuartileThroughputTime: 117.92276263425606
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 1617.1429895269875
+StatEnergyE1AccelKJ: 639.5641968984385
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 311.0387327765083
+StatEnergyE4RotationKJ: 221.46249134551184
+StatEnergyE5LiftLowerKJ: 445.0775685065291
+StatEnergyPerOrderKJ: 4.244469788784744
+StatEnergyPerMeterJoule: 90.66735756486811
+StatEnergyIdleKJ: 6409.1955439518115
+StatEnergyTotalWithIdleKJ: 8026.338533478797
+StatEnergyPerOrderWithIdleKJ: 21.06650533721469
+StatDistanceTraveledRizqiM: 17836
+>>> Motion Behavior
+StatTurningCount: 2951
+StatStopAndGoCount: 3869
+StatLoadedDistanceM: 12484
+StatLoadedTurningCount: 2066
+StatLoadedStopAndGoCount: 2897
+StatEmptyTurningCount: 885
+StatEmptyStopAndGoCount: 972
+StatWaitTimeSec: 38059.263888049325
+StatPathPlanningTimeouts: 19
+StatMoveEnergyEmptyKJ: 66.70070000000001
+StatMoveTimeEmptySec: 8542.542224959978
+StatTurnEnergyEmptyKJ: 16.91189575885963
+StatTurnTimeEmptySec: 922.2856991530884
+StatMoveEnergyLoadedKJ: 883.9022296749466
+StatMoveTimeLoadedSec: 21086.396155157076
+StatTurnEnergyLoadedKJ: 204.55059558665215
+StatTurnTimeLoadedSec: 2090.398955073711
+StatPrefEmptyW: 8.834032317253653
+StatPrefLoadedW: 46.963042995583535
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

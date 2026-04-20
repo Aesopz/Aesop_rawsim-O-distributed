@@ -159,6 +159,12 @@ namespace RAWSimO.Core
         public double StatOverallMoveTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeLoadedSec); } }
         public double StatOverallTurnEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnEnergyLoadedJ); } }
         public double StatOverallTurnTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnTimeLoadedSec); } }
+        public double StatOverallStopAndGoEnergyEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatStopAndGoEnergyEmptyJ); } }
+        public double StatOverallStopAndGoEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatStopAndGoEnergyLoadedJ); } }
+        /// <summary>Total number of completed loaded trips (pickup → setdown) across all bots.</summary>
+        public int StatOverallTripCountLoaded { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTripCountLoaded); } }
+        /// <summary>Total number of completed empty trips (setdown → next pickup) across all bots.</summary>
+        public int StatOverallTripCountEmpty { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTripCountEmpty); } }
         /// <summary>
         /// The estimated distance by the bots.
         /// </summary>
@@ -788,6 +794,20 @@ namespace RAWSimO.Core
         }
 
         /// <summary>
+        /// Calculates the p-th percentile of a sorted list of values.
+        /// </summary>
+        /// <param name="sortedValues">List of values already sorted in ascending order.</param>
+        /// <param name="p">Percentile (0.0 to 1.0), e.g., 0.50 for median, 0.95 for p95.</param>
+        /// <returns>The percentile value, or NaN if list is empty.</returns>
+        private static double Percentile(List<double> sortedValues, double p)
+        {
+            if (sortedValues.Count == 0) return double.NaN;
+            double idx = p * (sortedValues.Count - 1);
+            int lo = (int)Math.Floor(idx), hi = (int)Math.Ceiling(idx);
+            return sortedValues[lo] + (sortedValues[hi] - sortedValues[lo]) * (idx - lo);
+        }
+
+        /// <summary>
         /// Writes and flushes all statistics to the directory specified in the configuration.
         /// </summary>
         public void WriteStatistics()
@@ -1090,6 +1110,8 @@ namespace RAWSimO.Core
             sb.AppendLine("StatMoveTimeLoadedSec: "  + StatOverallMoveTimeLoadedSec.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatTurnEnergyLoadedKJ: " + (StatOverallTurnEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatTurnTimeLoadedSec: "  + StatOverallTurnTimeLoadedSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatStopAndGoEnergyEmptyKJ: " + (StatOverallStopAndGoEnergyEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatStopAndGoEnergyLoadedKJ: " + (StatOverallStopAndGoEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
             // Pref = (moveE + turnE) / (moveT + turnT)  — power during active motion only
             double prefEmpty  = (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  > 0
                 ? (StatOverallMoveEnergyEmptyJ  + StatOverallTurnEnergyEmptyJ)  / (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  : 0.0;
@@ -1097,6 +1119,48 @@ namespace RAWSimO.Core
                 ? (StatOverallMoveEnergyLoadedJ + StatOverallTurnEnergyLoadedJ) / (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) : 0.0;
             sb.AppendLine("StatPrefEmptyW: "  + prefEmpty.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatPrefLoadedW: " + prefLoaded.ToString(IOConstants.FORMATTER));
+            // ── Per-trip wait ratio statistics ───────────────
+            var totalPickupCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.StatPickupCount);
+            var totalSetdownCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.StatSetdownCount);
+            var totalWaitRatiosEmptyCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.PerTripWaitRatioEmpty.Count);
+            var totalWaitRatiosLoadedCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.PerTripWaitRatioLoaded.Count);
+            sb.AppendLine("StatPickupCount: " + totalPickupCount);
+            sb.AppendLine("StatSetdownCount: " + totalSetdownCount);
+            sb.AppendLine("PerTripWaitRatioEmptyCount: " + totalWaitRatiosEmptyCount);
+            sb.AppendLine("PerTripWaitRatioLoadedCount: " + totalWaitRatiosLoadedCount);
+            sb.AppendLine("StatTripCountLoaded: " + StatOverallTripCountLoaded);
+            sb.AppendLine("StatTripCountEmpty: " + StatOverallTripCountEmpty);
+            // ── Per-robot diagnostics ───────────────
+            sb.AppendLine(">>> Per-Robot Trip Counts");
+            foreach (var bot in Bots.OfType<Bots.BotNormal>().OrderBy(b => b.ID))
+            {
+                sb.AppendLine($"  Bot{bot.ID}: pickupCount={bot.StatPickupCount}, tripCountEmpty={bot.StatTripCountEmpty}, setdownCount={bot.StatSetdownCount}, tripCountLoaded={bot.StatTripCountLoaded}, ordersCompleted={bot.StatOrdersCompleted}");
+            }
+            // Aggregate all per-trip wait ratios from all bots
+            var allWaitRatiosLoaded = Bots.OfType<Bots.BotNormal>()
+                .SelectMany(b => b.PerTripWaitRatioLoaded).ToList();
+            if (allWaitRatiosLoaded.Count > 0)
+            {
+                allWaitRatiosLoaded.Sort();
+                double meanLoaded = allWaitRatiosLoaded.Average();
+                double medianLoaded = Percentile(allWaitRatiosLoaded, 0.50);
+                double p95Loaded = Percentile(allWaitRatiosLoaded, 0.95);
+                sb.AppendLine("StatTripWaitRatioLoadedMean: " + meanLoaded.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioLoadedMedian: " + medianLoaded.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioLoadedP95: " + p95Loaded.ToString(IOConstants.FORMATTER));
+            }
+            var allWaitRatiosEmpty = Bots.OfType<Bots.BotNormal>()
+                .SelectMany(b => b.PerTripWaitRatioEmpty).ToList();
+            if (allWaitRatiosEmpty.Count > 0)
+            {
+                allWaitRatiosEmpty.Sort();
+                double meanEmpty = allWaitRatiosEmpty.Average();
+                double medianEmpty = Percentile(allWaitRatiosEmpty, 0.50);
+                double p95Empty = Percentile(allWaitRatiosEmpty, 0.95);
+                sb.AppendLine("StatTripWaitRatioEmptyMean: " + meanEmpty.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioEmptyMedian: " + medianEmpty.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioEmptyP95: " + p95Empty.ToString(IOConstants.FORMATTER));
+            }
             sb.AppendLine(">>> Support & Utilization");
             int botCount = Bots.OfType<Bots.BotNormal>().Count();
             double utilization = (StatTime > 0 && botCount > 0)

@@ -571,3 +571,296 @@ Stacktrace:
 InnerException: 
 None
 -----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\ecbs-test2-ecbs-0\ecbs-test-aesop-aesop-ecbs-0\output.log' because it is being used by another process. timestamp: 04/15/2026 20:35:34
+-----------------------------------------------------------
+Time: 2026/4/15 下午 08:35:34
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 0
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\ecbs-test2-ecbs-0\ecbs-test-aesop-aesop-ecbs-0\output.log' because it is being used by another process. timestamp: 04/15/2026 20:35:44
+-----------------------------------------------------------
+Time: 2026/4/15 下午 08:35:44
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 0
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\ecbs-test2-ecbs-0\ecbs-test-aesop-aesop-ecbs-0\output.log' because it is being used by another process. timestamp: 04/15/2026 20:35:56
+-----------------------------------------------------------
+Time: 2026/4/15 下午 08:35:56
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 0
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Value cannot be null. (Parameter 'key') timestamp: 04/16/2026 00:31:27
+-----------------------------------------------------------
+Time: 2026/4/16 上午 12:31:27
+Instance: Material/Instances/CoreBenchmark/aesop.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+Seed: 42
+Tag: bench-cbs
+Stacktrace:
+   at System.Collections.Generic.Dictionary`2.FindValue(TKey key)
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at RAWSimO.Core.Control.PathManager.FindElevatorSequence(BotNormal bot, Waypoint start, Waypoint end, Double& distance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\PathManager.cs:line 674
+   at RAWSimO.Core.Bots.BotNormal._appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 522
+   at RAWSimO.Core.Bots.BotNormal.AssignTask(BotTask t) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 487
+   at RAWSimO.Core.Control.BotManager.RequestNewTask(Bot bot) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\BotManagerCore.cs:line 309
+   at RAWSimO.Core.Bots.BotNormal.Update(Double lastTime, Double currentTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 865
+   at RAWSimO.Core.Control.Controller.Update(Double elapsedTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\Controller.cs:line 248
+   at RAWSimO.Core.Control.SimulationExecutor.Execute(Instance instance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\SimulationExecutor.cs:line 33
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 182
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Value cannot be null. (Parameter 'key') timestamp: 04/16/2026 00:31:35
+-----------------------------------------------------------
+Time: 2026/4/16 上午 12:31:35
+Instance: Material/Instances/CoreBenchmark/aesop.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+Seed: 42
+Tag: bench-cbs
+Stacktrace:
+   at System.Collections.Generic.Dictionary`2.FindValue(TKey key)
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at RAWSimO.Core.Control.PathManager.FindElevatorSequence(BotNormal bot, Waypoint start, Waypoint end, Double& distance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\PathManager.cs:line 674
+   at RAWSimO.Core.Bots.BotNormal._appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 522
+   at RAWSimO.Core.Bots.BotNormal.AssignTask(BotTask t) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 487
+   at RAWSimO.Core.Control.BotManager.RequestNewTask(Bot bot) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\BotManagerCore.cs:line 309
+   at RAWSimO.Core.Bots.BotNormal.Update(Double lastTime, Double currentTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 865
+   at RAWSimO.Core.Control.Controller.Update(Double elapsedTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\Controller.cs:line 248
+   at RAWSimO.Core.Control.SimulationExecutor.Execute(Instance instance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\SimulationExecutor.cs:line 33
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 182
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Value cannot be null. (Parameter 'key') timestamp: 04/16/2026 00:31:43
+-----------------------------------------------------------
+Time: 2026/4/16 上午 12:31:43
+Instance: Material/Instances/CoreBenchmark/aesop.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+Seed: 42
+Tag: bench-cbs
+Stacktrace:
+   at System.Collections.Generic.Dictionary`2.FindValue(TKey key)
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at RAWSimO.Core.Control.PathManager.FindElevatorSequence(BotNormal bot, Waypoint start, Waypoint end, Double& distance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\PathManager.cs:line 674
+   at RAWSimO.Core.Bots.BotNormal._appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 522
+   at RAWSimO.Core.Bots.BotNormal.AssignTask(BotTask t) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 487
+   at RAWSimO.Core.Control.BotManager.RequestNewTask(Bot bot) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\BotManagerCore.cs:line 309
+   at RAWSimO.Core.Bots.BotNormal.Update(Double lastTime, Double currentTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 865
+   at RAWSimO.Core.Control.Controller.Update(Double elapsedTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\Controller.cs:line 248
+   at RAWSimO.Core.Control.SimulationExecutor.Execute(Instance instance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\SimulationExecutor.cs:line 33
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 182
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\aesop-aesop-aesop-ecbs-42\output.log' because it is being used by another process. timestamp: 04/17/2026 02:44:27
+-----------------------------------------------------------
+Time: 2026/4/17 上午 02:44:27
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 42
+Tag: params-test
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\aesop-aesop-aesop-ecbs-42\output.log' because it is being used by another process. timestamp: 04/17/2026 02:45:40
+-----------------------------------------------------------
+Time: 2026/4/17 上午 02:45:40
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 42
+Tag: test-v2
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: The process cannot access the file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\output_compare\aesop-aesop-aesop-ecbs-42\output.log' because it is being used by another process. timestamp: 04/17/2026 02:47:53
+-----------------------------------------------------------
+Time: 2026/4/17 上午 02:47:53
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+Seed: 42
+Tag: baseline
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamWriter.ValidateArgsAndOpenPath(String path, Boolean append, Encoding encoding, Int32 bufferSize)
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 175
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: There is an error in XML document (42, 4). timestamp: 04/17/2026 23:08:08
+-----------------------------------------------------------
+Time: 2026/4/17 下午 11:08:08
+Instance: Material/Instances/CoreBenchmark/test-congestion.xlayo
+Setting: Material/Instances/CoreBenchmark/test-congestion.xsett
+ControlConfig: Material/Instances/CoreBenchmark/test-congestion-cbs.xconf
+Seed: 42
+Tag: <null>
+Stacktrace:
+   at System.Xml.Serialization.XmlSerializer.Deserialize(XmlReader xmlReader, String encodingStyle, XmlDeserializationEvents events)
+   at System.Xml.Serialization.XmlSerializer.Deserialize(TextReader textReader)
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 102
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+Input string was not in a correct format.
+Stacktrace:
+   at System.Number.ThrowOverflowOrFormatException(ParsingStatus status, TypeCode type)
+   at Microsoft.Xml.Serialization.GeneratedAssembly.XmlSerializationReaderLayoutConfiguration.Read4_LayoutConfiguration(Boolean isNullable, Boolean checkType)
+   at Microsoft.Xml.Serialization.GeneratedAssembly.XmlSerializationReaderLayoutConfiguration.Read5_LayoutConfiguration()
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: There is an error in XML document (42, 4). timestamp: 04/17/2026 23:08:12
+-----------------------------------------------------------
+Time: 2026/4/17 下午 11:08:12
+Instance: Material/Instances/CoreBenchmark/test-congestion.xlayo
+Setting: Material/Instances/CoreBenchmark/test-congestion.xsett
+ControlConfig: Material/Instances/CoreBenchmark/test-congestion-ecbs.xconf
+Seed: 42
+Tag: <null>
+Stacktrace:
+   at System.Xml.Serialization.XmlSerializer.Deserialize(XmlReader xmlReader, String encodingStyle, XmlDeserializationEvents events)
+   at System.Xml.Serialization.XmlSerializer.Deserialize(TextReader textReader)
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 102
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+Input string was not in a correct format.
+Stacktrace:
+   at System.Number.ThrowOverflowOrFormatException(ParsingStatus status, TypeCode type)
+   at Microsoft.Xml.Serialization.GeneratedAssembly.XmlSerializationReaderLayoutConfiguration.Read4_LayoutConfiguration(Boolean isNullable, Boolean checkType)
+   at Microsoft.Xml.Serialization.GeneratedAssembly.XmlSerializationReaderLayoutConfiguration.Read5_LayoutConfiguration()
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: LayoutConfiguration is not valid. !TwoDirectional && (NrVerticalAisles % 2 != 0 || NrHorizontalAisles % 2 != 0), NrVerticalAisles: 3, NrHorizontalAisles: 6 timestamp: 04/17/2026 23:08:28
+-----------------------------------------------------------
+Time: 2026/4/17 下午 11:08:28
+Instance: Material/Instances/CoreBenchmark/test-congestion.xlayo
+Setting: Material/Instances/CoreBenchmark/test-congestion.xsett
+ControlConfig: Material/Instances/CoreBenchmark/test-congestion-cbs.xconf
+Seed: 42
+Tag: <null>
+Stacktrace:
+   at RAWSimO.Core.Generator.LayoutGenerator..ctor(LayoutConfiguration layoutConfiguration, SettingConfiguration baseConfiguration, ControlConfiguration controlConfiguration, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\LayoutGenerator.cs:line 190
+   at RAWSimO.Core.Generator.InstanceGenerator.GenerateLayout(LayoutConfiguration layoutConfiguration, SettingConfiguration settingConfig, ControlConfiguration controlConfig, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\InstanceGenerator.cs:line 40
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 108
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: LayoutConfiguration is not valid. HorizontalLengthBlock < 1 || HorizontalLengthBlock % 2 != 0, HorizontalLengthBlock: 5 timestamp: 04/17/2026 23:08:44
+-----------------------------------------------------------
+Time: 2026/4/17 下午 11:08:44
+Instance: Material/Instances/CoreBenchmark/test-congestion.xlayo
+Setting: Material/Instances/CoreBenchmark/test-congestion.xsett
+ControlConfig: Material/Instances/CoreBenchmark/test-congestion-cbs.xconf
+Seed: 42
+Tag: <null>
+Stacktrace:
+   at RAWSimO.Core.Generator.LayoutGenerator..ctor(LayoutConfiguration layoutConfiguration, SettingConfiguration baseConfiguration, ControlConfiguration controlConfiguration, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\LayoutGenerator.cs:line 190
+   at RAWSimO.Core.Generator.InstanceGenerator.GenerateLayout(LayoutConfiguration layoutConfiguration, SettingConfiguration settingConfig, ControlConfiguration controlConfig, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Generator\InstanceGenerator.cs:line 40
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 108
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+None
+-----------------------------------------------------------
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Could not find file 'C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\Material\Instances\CoreBenchmark\aesop-tiny.xlayo'. timestamp: 04/20/2026 09:44:23
+-----------------------------------------------------------
+Time: 2026/4/20 上午 09:44:23
+Instance: Material/Instances/CoreBenchmark/aesop-tiny.xlayo
+Setting: Material/Instances/CoreBenchmark/aesop-tiny.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+Seed: 42
+Tag: <null>
+Stacktrace:
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize)
+   at System.Xml.XmlDownloadManager.GetStream(Uri uri, ICredentials credentials, IWebProxy proxy)
+   at System.Xml.XmlUrlResolver.GetEntity(Uri absoluteUri, String role, Type ofObjectToReturn)
+   at System.Xml.XmlTextReaderImpl.OpenUrl()
+   at System.Xml.XmlTextReaderImpl.Read()
+   at System.Xml.XmlLoader.Load(XmlDocument doc, XmlReader reader, Boolean preserveWhitespace)
+   at System.Xml.XmlDocument.Load(XmlReader reader)
+   at System.Xml.XmlDocument.Load(String filename)
+   at RAWSimO.Core.IO.InstanceIO.ReadInstance(String instancePath, String settingConfigPath, String controlConfigPath, Boolean overrideVisualizationAttached, Boolean visualizationOnly, Action`1 logAction) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\IO\InstanceIO.cs:line 50
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 166
+InnerException: 
+None
+-----------------------------------------------------------

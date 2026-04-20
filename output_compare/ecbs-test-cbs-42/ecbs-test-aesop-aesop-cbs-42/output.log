@@ -1,0 +1,106 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/15/2026 20:17:38
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+StatisticsDir: output_compare/ecbs-test-cbs-42
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: ecbs-test-aesop-aesop-cbs-42
+Done!
+Executing ... 
+ 20:17:39 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    |  76.48MB  
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(11->10)
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(11->10)
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent4(11->10)
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(2->1)
+ 00:00:03 | Pausing bundle generation due to inventory+reserved+backlog level (currently at: 0.8506631181903752)
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(3->1)
+ 00:00:03 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(3->2)
+ 00:00:04 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent5(3->2)
+ 00:00:04 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent1(2->1)
+ 00:00:04 | 00:00:00 | 0.00:30:00 | 100.00%  |   225   |   328    | 83%  |   7536   |   0    |  91.11MB  
+ 00:00:04 | >>> Simulation finished - writing results ...
+ 00:00:05 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.0071810882096069815
+StatTimingPathPlanningOverall: 3.2889383999999975
+StatTimingPathPlanningCount: 458
+StatTimingTaskAllocationAverage: 0.0006304057943925237
+StatTimingTaskAllocationOverall: 0.33726710000000015
+StatTimingTaskAllocationCount: 535
+StatTimingItemStorageAverage: 6.357062146892649E-06
+StatTimingItemStorageOverall: 0.002250399999999998
+StatTimingItemStorageCount: 354
+StatTimingPodStorageAverage: 0.0012261457142857147
+StatTimingPodStorageOverall: 0.12874530000000003
+StatTimingPodStorageCount: 105
+StatTimingReplenishmentBatchingAverage: 2.7604775280898865E-05
+StatTimingReplenishmentBatchingOverall: 0.009827299999999995
+StatTimingReplenishmentBatchingCount: 356
+StatTimingOrderBatchingAverage: 8.47692204301076E-05
+StatTimingOrderBatchingOverall: 0.06306830000000005
+StatTimingOrderBatchingCount: 744
+>>> Overall
+StatOverallBundlesPlaced: 139
+StatOverallItemsOrdered: 378
+StatOverallOrdersPlaced: 247
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 328
+StatOverallItemsHandled: 349
+StatOverallLinesHandled: 328
+StatOverallOrdersHandled: 225
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 7535.742692717834
+StatOverallDistanceEstimated: 6739
+StatOverallAssignedTasks: 535
+StatMaxMemoryUsed: 91.9296875
+StatRealTimeUsed: 4.7150395
+StatAverageTurnoverTime: 641.6933566235921
+StatMedianTurnoverTime: 570.3436147075744
+StatLowerQuartileTurnoverTime: 263.48555555555663
+StatUpperQuartileTurnoverTime: 889.704733011606
+StatAverageThroughputTime: 164.0728167022189
+StatMedianThroughputTime: 61.30009379141279
+StatLowerQuartileThroughputTime: 40.4471284308093
+StatUpperQuartileThroughputTime: 263.4374098050498
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 1285.013083544509
+StatEnergyE1AccelKJ: 274.9923951906552
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 593.8532705733089
+StatEnergyE4RotationKJ: 236.33194543656032
+StatEnergyE5LiftLowerKJ: 179.8354723439843
+StatEnergyPerOrderKJ: 5.711169260197818
+StatEnergyPerMeterJoule: 169.2142590919817
+StatDistanceTraveledRizqiM: 7594
+>>> Motion Behavior
+StatTurningCount: 1158
+StatStopAndGoCount: 1636
+StatLoadedDistanceM: 5809
+StatLoadedTurningCount: 886
+StatWaitTimeSec: 27606.68288623852
+StatMoveEnergyEmptyKJ: 100.76970000000004
+StatMoveTimeEmptySec: 1635.215584327242
+StatTurnEnergyEmptyKJ: 27.09779266648073
+StatTurnTimeEmptySec: 164.34154410355944
+StatMoveEnergyLoadedKJ: 768.0759657639642
+StatMoveTimeLoadedSec: 5745.07792163621
+StatTurnEnergyLoadedKJ: 209.23415277007962
+StatTurnTimeLoadedSec: 558.4114790838396
+StatPrefEmptyW: 71.05497827567171
+StatPrefLoadedW: 155.0427162489407
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

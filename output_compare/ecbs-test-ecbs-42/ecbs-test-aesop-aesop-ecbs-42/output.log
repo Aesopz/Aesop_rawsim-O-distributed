@@ -1,0 +1,106 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/15/2026 20:17:54
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+StatisticsDir: output_compare/ecbs-test-ecbs-42
+Seed: 42
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: ecbs-test-aesop-aesop-ecbs-42
+Done!
+Executing ... 
+ 20:17:55 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    |  75.80MB  
+ 00:00:05 | 00:06:02 | 0.00:00:24 |  1.36%   |    0    |    0     | 70%  |   144    |   0    | 101.76MB  
+ 00:00:10 | 00:07:32 | 0.00:00:38 |  2.16%   |    0    |    0     | 70%  |   243    |   0    | 100.05MB  
+ 00:00:15 | 00:01:16 | 0.00:04:54 |  16.37%  |   25    |    32    | 71%  |   1100   |   0    | 102.18MB  
+ 00:00:20 | 00:00:37 | 0.00:10:31 |  35.09%  |   73    |    93    | 74%  |   2046   |   0    | 100.47MB  
+ 00:00:20 | Pausing bundle generation due to inventory+reserved+backlog level (currently at: 0.850109174381883)
+ 00:00:25 | 00:00:21 | 0.00:15:59 |  53.32%  |   111   |   149    | 76%  |   3180   |   0    | 100.36MB  
+ 00:00:30 | 00:00:11 | 0.00:21:32 |  71.79%  |   149   |   200    | 78%  |   4370   |   0    | 100.16MB  
+ 00:00:35 | 00:00:05 | 0.00:26:04 |  86.91%  |   181   |   238    | 79%  |   5358   |   0    | 102.94MB  
+ 00:00:40 | 00:00:01 | 0.00:28:48 |  96.05%  |   196   |   260    | 80%  |   6040   |   0    |  99.85MB  
+ 00:00:42 | 00:00:00 | 0.00:30:00 | 100.00%  |   202   |   269    | 81%  |   6358   |   0    | 100.32MB  
+ 00:00:42 | >>> Simulation finished - writing results ...
+ 00:00:42 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.12412963241590207
+StatTimingPathPlanningOverall: 40.590389799999976
+StatTimingPathPlanningCount: 327
+StatTimingTaskAllocationAverage: 0.001036766229508196
+StatTimingTaskAllocationOverall: 0.3162136999999998
+StatTimingTaskAllocationCount: 305
+StatTimingItemStorageAverage: 7.203757225433533E-06
+StatTimingItemStorageOverall: 0.0024925000000000025
+StatTimingItemStorageCount: 346
+StatTimingPodStorageAverage: 0.001220867368421053
+StatTimingPodStorageOverall: 0.11598240000000004
+StatTimingPodStorageCount: 95
+StatTimingReplenishmentBatchingAverage: 3.6523569023569016E-05
+StatTimingReplenishmentBatchingOverall: 0.010847499999999998
+StatTimingReplenishmentBatchingCount: 297
+StatTimingOrderBatchingAverage: 0.00010323414634146346
+StatTimingOrderBatchingOverall: 0.06772160000000003
+StatTimingOrderBatchingCount: 656
+>>> Overall
+StatOverallBundlesPlaced: 140
+StatOverallItemsOrdered: 358
+StatOverallOrdersPlaced: 224
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 269
+StatOverallItemsHandled: 332
+StatOverallLinesHandled: 306
+StatOverallOrdersHandled: 202
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 6358.191984039448
+StatOverallDistanceEstimated: 6035
+StatOverallAssignedTasks: 305
+StatMaxMemoryUsed: 103.1484375
+StatRealTimeUsed: 42.0804546
+StatAverageTurnoverTime: 650.5189221635584
+StatMedianTurnoverTime: 584.7841846489704
+StatLowerQuartileTurnoverTime: 311.73427124746206
+StatUpperQuartileTurnoverTime: 967.6901225631015
+StatAverageThroughputTime: 162.6542913094347
+StatMedianThroughputTime: 70.76944444444507
+StatLowerQuartileThroughputTime: 40.33750359646052
+StatUpperQuartileThroughputTime: 246.49971862576365
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 1024.9519809046778
+StatEnergyE1AccelKJ: 654.9561183181647
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 3.1035968305215778
+StatEnergyE4RotationKJ: 208.6989087841933
+StatEnergyE5LiftLowerKJ: 158.19335697179824
+StatEnergyPerOrderKJ: 5.0740197074489
+StatEnergyPerMeterJoule: 160.95351458930244
+StatDistanceTraveledRizqiM: 6368
+>>> Motion Behavior
+StatTurningCount: 1045
+StatStopAndGoCount: 5827
+StatLoadedDistanceM: 4836
+StatLoadedTurningCount: 777
+StatWaitTimeSec: 23291.69046980746
+StatMoveEnergyEmptyKJ: 79.57462500000001
+StatMoveTimeEmptySec: 2783.278498487097
+StatTurnEnergyEmptyKJ: 26.763911219072472
+StatTurnTimeEmptySec: 163.38222222222223
+StatMoveEnergyLoadedKJ: 578.4850901486859
+StatMoveTimeLoadedSec: 9312.778354061804
+StatTurnEnergyLoadedKJ: 181.93499756512085
+StatTurnTimeLoadedSec: 502.62297974644696
+StatPrefEmptyW: 36.08781135599307
+StatPrefLoadedW: 77.47213403232016
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

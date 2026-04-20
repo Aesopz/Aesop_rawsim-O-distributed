@@ -957,6 +957,18 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockBotIdleTime;
         private TextBlock _blockBotUtilization;
         private TextBlock _blockBotESupportRatio;
+        // Stop-and-go and move/turn energy split by loaded/empty
+        private TextBlock _blockBotStopGoEnergyEmpty;
+        private TextBlock _blockBotStopGoEnergyLoaded;
+        private TextBlock _blockBotMoveEnergyEmpty;
+        private TextBlock _blockBotMoveEnergyLoaded;
+        private TextBlock _blockBotTurnEnergyEmpty;
+        private TextBlock _blockBotTurnEnergyLoaded;
+        // Per-trip tracking (added 2026-04-20)
+        private TextBlock _blockBotTripCountLoaded;
+        private TextBlock _blockBotTripCountEmpty;
+        private TextBlock _blockBotWaitRatioLoadedMean;
+        private TextBlock _blockBotWaitRatioEmptyMean;
         // Payload display: pod frame mass + cargo (item total weight). 0 when no pod carried.
         private TextBlock _blockPayload;
 
@@ -1035,6 +1047,34 @@ namespace RAWSimO.Visualization.Rendering
                     double ratio = botNormal.StatEnergyTotalJ > 0
                         ? botNormal.StatESupportJ / botNormal.StatEnergyTotalJ : double.NaN;
                     _blockBotESupportRatio.Text = double.IsNaN(ratio) ? "n/a" : ratio.ToString("P2", IOConstants.FORMATTER);
+                }
+                // Stop-and-go and move/turn energy split by loaded/empty
+                if (_blockBotStopGoEnergyEmpty != null)
+                    _blockBotStopGoEnergyEmpty.Text = (botNormal.StatStopAndGoEnergyEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotStopGoEnergyLoaded != null)
+                    _blockBotStopGoEnergyLoaded.Text = (botNormal.StatStopAndGoEnergyLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotMoveEnergyEmpty != null)
+                    _blockBotMoveEnergyEmpty.Text = (botNormal.StatMoveEnergyEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotMoveEnergyLoaded != null)
+                    _blockBotMoveEnergyLoaded.Text = (botNormal.StatMoveEnergyLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotTurnEnergyEmpty != null)
+                    _blockBotTurnEnergyEmpty.Text = (botNormal.StatTurnEnergyEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotTurnEnergyLoaded != null)
+                    _blockBotTurnEnergyLoaded.Text = (botNormal.StatTurnEnergyLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                // Per-trip tracking display (added 2026-04-20)
+                if (_blockBotTripCountLoaded != null)
+                    _blockBotTripCountLoaded.Text = botNormal.StatTripCountLoaded.ToString();
+                if (_blockBotTripCountEmpty != null)
+                    _blockBotTripCountEmpty.Text = botNormal.StatTripCountEmpty.ToString();
+                if (_blockBotWaitRatioLoadedMean != null && botNormal.PerTripWaitRatioLoaded.Count > 0)
+                {
+                    double mean = botNormal.PerTripWaitRatioLoaded.Average();
+                    _blockBotWaitRatioLoadedMean.Text = mean.ToString("P1", IOConstants.FORMATTER);
+                }
+                if (_blockBotWaitRatioEmptyMean != null && botNormal.PerTripWaitRatioEmpty.Count > 0)
+                {
+                    double mean = botNormal.PerTripWaitRatioEmpty.Average();
+                    _blockBotWaitRatioEmptyMean.Text = mean.ToString("P1", IOConstants.FORMATTER);
                 }
             }
             // Update payload (pod frame mass + cargo); 0 when no pod carried
@@ -1342,6 +1382,63 @@ namespace RAWSimO.Visualization.Rendering
                 _blockBotESupportRatio = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
                 eSupportRatioPanel.Children.Add(_blockBotESupportRatio);
                 activityNode.Items.Add(eSupportRatioPanel);
+                // Stop-and-go energy (empty)
+                WrapPanel stopGoEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                stopGoEmptyPanel.Children.Add(new TextBlock { Text = "S&G E_empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotStopGoEnergyEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                stopGoEmptyPanel.Children.Add(_blockBotStopGoEnergyEmpty);
+                activityNode.Items.Add(stopGoEmptyPanel);
+                // Stop-and-go energy (loaded)
+                WrapPanel stopGoLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                stopGoLoadedPanel.Children.Add(new TextBlock { Text = "S&G E_loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotStopGoEnergyLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                stopGoLoadedPanel.Children.Add(_blockBotStopGoEnergyLoaded);
+                activityNode.Items.Add(stopGoLoadedPanel);
+                // Move energy (empty)
+                WrapPanel moveEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                moveEmptyPanel.Children.Add(new TextBlock { Text = "Move E_empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotMoveEnergyEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                moveEmptyPanel.Children.Add(_blockBotMoveEnergyEmpty);
+                activityNode.Items.Add(moveEmptyPanel);
+                // Move energy (loaded)
+                WrapPanel moveLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                moveLoadedPanel.Children.Add(new TextBlock { Text = "Move E_loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotMoveEnergyLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                moveLoadedPanel.Children.Add(_blockBotMoveEnergyLoaded);
+                activityNode.Items.Add(moveLoadedPanel);
+                // Turn energy (empty)
+                WrapPanel turnEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                turnEmptyPanel.Children.Add(new TextBlock { Text = "Turn E_empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotTurnEnergyEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                turnEmptyPanel.Children.Add(_blockBotTurnEnergyEmpty);
+                activityNode.Items.Add(turnEmptyPanel);
+                // Turn energy (loaded)
+                WrapPanel turnLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                turnLoadedPanel.Children.Add(new TextBlock { Text = "Turn E_loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotTurnEnergyLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
+                turnLoadedPanel.Children.Add(_blockBotTurnEnergyLoaded);
+                activityNode.Items.Add(turnLoadedPanel);
+                // Per-trip tracking (added 2026-04-20)
+                WrapPanel tripCountLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                tripCountLoadedPanel.Children.Add(new TextBlock { Text = "Trip Count L: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotTripCountLoaded = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                tripCountLoadedPanel.Children.Add(_blockBotTripCountLoaded);
+                activityNode.Items.Add(tripCountLoadedPanel);
+                WrapPanel tripCountEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                tripCountEmptyPanel.Children.Add(new TextBlock { Text = "Trip Count E: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotTripCountEmpty = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                tripCountEmptyPanel.Children.Add(_blockBotTripCountEmpty);
+                activityNode.Items.Add(tripCountEmptyPanel);
+                WrapPanel waitRatioLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                waitRatioLoadedPanel.Children.Add(new TextBlock { Text = "Wait Ratio L: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotWaitRatioLoadedMean = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
+                waitRatioLoadedPanel.Children.Add(_blockBotWaitRatioLoadedMean);
+                activityNode.Items.Add(waitRatioLoadedPanel);
+                WrapPanel waitRatioEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
+                waitRatioEmptyPanel.Children.Add(new TextBlock { Text = "Wait Ratio E: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                _blockBotWaitRatioEmptyMean = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
+                waitRatioEmptyPanel.Children.Add(_blockBotWaitRatioEmptyMean);
+                activityNode.Items.Add(waitRatioEmptyPanel);
                 activityNode.IsExpanded = true;
                 root.Items.Add(activityNode);
             }

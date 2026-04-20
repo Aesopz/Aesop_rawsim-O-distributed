@@ -128,6 +128,23 @@ namespace RAWSimO.Core.Bots
         private bool _isRotatingThisTick = false;
 
         /// <summary>
+        /// Per-trip tracking: timestamp when current loaded trip started (pickup complete).
+        /// </summary>
+        private double _tripLoadedStartTime = 0.0;
+        /// <summary>
+        /// Per-trip tracking: cumulative wait time in current loaded trip [s].
+        /// </summary>
+        private double _currentTripLoadedWaitSec = 0.0;
+        /// <summary>
+        /// Per-trip tracking: timestamp when current empty trip started (setdown complete or simulation start).
+        /// </summary>
+        private double _tripEmptyStartTime = 0.0;
+        /// <summary>
+        /// Per-trip tracking: cumulative wait time in current empty trip [s].
+        /// </summary>
+        private double _currentTripEmptyWaitSec = 0.0;
+
+        /// <summary>
         /// rotate until
         /// </summary>
         private double _waitUntil = -1.0;
@@ -269,6 +286,18 @@ namespace RAWSimO.Core.Bots
         public int StatEmptyStopAndGoCount;
         /// <summary>Number of turning events while empty (no pod).</summary>
         public int StatEmptyTurningCount;
+        /// <summary>Energy consumed during stop-and-go events while empty [J].</summary>
+        public double StatStopAndGoEnergyEmptyJ;
+        /// <summary>Energy consumed during stop-and-go events while loaded [J].</summary>
+        public double StatStopAndGoEnergyLoadedJ;
+        /// <summary>Total number of completed loaded trips (pickup → setdown).</summary>
+        public int StatTripCountLoaded;
+        /// <summary>Total number of completed empty trips (setdown → next pickup).</summary>
+        public int StatTripCountEmpty;
+        /// <summary>Per-trip wait ratio for loaded trips: (wait time in trip) / (total trip time). Values 0-1.</summary>
+        public List<double> PerTripWaitRatioLoaded = new List<double>();
+        /// <summary>Per-trip wait ratio for empty trips: (wait time in trip) / (total trip time). Values 0-1.</summary>
+        public List<double> PerTripWaitRatioEmpty = new List<double>();
         /// <summary>Total time spent waiting (not moving, not rotating) [s].</summary>
         public double StatWaitTimeSec;
         /// <summary>Cumulative idle (base electronics) energy [J] = P_IDLE × total existence time.
@@ -337,6 +366,8 @@ namespace RAWSimO.Core.Bots
             StatLoadedStopAndGoCount = 0;
             StatEmptyStopAndGoCount = 0;
             StatEmptyTurningCount = 0;
+            StatStopAndGoEnergyEmptyJ = 0.0;
+            StatStopAndGoEnergyLoadedJ = 0.0;
             StatWaitTimeSec = 0.0;
             StatEnergyIdleJ = 0.0;
             StatMoveEnergyEmptyJ   = 0.0;
@@ -347,6 +378,14 @@ namespace RAWSimO.Core.Bots
             StatMoveTimeLoadedSec  = 0.0;
             StatTurnEnergyLoadedJ  = 0.0;
             StatTurnTimeLoadedSec  = 0.0;
+            StatTripCountLoaded = 0;
+            StatTripCountEmpty = 0;
+            PerTripWaitRatioLoaded.Clear();
+            PerTripWaitRatioEmpty.Clear();
+            _tripLoadedStartTime = 0.0;
+            _currentTripLoadedWaitSec = 0.0;
+            _tripEmptyStartTime = 0.0;
+            _currentTripEmptyWaitSec = 0.0;
         }
 
         #endregion
@@ -686,11 +725,13 @@ namespace RAWSimO.Core.Bots
                 {
                     StatLoadedDistanceM += segmentDistance;
                     StatLoadedStopAndGoCount++;
+                    StatStopAndGoEnergyLoadedJ += moveE + turnE;
                     if (_rotateDuration > 0) StatLoadedTurningCount++;
                 }
                 else
                 {
                     StatEmptyStopAndGoCount++;
+                    StatStopAndGoEnergyEmptyJ += moveE + turnE;
                     if (_rotateDuration > 0) StatEmptyTurningCount++;
                 }
 
@@ -1091,17 +1132,25 @@ namespace RAWSimO.Core.Bots
             // Measure queueing time
             if (IsQueueing)
                 StatTotalTimeQueueing += delta;
-            // Measure wait time: stationary AND not in a real rotation phase.
-            // _isRotatingThisTick is only set by _updateDrive(), so pickup/setdown/CBS-wait
-            // are correctly excluded from rotation and counted here as wait.
-            if (!Moving && !_isRotatingThisTick)
+            // Measure wait time: stationary AND not in a real rotation phase AND not in pickup/setdown.
+            // Per-trip wait should only count actual congestion/CBS waits, not mechanical action time.
+            bool inPickupOrSetdown = StateQueueCount > 0 &&
+                (StateQueuePeek().Type == BotStateType.PickupPod || StateQueuePeek().Type == BotStateType.SetdownPod);
+            if (!Moving && !_isRotatingThisTick && !inPickupOrSetdown)
+            {
                 StatWaitTimeSec += delta;
+                // Accumulate per-trip wait time (congestion/CBS wait only, no mechanical action)
+                if (Pod != null)
+                    _currentTripLoadedWaitSec += delta;
+                else
+                    _currentTripEmptyWaitSec += delta;
+            }
 
             // P_IDLE energy accumulates every tick (moving, rotating, or waiting)
             StatEnergyIdleJ += EnergyConsumption.P_IDLE * delta;
 
-            // E_support: P_IDLE while task-assigned AND stationary (congestion wait / CBS hold)
-            if (!Moving && !_isRotatingThisTick && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
+            // E_support: P_IDLE while task-assigned AND stationary AND not in pickup/setdown (congestion wait / CBS hold)
+            if (!Moving && !_isRotatingThisTick && !inPickupOrSetdown && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
             {
                 StatESupportJ += EnergyConsumption.P_IDLE * delta;
                 if (Pod != null)
@@ -1535,6 +1584,19 @@ namespace RAWSimO.Core.Bots
                     bot.StatEnergyTotalJ += e5a;
                     bot.StatPickupCount++;
 
+                    // ── Per-trip tracking: end empty trip, start loaded trip ──
+                    double emptyTripDur = currentTime - bot._tripEmptyStartTime;
+                    if (emptyTripDur > 0.0)
+                    {
+                        double waitRatio = Math.Min(1.0, bot._currentTripEmptyWaitSec / emptyTripDur);
+                        bot.PerTripWaitRatioEmpty.Add(waitRatio);
+                    }
+                    bot.StatTripCountEmpty++;
+                    bot._currentTripEmptyWaitSec = 0.0;
+                    // Start loaded trip
+                    bot._tripLoadedStartTime = currentTime;
+                    bot._currentTripLoadedWaitSec = 0.0;
+
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked
                     if (bot.Instance.SettingConfig.RealWorldIntegrationEventDriven)
@@ -1607,6 +1669,19 @@ namespace RAWSimO.Core.Bots
                     bot.StatEnergyE5LiftLowerJ += e5b;
                     bot.StatEnergyTotalJ += e5b;
                     bot.StatSetdownCount++;
+
+                    // ── Per-trip tracking: end loaded trip, start empty trip ──
+                    double loadedTripDur = currentTime - bot._tripLoadedStartTime;
+                    if (loadedTripDur > 0.0)
+                    {
+                        double waitRatio = Math.Min(1.0, bot._currentTripLoadedWaitSec / loadedTripDur);
+                        bot.PerTripWaitRatioLoaded.Add(waitRatio);
+                    }
+                    bot.StatTripCountLoaded++;
+                    bot._currentTripLoadedWaitSec = 0.0;
+                    // Start empty trip
+                    bot._tripEmptyStartTime = currentTime;
+                    bot._currentTripEmptyWaitSec = 0.0;
 
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked

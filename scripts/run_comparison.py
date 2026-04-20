@@ -67,6 +67,8 @@ STATS_KEY_MAP: dict[str, str] = {
     "StatStopAndGoCount": "stopgo_count_total",
     "StatLoadedStopAndGoCount": "stopgo_count_loaded",
     "StatEmptyStopAndGoCount": "stopgo_count_empty",
+    "StatStopAndGoEnergyEmptyKJ": "stopgo_energy_empty_kJ",
+    "StatStopAndGoEnergyLoadedKJ": "stopgo_energy_loaded_kJ",
     "StatWaitTimeSec": "total_wait_time_seconds",
     "StatMoveEnergyEmptyKJ": "move_energy_empty_kJ",
     "StatMoveEnergyLoadedKJ": "move_energy_loaded_kJ",
@@ -81,6 +83,20 @@ STATS_KEY_MAP: dict[str, str] = {
     "StatTimeIdleSec": "time_idle_sec",
     "StatRobotUtilization": "robot_utilization",
     "StatESupportToMechRatio": "e_support_to_mech_ratio",
+    # Per-trip tracking (added 2026-04-20)
+    "StatTripCountLoaded": "n_trips_loaded",
+    "StatTripCountEmpty": "n_trips_empty",
+    "StatTripWaitRatioLoadedMean": "trip_wait_ratio_loaded_mean",
+    "StatTripWaitRatioLoadedMedian": "trip_wait_ratio_loaded_median",
+    "StatTripWaitRatioLoadedP95": "trip_wait_ratio_loaded_p95",
+    "StatTripWaitRatioEmptyMean": "trip_wait_ratio_empty_mean",
+    "StatTripWaitRatioEmptyMedian": "trip_wait_ratio_empty_median",
+    "StatTripWaitRatioEmptyP95": "trip_wait_ratio_empty_p95",
+    # Motion times (added 2026-04-20)
+    "StatMoveTimeEmptySec": "move_time_empty_sec",
+    "StatMoveTimeLoadedSec": "move_time_loaded_sec",
+    "StatTurnTimeEmptySec": "turn_time_empty_sec",
+    "StatTurnTimeLoadedSec": "turn_time_loaded_sec",
 }
 
 # 「越小越好」的 KPI: report 中 pct_diff<0 視為改善 (綠色)
@@ -88,12 +104,21 @@ LOWER_IS_BETTER = {
     "total_energy_mech_kJ", "total_energy_idle_kJ", "total_energy_with_idle_kJ",
     "energy_per_order_mech_kJ", "energy_per_order_with_idle_kJ",
     "turn_count", "turn_count_loaded", "turn_energy_empty_kJ", "turn_energy_loaded_kJ",
+    "turn_energy_kJ",
     "stopgo_count_total", "stopgo_count_loaded", "stopgo_count_empty",
     "stopgo_energy_loaded_kJ", "stopgo_energy_empty_kJ",
     "total_wait_time_seconds", "wait_energy_kJ",
-    "total_travel_distance_m",
+    "total_travel_distance_m", "loaded_distance_m", "distance_empty_m",
+    "move_energy_empty_kJ", "move_energy_loaded_kJ",
+    "energy_empty_kJ", "energy_loaded_kJ",
     "e_support_kJ", "e_support_loaded_kJ", "e_support_empty_kJ", "e_support_per_order_kJ",
     "time_idle_sec",
+    # Per-trip & motion metrics (added 2026-04-20)
+    "move_time_empty_sec", "move_time_loaded_sec",
+    "turn_time_empty_sec", "turn_time_loaded_sec",
+    "travel_time_empty_sec", "travel_time_loaded_sec",
+    "trip_wait_ratio_loaded_mean", "trip_wait_ratio_loaded_median", "trip_wait_ratio_loaded_p95",
+    "trip_wait_ratio_empty_mean", "trip_wait_ratio_empty_median", "trip_wait_ratio_empty_p95",
 }
 
 
@@ -147,8 +172,6 @@ class RunResult:
     stopgo_count_total: float = float("nan")
     stopgo_count_empty: float = float("nan")
     stopgo_count_loaded: float = float("nan")
-    # TODO(C#): stop-and-go 能耗未分 empty/loaded, 需在 BotNormal.cs
-    # stopAndGoEnergyEmpty/LoadedJ 新欄位 + InstanceStatistics.cs:1060+ 輸出
     stopgo_energy_empty_kJ: float = float("nan")
     stopgo_energy_loaded_kJ: float = float("nan")
 
@@ -174,9 +197,29 @@ class RunResult:
     time_idle_sec: float = float("nan")
     robot_utilization: float = float("nan")  # fleet-level: 1 - Σidle / (T × n_bots)
     e_support_to_mech_ratio: float = float("nan")  # E_support / E_mech (congestion overhead)
-    # Derived: stop-and-go mech energy by loaded/empty (move + turn)
-    stopgo_energy_loaded_kJ: float = float("nan")
-    stopgo_energy_empty_kJ: float = float("nan")
+
+    # Per-trip tracking (added 2026-04-20)
+    n_trips_loaded: float = float("nan")
+    n_trips_empty: float = float("nan")
+    trip_wait_ratio_loaded_mean: float = float("nan")
+    trip_wait_ratio_loaded_median: float = float("nan")
+    trip_wait_ratio_loaded_p95: float = float("nan")
+    trip_wait_ratio_empty_mean: float = float("nan")
+    trip_wait_ratio_empty_median: float = float("nan")
+    trip_wait_ratio_empty_p95: float = float("nan")
+
+    # Motion times (added 2026-04-20)
+    move_time_empty_sec: float = float("nan")
+    move_time_loaded_sec: float = float("nan")
+    turn_time_empty_sec: float = float("nan")
+    turn_time_loaded_sec: float = float("nan")
+
+    # Derived: travel times (computed in parse_statistics)
+    travel_time_empty_sec: float = float("nan")
+    travel_time_loaded_sec: float = float("nan")
+    distance_empty_m: float = float("nan")
+    energy_empty_kJ: float = float("nan")
+    energy_loaded_kJ: float = float("nan")
 
 
 # ---------------------------------------------------------------------------
@@ -311,11 +354,30 @@ def parse_statistics(stats_file: Path, method: str, seed: int, sim_duration: flo
     # Wait 能耗 = P_IDLE × wait_time
     if not _is_nan(r.total_wait_time_seconds):
         r.wait_energy_kJ = P_IDLE_WATT * r.total_wait_time_seconds / 1000.0
-    # Stop-and-go mech energy split: loaded = move_loaded + turn_loaded
-    if not _is_nan(r.move_energy_loaded_kJ) and not _is_nan(r.turn_energy_loaded_kJ):
-        r.stopgo_energy_loaded_kJ = r.move_energy_loaded_kJ + r.turn_energy_loaded_kJ
+    # Stop-and-go mech energy split: 優先使用 C# 直接輸出的值
+    # 如果 C# 沒有輸出, fallback 到 move + turn 組合
+    if _is_nan(r.stopgo_energy_loaded_kJ):
+        if not _is_nan(r.move_energy_loaded_kJ) and not _is_nan(r.turn_energy_loaded_kJ):
+            r.stopgo_energy_loaded_kJ = r.move_energy_loaded_kJ + r.turn_energy_loaded_kJ
+    if _is_nan(r.stopgo_energy_empty_kJ):
+        if not _is_nan(r.move_energy_empty_kJ) and not _is_nan(r.turn_energy_empty_kJ):
+            r.stopgo_energy_empty_kJ = r.move_energy_empty_kJ + r.turn_energy_empty_kJ
+
+    # Travel times (sum of move + turn times, added 2026-04-20)
+    if not _is_nan(r.move_time_empty_sec) and not _is_nan(r.turn_time_empty_sec):
+        r.travel_time_empty_sec = r.move_time_empty_sec + r.turn_time_empty_sec
+    if not _is_nan(r.move_time_loaded_sec) and not _is_nan(r.turn_time_loaded_sec):
+        r.travel_time_loaded_sec = r.move_time_loaded_sec + r.turn_time_loaded_sec
+
+    # Empty distance (total - loaded)
+    if not _is_nan(r.total_travel_distance_m) and not _is_nan(r.loaded_distance_m):
+        r.distance_empty_m = r.total_travel_distance_m - r.loaded_distance_m
+
+    # Total energy by load state (move + turn)
     if not _is_nan(r.move_energy_empty_kJ) and not _is_nan(r.turn_energy_empty_kJ):
-        r.stopgo_energy_empty_kJ = r.move_energy_empty_kJ + r.turn_energy_empty_kJ
+        r.energy_empty_kJ = r.move_energy_empty_kJ + r.turn_energy_empty_kJ
+    if not _is_nan(r.move_energy_loaded_kJ) and not _is_nan(r.turn_energy_loaded_kJ):
+        r.energy_loaded_kJ = r.move_energy_loaded_kJ + r.turn_energy_loaded_kJ
 
     return r
 
@@ -336,13 +398,20 @@ NUMERIC_KPI_FIELDS: list[str] = [
     "stopgo_energy_empty_kJ", "stopgo_energy_loaded_kJ",
     "turn_count", "turn_count_loaded",
     "turn_energy_empty_kJ", "turn_energy_loaded_kJ", "turn_energy_kJ",
-    "total_travel_distance_m", "loaded_distance_m",
+    "total_travel_distance_m", "loaded_distance_m", "distance_empty_m",
     "move_energy_empty_kJ", "move_energy_loaded_kJ",
+    "move_time_empty_sec", "move_time_loaded_sec",
+    "turn_time_empty_sec", "turn_time_loaded_sec",
+    "travel_time_empty_sec", "travel_time_loaded_sec",
+    "energy_empty_kJ", "energy_loaded_kJ",
     "total_wait_time_seconds", "wait_energy_kJ",
     "e_support_kJ", "e_support_loaded_kJ", "e_support_empty_kJ", "e_support_per_order_kJ",
-    "stopgo_energy_loaded_kJ", "stopgo_energy_empty_kJ",
     "time_idle_sec", "robot_utilization",
     "e_support_to_mech_ratio",
+    # Per-trip tracking (added 2026-04-20)
+    "n_trips_loaded", "n_trips_empty",
+    "trip_wait_ratio_loaded_mean", "trip_wait_ratio_loaded_median", "trip_wait_ratio_loaded_p95",
+    "trip_wait_ratio_empty_mean", "trip_wait_ratio_empty_median", "trip_wait_ratio_empty_p95",
 ]
 
 
@@ -653,6 +722,47 @@ def main(argv: list[str] | None = None) -> int:
     print(f"\n✓ raw:        {raw_csv}")
     print(f"✓ comparison: {cmp_csv}")
     print(f"✓ report:     {md_report}")
+
+    # 列印關鍵指標統計摘要 (強制確保每次執行都報告這些指標)
+    if ok_count > 0:
+        print("\n" + "=" * 80)
+        print("統計摘要 (Mean ± Std):")
+        print("=" * 80)
+        for method in method_order:
+            method_results = [r for r in results if r.method == method and r.status == "ok"]
+            if not method_results:
+                continue
+            print(f"\n【{method}】")
+            # 必報指標: 訂單、能耗、E_support、轉向、距離、效率、per-trip 追蹤
+            critical_fields = [
+                "total_orders_completed", "throughput_per_hour",
+                "total_energy_mech_kJ", "energy_per_order_mech_kJ",
+                "total_energy_with_idle_kJ", "energy_per_order_with_idle_kJ",
+                "stopgo_count_total", "stopgo_count_empty", "stopgo_count_loaded",
+                "stopgo_energy_empty_kJ", "stopgo_energy_loaded_kJ",
+                "turn_count", "turn_count_loaded",
+                "turn_energy_empty_kJ", "turn_energy_loaded_kJ",
+                "total_travel_distance_m", "loaded_distance_m", "distance_empty_m",
+                "move_energy_empty_kJ", "move_energy_loaded_kJ",
+                "move_time_empty_sec", "move_time_loaded_sec",
+                "turn_time_empty_sec", "turn_time_loaded_sec",
+                "travel_time_empty_sec", "travel_time_loaded_sec",
+                "energy_empty_kJ", "energy_loaded_kJ",
+                "total_wait_time_seconds", "wait_energy_kJ",
+                "e_support_kJ", "e_support_loaded_kJ", "e_support_empty_kJ",
+                "e_support_per_order_kJ", "e_support_to_mech_ratio",
+                "time_idle_sec", "robot_utilization",
+                # Per-trip tracking (added 2026-04-20)
+                "n_trips_loaded", "n_trips_empty",
+                "trip_wait_ratio_loaded_mean", "trip_wait_ratio_loaded_median", "trip_wait_ratio_loaded_p95",
+                "trip_wait_ratio_empty_mean", "trip_wait_ratio_empty_median", "trip_wait_ratio_empty_p95",
+            ]
+            for field_name in critical_fields:
+                values = [getattr(r, field_name) for r in method_results]
+                mean_val, std_val = _mean_std(values)
+                if not _is_nan(mean_val):
+                    print(f"  {field_name:40s} = {mean_val:12.2f} ± {std_val:8.2f}")
+
     return 0 if ok_count == len(results) else 1
 
 

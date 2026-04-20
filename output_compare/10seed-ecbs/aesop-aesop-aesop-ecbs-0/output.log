@@ -1,0 +1,957 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/17/2026 09:45:44
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+StatisticsDir: output_compare/10seed-ecbs/
+Seed: 0
+Adding handler for unhandled exceptions ...
+Initializing ... 
+LayoutConfiguration recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing layout config ...
+Generating instance...
+Info about all directions within the generated instance:
+# # # # # e p e p p p p p p p p p p p p p p p p p e p p p p p p p p p p p p p p p p p e p p p p p p p p p e s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n w d d d d d d d d d w d d d d d d d d d d d d d d d d d w d d d d d d d d d d d d d d d d d w d w # # # # # 
+
+
+Info about all types within the generated instance:
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+
+
+[EnergyConsumption] Configured from LayoutConfiguration: RobotMass=100 kg, PodFrameMass=300 kg
+StatisticsFolder: aesop-aesop-aesop-ecbs-0
+Done!
+Executing ... 
+ 09:45:56 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 146.36MB  
+ 00:00:05 |  > 24h   | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 150.57MB  
+ 00:00:06 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(286->884)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent1(553->95)
+ 00:00:08 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(44->43)
+ 00:00:08 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(44->43)
+ 00:00:08 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(44->43)
+ 00:00:08 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(44->53)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->3)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->3)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->3)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->3)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->4)
+ 00:00:09 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(11->4)
+ 00:00:10 | 00:04:35 | 0.00:01:03 |  3.54%   |    1    |    0     | 70%  |   859    |   0    | 150.50MB  
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1817->133)
+ 00:00:15 | 00:01:26 | 0.00:04:28 |  14.89%  |   49    |    72    | 71%  |   2543   |   0    | 151.23MB  
+ 00:00:15 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(72->71)
+ 00:00:18 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(52->51)
+ 00:00:19 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->23)
+ 00:00:19 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->23)
+ 00:00:19 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:19 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:20 | 00:00:43 | 0.00:09:29 |  31.67%  |   109   |   162    | 71%  |   5460   |   0    | 150.17MB  
+ 00:00:21 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(34->33)
+ 00:00:21 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(34->33)
+ 00:00:21 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(34->33)
+ 00:00:21 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(34->33)
+ 00:00:21 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(34->33)
+ 00:00:25 | 00:00:27 | 0.00:14:11 |  47.31%  |   172   |   249    | 72%  |   8297   |   0    | 150.33MB  
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(253->320)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(703->622)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(1231->1147)
+ 00:00:29 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(584->623)
+ 00:00:30 | 00:00:19 | 0.00:18:14 |  60.79%  |   231   |   321    | 73%  |  10665   |   0    | 151.44MB  
+ 00:00:30 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent7(313->52)
+ 00:00:30 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(584->623)
+ 00:00:30 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->53)
+ 00:00:31 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent17(297->73)
+ 00:00:32 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(1090->113)
+ 00:00:32 | ECBS RandomHop mutated 1/15 agent paths [SUPPRESSED] (cumulative=1)
+ 00:00:32 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(1090->113)
+ 00:00:32 | ECBS RandomHop mutated 1/15 agent paths [SUPPRESSED] (cumulative=2)
+ 00:00:32 | ECBS RandomHop mutated 1/15 agent paths [SUPPRESSED] (cumulative=3)
+ 00:00:32 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(1090->113)
+ 00:00:32 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=4)
+ 00:00:32 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=5)
+ 00:00:32 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=6)
+ 00:00:32 | ECBS RandomHop mutated 1/13 agent paths [SUPPRESSED] (cumulative=7)
+ 00:00:32 | ECBS RandomHop mutated 1/13 agent paths [SUPPRESSED] (cumulative=8)
+ 00:00:32 | ECBS RandomHop mutated 1/13 agent paths [SUPPRESSED] (cumulative=9)
+ 00:00:32 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=10)
+ 00:00:32 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=11)
+ 00:00:33 | ECBS RandomHop mutated 1/14 agent paths [SUPPRESSED] (cumulative=12)
+ 00:00:33 | ECBS RandomHop mutated 1/13 agent paths [SUPPRESSED] (cumulative=13)
+ 00:00:33 | ECBS RandomHop mutated 2/13 agent paths [SUPPRESSED] (cumulative=15)
+ 00:00:33 | ECBS RandomHop mutated 2/14 agent paths [SUPPRESSED] (cumulative=17)
+ 00:00:33 | ECBS RandomHop mutated 2/14 agent paths [SUPPRESSED] (cumulative=19)
+ 00:00:33 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:33 | ECBS RandomHop mutated 2/13 agent paths [SUPPRESSED] (cumulative=21)
+ 00:00:33 | ECBS RandomHop mutated 3/14 agent paths [SUPPRESSED] (cumulative=24)
+ 00:00:33 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=28)
+ 00:00:33 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=32)
+ 00:00:33 | ECBS RandomHop mutated 4/14 agent paths [SUPPRESSED] (cumulative=36)
+ 00:00:33 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=40)
+ 00:00:34 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(1101->53)
+ 00:00:34 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=44)
+ 00:00:34 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=48)
+ 00:00:34 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=52)
+ 00:00:34 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:34 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=56)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=61)
+ 00:00:34 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=66)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=71)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=76)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=81)
+ 00:00:34 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=86)
+ 00:00:34 | ECBS RandomHop mutated 4/13 agent paths [SUPPRESSED] (cumulative=90)
+ 00:00:34 | ECBS RandomHop mutated 4/14 agent paths [SUPPRESSED] (cumulative=94)
+ 00:00:34 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=98)
+ 00:00:35 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=102)
+ 00:00:35 | ECBS RandomHop mutated 4/14 agent paths [SUPPRESSED] (cumulative=106)
+ 00:00:35 | 00:00:19 | 0.00:19:21 |  64.50%  |   244   |   343    | 73%  |  11202   |   0    | 151.24MB  
+ 00:00:35 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=110)
+ 00:00:35 | ECBS RandomHop mutated 4/16 agent paths [SUPPRESSED] (cumulative=114)
+ 00:00:35 | ECBS RandomHop mutated 4/16 agent paths [SUPPRESSED] (cumulative=118)
+ 00:00:35 | ECBS RandomHop mutated 4/16 agent paths [SUPPRESSED] (cumulative=122)
+ 00:00:35 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent16(1732->2)
+ 00:00:35 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=126)
+ 00:00:35 | ECBS RandomHop mutated 4/15 agent paths [SUPPRESSED] (cumulative=130)
+ 00:00:35 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent9(256->93)
+ 00:00:35 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=134)
+ 00:00:35 | ECBS RandomHop mutated 4/17 agent paths [SUPPRESSED] (cumulative=138)
+ 00:00:35 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent7(967->885)
+ 00:00:35 | ECBS RandomHop mutated 4/18 agent paths [SUPPRESSED] (cumulative=142)
+ 00:00:35 | ECBS RandomHop mutated 4/19 agent paths [SUPPRESSED] (cumulative=146)
+ 00:00:36 | ECBS RandomHop mutated 4/19 agent paths [SUPPRESSED] (cumulative=150)
+ 00:00:36 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent20(168->155)
+ 00:00:36 | ECBS RandomHop mutated 4/18 agent paths [SUPPRESSED] (cumulative=154)
+ 00:00:36 | ECBS RandomHop mutated 4/18 agent paths [SUPPRESSED] (cumulative=158)
+ 00:00:36 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->54)
+ 00:00:36 | ECBS RandomHop mutated 4/18 agent paths [SUPPRESSED] (cumulative=162)
+ 00:00:36 | ECBS RandomHop mutated 5/19 agent paths [SUPPRESSED] (cumulative=167)
+ 00:00:36 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:36 | ECBS RandomHop mutated 5/19 agent paths [SUPPRESSED] (cumulative=172)
+ 00:00:36 | ECBS RandomHop mutated 5/19 agent paths [SUPPRESSED] (cumulative=177)
+ 00:00:36 | ECBS RandomHop mutated 5/18 agent paths [SUPPRESSED] (cumulative=182)
+ 00:00:36 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=187)
+ 00:00:36 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(1063->1041)
+ 00:00:36 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=192)
+ 00:00:36 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:36 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=197)
+ 00:00:36 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=202)
+ 00:00:37 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=207)
+ 00:00:37 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=212)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=217)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=222)
+ 00:00:37 | ECBS RandomHop mutated 5/18 agent paths [SUPPRESSED] (cumulative=227)
+ 00:00:37 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:37 | ECBS RandomHop mutated 5/18 agent paths [SUPPRESSED] (cumulative=232)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=237)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=242)
+ 00:00:37 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=247)
+ 00:00:37 | ECBS RandomHop mutated 5/18 agent paths [SUPPRESSED] (cumulative=252)
+ 00:00:37 | ECBS RandomHop mutated 5/17 agent paths [SUPPRESSED] (cumulative=257)
+ 00:00:37 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=262)
+ 00:00:37 | ECBS RandomHop mutated 5/15 agent paths [SUPPRESSED] (cumulative=267)
+ 00:00:38 | ECBS RandomHop mutated 5/15 agent paths [SUPPRESSED] (cumulative=272)
+ 00:00:38 | ECBS RandomHop mutated 5/15 agent paths [SUPPRESSED] (cumulative=277)
+ 00:00:38 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=282)
+ 00:00:38 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(75->1142)
+ 00:00:38 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=287)
+ 00:00:38 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=292)
+ 00:00:38 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=297)
+ 00:00:38 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:38 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=302)
+ 00:00:38 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1247->663)
+ 00:00:38 | ECBS RandomHop mutated 5/15 agent paths [SUPPRESSED] (cumulative=307)
+ 00:00:39 | ECBS RandomHop mutated 5/16 agent paths [SUPPRESSED] (cumulative=312)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=318)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(23->33)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=324)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=330)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:39 | ECBS RandomHop mutated 6/18 agent paths [SUPPRESSED] (cumulative=336)
+ 00:00:39 | ECBS RandomHop mutated 6/18 agent paths [SUPPRESSED] (cumulative=342)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=348)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent18(649->781)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=354)
+ 00:00:39 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=360)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:39 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=366)
+ 00:00:39 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=372)
+ 00:00:39 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1113->355)
+ 00:00:39 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=378)
+ 00:00:39 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=384)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(75->1142)
+ 00:00:40 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=389)
+ 00:00:40 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=394)
+ 00:00:40 | 00:00:19 | 0.00:20:20 |  67.81%  |   249   |   354    | 73%  |  11723   |   0    | 151.31MB  
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:40 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=399)
+ 00:00:40 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=404)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(1115->355)
+ 00:00:40 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=409)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=414)
+ 00:00:40 | ECBS RandomHop mutated 5/10 agent paths [SUPPRESSED] (cumulative=419)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent18(781->27)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=424)
+ 00:00:40 | ECBS RandomHop mutated 5/10 agent paths [SUPPRESSED] (cumulative=429)
+ 00:00:40 | ECBS RandomHop mutated 5/8 agent paths [SUPPRESSED] (cumulative=434)
+ 00:00:40 | ECBS RandomHop mutated 5/8 agent paths [SUPPRESSED] (cumulative=439)
+ 00:00:40 | ECBS RandomHop mutated 5/8 agent paths [SUPPRESSED] (cumulative=444)
+ 00:00:40 | ECBS RandomHop mutated 5/9 agent paths [SUPPRESSED] (cumulative=449)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent18(24->27)
+ 00:00:40 | ECBS RandomHop mutated 5/9 agent paths [SUPPRESSED] (cumulative=454)
+ 00:00:40 | ECBS RandomHop mutated 5/10 agent paths [SUPPRESSED] (cumulative=459)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=464)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=469)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=474)
+ 00:00:40 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(430->781)
+ 00:00:40 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=479)
+ 00:00:40 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=484)
+ 00:00:40 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=489)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=494)
+ 00:00:40 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=499)
+ 00:00:41 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(1041->605)
+ 00:00:41 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=504)
+ 00:00:41 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=509)
+ 00:00:41 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=514)
+ 00:00:41 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=519)
+ 00:00:41 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=524)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=529)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=534)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=539)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=544)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=549)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(430->781)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=554)
+ 00:00:42 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=559)
+ 00:00:42 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=564)
+ 00:00:42 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=569)
+ 00:00:42 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=574)
+ 00:00:42 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=579)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(707->135)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=584)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=589)
+ 00:00:42 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:42 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=594)
+ 00:00:42 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=599)
+ 00:00:42 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=604)
+ 00:00:42 | ECBS RandomHop mutated 5/11 agent paths [SUPPRESSED] (cumulative=609)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=614)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=619)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=624)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=629)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=634)
+ 00:00:43 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=639)
+ 00:00:43 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=644)
+ 00:00:43 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=649)
+ 00:00:43 | ECBS RandomHop mutated 5/14 agent paths [SUPPRESSED] (cumulative=654)
+ 00:00:43 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=659)
+ 00:00:43 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=664)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=669)
+ 00:00:43 | ECBS RandomHop mutated 5/13 agent paths [SUPPRESSED] (cumulative=674)
+ 00:00:43 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:43 | ECBS RandomHop mutated 5/12 agent paths [SUPPRESSED] (cumulative=679)
+ 00:00:43 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=685)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=691)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=697)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=703)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=709)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=715)
+ 00:00:44 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=721)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=727)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=733)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=739)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=745)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(313->115)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=751)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=757)
+ 00:00:44 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=763)
+ 00:00:44 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=769)
+ 00:00:44 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=775)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=781)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=787)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent24(856->1505)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=793)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=799)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=805)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=811)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=817)
+ 00:00:44 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=823)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(75->1142)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=829)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=835)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=841)
+ 00:00:44 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=847)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=853)
+ 00:00:44 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=859)
+ 00:00:44 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=865)
+ 00:00:44 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=871)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=877)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=883)
+ 00:00:44 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=889)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=895)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=901)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=907)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=913)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=919)
+ 00:00:44 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(104->115)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=925)
+ 00:00:44 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=931)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=937)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=943)
+ 00:00:44 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=949)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=955)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=961)
+ 00:00:45 | 00:00:15 | 0.00:22:08 |  73.79%  |   260   |   379    | 73%  |  12492   |   0    | 151.46MB  
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=967)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=973)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=979)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=985)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=991)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=997)
+ 00:00:45 | ECBS RandomHop mutated 6/17 agent paths [SUPPRESSED] (cumulative=1003)
+ 00:00:45 | ECBS RandomHop mutated 6/17 agent paths [SUPPRESSED] (cumulative=1009)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1015)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1021)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1027)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1033)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1039)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1045)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1051)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1057)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1063)
+ 00:00:45 | ECBS RandomHop mutated 6/17 agent paths [SUPPRESSED] (cumulative=1069)
+ 00:00:45 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1075)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1081)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1087)
+ 00:00:45 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1093)
+ 00:00:45 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1099)
+ 00:00:45 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1105)
+ 00:00:45 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1111)
+ 00:00:45 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1117)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1123)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1129)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1135)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1141)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1147)
+ 00:00:45 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1153)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1159)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1165)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1171)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1177)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1183)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1189)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1195)
+ 00:00:45 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1201)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1207)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1213)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1219)
+ 00:00:45 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1225)
+ 00:00:46 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=1231)
+ 00:00:46 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=1237)
+ 00:00:46 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=1243)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1249)
+ 00:00:46 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=1255)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1261)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1267)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1273)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1279)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1285)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1291)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1297)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1303)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1309)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1315)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1321)
+ 00:00:46 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1327)
+ 00:00:46 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1333)
+ 00:00:46 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1339)
+ 00:00:46 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1345)
+ 00:00:46 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1351)
+ 00:00:46 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1357)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1363)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1369)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1375)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1381)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1387)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1393)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1399)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1405)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1411)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1417)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1423)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1429)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1435)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1441)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1447)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1453)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1459)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1465)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1471)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1477)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1483)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1489)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1495)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1501)
+ 00:00:46 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1507)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1513)
+ 00:00:46 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1519)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1525)
+ 00:00:47 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1531)
+ 00:00:47 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1537)
+ 00:00:47 | ECBS RandomHop mutated 6/16 agent paths [SUPPRESSED] (cumulative=1543)
+ 00:00:47 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1549)
+ 00:00:47 | ECBS RandomHop mutated 6/15 agent paths [SUPPRESSED] (cumulative=1555)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1561)
+ 00:00:47 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1567)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1573)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1579)
+ 00:00:47 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1585)
+ 00:00:47 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1591)
+ 00:00:47 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1597)
+ 00:00:47 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1603)
+ 00:00:47 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1609)
+ 00:00:47 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1615)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1621)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1627)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1633)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1639)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1645)
+ 00:00:47 | ECBS RandomHop mutated 6/14 agent paths [SUPPRESSED] (cumulative=1651)
+ 00:00:47 | ECBS RandomHop mutated 6/13 agent paths [SUPPRESSED] (cumulative=1657)
+ 00:00:47 | ECBS RandomHop mutated 6/12 agent paths [SUPPRESSED] (cumulative=1663)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1669)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1675)
+ 00:00:47 | ECBS RandomHop mutated 6/9 agent paths [SUPPRESSED] (cumulative=1681)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1687)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1693)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1699)
+ 00:00:47 | ECBS RandomHop mutated 6/10 agent paths [SUPPRESSED] (cumulative=1705)
+ 00:00:47 | ECBS RandomHop mutated 6/11 agent paths [SUPPRESSED] (cumulative=1711)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1718)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1725)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1732)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1739)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1746)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1753)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1760)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1767)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1774)
+ 00:00:47 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=1781)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1788)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1795)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1802)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1809)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1816)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1823)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1830)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1837)
+ 00:00:47 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1844)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1851)
+ 00:00:47 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1858)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1865)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1872)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1879)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1886)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1893)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1900)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1907)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1914)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=1921)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1928)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1935)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1942)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1949)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=1956)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=1963)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=1970)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=1977)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=1984)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1991)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=1998)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2005)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2012)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2019)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2026)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2033)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2040)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2047)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2054)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2061)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2068)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2075)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2082)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2089)
+ 00:00:48 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2096)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2103)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2110)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2117)
+ 00:00:48 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2124)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2131)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2138)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2145)
+ 00:00:48 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2152)
+ 00:00:48 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2159)
+ 00:00:48 | ECBS RandomHop mutated 7/19 agent paths [SUPPRESSED] (cumulative=2166)
+ 00:00:48 | ECBS RandomHop mutated 7/19 agent paths [SUPPRESSED] (cumulative=2173)
+ 00:00:48 | ECBS RandomHop mutated 7/19 agent paths [SUPPRESSED] (cumulative=2180)
+ 00:00:49 | ECBS RandomHop mutated 7/18 agent paths [SUPPRESSED] (cumulative=2187)
+ 00:00:49 | ECBS RandomHop mutated 7/18 agent paths [SUPPRESSED] (cumulative=2194)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2201)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2208)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2215)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2222)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2229)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2236)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2243)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2250)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2257)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2264)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2271)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2278)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2285)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2292)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2299)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2306)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2313)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2320)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2327)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2334)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2341)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2348)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2355)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2362)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2369)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2376)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2383)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2390)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2397)
+ 00:00:49 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2404)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2411)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2418)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2425)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2432)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2439)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2446)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2453)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2460)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2467)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2474)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2481)
+ 00:00:49 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2488)
+ 00:00:49 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2495)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2502)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2509)
+ 00:00:49 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2516)
+ 00:00:49 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2523)
+ 00:00:49 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2530)
+ 00:00:49 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2537)
+ 00:00:50 | ECBS RandomHop mutated 7/18 agent paths [SUPPRESSED] (cumulative=2544)
+ 00:00:50 | ECBS RandomHop mutated 7/19 agent paths [SUPPRESSED] (cumulative=2551)
+ 00:00:50 | ECBS RandomHop mutated 7/19 agent paths [SUPPRESSED] (cumulative=2558)
+ 00:00:50 | 00:00:06 | 0.00:26:23 |  87.96%  |   282   |   458    | 74%  |  14114   |   0    | 150.72MB  
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2565)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2572)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2579)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2586)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2593)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2600)
+ 00:00:50 | ECBS RandomHop mutated 7/18 agent paths [SUPPRESSED] (cumulative=2607)
+ 00:00:50 | ECBS RandomHop mutated 7/17 agent paths [SUPPRESSED] (cumulative=2614)
+ 00:00:50 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2621)
+ 00:00:50 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2628)
+ 00:00:50 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2635)
+ 00:00:50 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2642)
+ 00:00:50 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2649)
+ 00:00:50 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2656)
+ 00:00:50 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2663)
+ 00:00:50 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2670)
+ 00:00:50 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2677)
+ 00:00:50 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=2684)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2691)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2698)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2705)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2712)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2719)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2726)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2733)
+ 00:00:50 | ECBS RandomHop mutated 7/11 agent paths [SUPPRESSED] (cumulative=2740)
+ 00:00:50 | ECBS RandomHop mutated 7/11 agent paths [SUPPRESSED] (cumulative=2747)
+ 00:00:50 | ECBS RandomHop mutated 7/11 agent paths [SUPPRESSED] (cumulative=2754)
+ 00:00:50 | ECBS RandomHop mutated 7/11 agent paths [SUPPRESSED] (cumulative=2761)
+ 00:00:50 | ECBS RandomHop mutated 7/11 agent paths [SUPPRESSED] (cumulative=2768)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2775)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2782)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2789)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2796)
+ 00:00:50 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2803)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2810)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2817)
+ 00:00:50 | ECBS RandomHop mutated 7/12 agent paths [SUPPRESSED] (cumulative=2824)
+ 00:00:50 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2831)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2838)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2845)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2852)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2859)
+ 00:00:50 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2866)
+ 00:00:50 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2873)
+ 00:00:50 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2880)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2887)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2894)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2901)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2908)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2915)
+ 00:00:51 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2922)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2929)
+ 00:00:51 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2936)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2943)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2950)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2957)
+ 00:00:51 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2964)
+ 00:00:51 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2971)
+ 00:00:51 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(1147->1131)
+ 00:00:51 | ECBS RandomHop mutated 7/16 agent paths [SUPPRESSED] (cumulative=2978)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2985)
+ 00:00:51 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent14(1151->1130)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=2992)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=2999)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=3006)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=3013)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=3020)
+ 00:00:51 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3027)
+ 00:00:51 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=3034)
+ 00:00:51 | ECBS RandomHop mutated 7/13 agent paths [SUPPRESSED] (cumulative=3041)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3048)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3055)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3062)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3069)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3076)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3083)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3090)
+ 00:00:52 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent21(724->755)
+ 00:00:52 | ECBS RandomHop mutated 7/15 agent paths [SUPPRESSED] (cumulative=3097)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3104)
+ 00:00:52 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(1146->1322)
+ 00:00:52 | ECBS RandomHop mutated 7/14 agent paths [SUPPRESSED] (cumulative=3111)
+ 00:00:52 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3119)
+ 00:00:52 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3127)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3135)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3143)
+ 00:00:52 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent23(430->521)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3151)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3159)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3167)
+ 00:00:52 | ECBS RandomHop mutated 8/11 agent paths [SUPPRESSED] (cumulative=3175)
+ 00:00:52 | ECBS RandomHop mutated 8/10 agent paths [SUPPRESSED] (cumulative=3183)
+ 00:00:52 | ECBS RandomHop mutated 8/11 agent paths [SUPPRESSED] (cumulative=3191)
+ 00:00:52 | ECBS RandomHop mutated 8/11 agent paths [SUPPRESSED] (cumulative=3199)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3207)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3215)
+ 00:00:52 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3223)
+ 00:00:53 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3231)
+ 00:00:53 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3239)
+ 00:00:53 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3247)
+ 00:00:53 | ECBS RandomHop mutated 8/11 agent paths [SUPPRESSED] (cumulative=3255)
+ 00:00:53 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3263)
+ 00:00:53 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3271)
+ 00:00:53 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3279)
+ 00:00:53 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3287)
+ 00:00:53 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3295)
+ 00:00:53 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3303)
+ 00:00:53 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:53 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3311)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3319)
+ 00:00:53 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3327)
+ 00:00:53 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3335)
+ 00:00:53 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3343)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3351)
+ 00:00:53 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(75->1142)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3359)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3367)
+ 00:00:53 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(1147->1131)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3375)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3383)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3391)
+ 00:00:53 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3399)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3407)
+ 00:00:53 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3415)
+ 00:00:53 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3423)
+ 00:00:54 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3431)
+ 00:00:54 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3439)
+ 00:00:54 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3447)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent15(1336->1687)
+ 00:00:54 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3455)
+ 00:00:54 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3463)
+ 00:00:54 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3471)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3479)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3487)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3495)
+ 00:00:54 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3503)
+ 00:00:54 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3511)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3519)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3527)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3535)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3543)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3551)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3559)
+ 00:00:54 | ECBS RandomHop mutated 8/12 agent paths [SUPPRESSED] (cumulative=3567)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3575)
+ 00:00:54 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(1404->12)
+ 00:00:54 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3583)
+ 00:00:55 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:55 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3591)
+ 00:00:55 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3599)
+ 00:00:55 | 00:00:02 | 0.00:28:49 |  96.06%  |   295   |   500    | 74%  |  14991   |   0    | 151.06MB  
+ 00:00:55 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:55 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3607)
+ 00:00:55 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3615)
+ 00:00:55 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(282->535)
+ 00:00:55 | ECBS RandomHop mutated 8/15 agent paths [SUPPRESSED] (cumulative=3623)
+ 00:00:55 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3631)
+ 00:00:55 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent23(1044->1258)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3639)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3647)
+ 00:00:55 | ECBS RandomHop mutated 8/18 agent paths [SUPPRESSED] (cumulative=3655)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3663)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3671)
+ 00:00:55 | ECBS RandomHop mutated 8/18 agent paths [SUPPRESSED] (cumulative=3679)
+ 00:00:55 | ECBS RandomHop mutated 8/18 agent paths [SUPPRESSED] (cumulative=3687)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3695)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3703)
+ 00:00:55 | ECBS RandomHop mutated 8/17 agent paths [SUPPRESSED] (cumulative=3711)
+ 00:00:55 | ECBS RandomHop mutated 8/16 agent paths [SUPPRESSED] (cumulative=3719)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3727)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3735)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3743)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent23(1044->1258)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3751)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3759)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3767)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3775)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3783)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3791)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3799)
+ 00:00:56 | ECBS RandomHop mutated 8/14 agent paths [SUPPRESSED] (cumulative=3807)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3815)
+ 00:00:56 | ECBS RandomHop mutated 8/13 agent paths [SUPPRESSED] (cumulative=3823)
+ 00:00:56 | ECBS RandomHop mutated 9/13 agent paths [SUPPRESSED] (cumulative=3832)
+ 00:00:56 | ECBS RandomHop mutated 9/13 agent paths [SUPPRESSED] (cumulative=3841)
+ 00:00:56 | ECBS RandomHop mutated 9/14 agent paths [SUPPRESSED] (cumulative=3850)
+ 00:00:56 | ECBS RandomHop mutated 9/14 agent paths [SUPPRESSED] (cumulative=3859)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:56 | ECBS RandomHop mutated 9/15 agent paths [SUPPRESSED] (cumulative=3868)
+ 00:00:56 | ECBS RandomHop mutated 9/15 agent paths [SUPPRESSED] (cumulative=3877)
+ 00:00:56 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3887)
+ 00:00:56 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:56 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3897)
+ 00:00:56 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3907)
+ 00:00:56 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3917)
+ 00:00:56 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3927)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3937)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3947)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3957)
+ 00:00:57 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(75->1142)
+ 00:00:57 | ECBS RandomHop mutated 10/14 agent paths [SUPPRESSED] (cumulative=3967)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3977)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=3987)
+ 00:00:57 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=3997)
+ 00:00:57 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4007)
+ 00:00:57 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4017)
+ 00:00:57 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4027)
+ 00:00:57 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent11(1278->55)
+ 00:00:57 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=4037)
+ 00:00:57 | ECBS RandomHop mutated 10/14 agent paths [SUPPRESSED] (cumulative=4047)
+ 00:00:57 | ECBS RandomHop mutated 10/14 agent paths [SUPPRESSED] (cumulative=4057)
+ 00:00:57 | ECBS RandomHop mutated 10/14 agent paths [SUPPRESSED] (cumulative=4067)
+ 00:00:57 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4077)
+ 00:00:57 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent0(1130->795)
+ 00:00:57 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4087)
+ 00:00:57 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:57 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4097)
+ 00:00:57 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4107)
+ 00:00:58 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4117)
+ 00:00:58 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4127)
+ 00:00:58 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=4137)
+ 00:00:58 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent20(1336->1689)
+ 00:00:58 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=4147)
+ 00:00:58 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=4157)
+ 00:00:58 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent20(1336->1689)
+ 00:00:58 | ECBS RandomHop mutated 10/15 agent paths [SUPPRESSED] (cumulative=4167)
+ 00:00:58 | ECBS RandomHop mutated 10/16 agent paths [SUPPRESSED] (cumulative=4177)
+ 00:00:58 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4187)
+ 00:00:58 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent22(1256->1281)
+ 00:00:58 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4197)
+ 00:00:58 | ECBS RandomHop mutated 10/17 agent paths [SUPPRESSED] (cumulative=4207)
+ 00:00:58 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent5(2->8)
+ 00:00:58 | ECBS RandomHop mutated 10/19 agent paths [SUPPRESSED] (cumulative=4217)
+ 00:00:58 | ECBS RandomHop mutated 10/19 agent paths [SUPPRESSED] (cumulative=4227)
+ 00:00:58 | ECBS RandomHop mutated 10/18 agent paths [SUPPRESSED] (cumulative=4237)
+ 00:00:58 | 00:00:00 | 0.00:30:00 | 100.00%  |   297   |   517    | 74%  |  15378   |   0    | 151.10MB  
+ 00:00:58 | >>> Simulation finished - writing results ...
+ 00:00:59 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.026258504685099823
+StatTimingPathPlanningOverall: 34.18857309999997
+StatTimingPathPlanningCount: 1302
+StatTimingTaskAllocationAverage: 0.02483713969658664
+StatTimingTaskAllocationOverall: 19.646177500000032
+StatTimingTaskAllocationCount: 791
+StatTimingItemStorageAverage: 1.639198473282444E-05
+StatTimingItemStorageOverall: 0.008589400000000007
+StatTimingItemStorageCount: 524
+StatTimingPodStorageAverage: 0.022871587499999995
+StatTimingPodStorageOverall: 4.208372099999999
+StatTimingPodStorageCount: 184
+StatTimingReplenishmentBatchingAverage: 3.1406003159557696E-05
+StatTimingReplenishmentBatchingOverall: 0.01988000000000002
+StatTimingReplenishmentBatchingCount: 633
+StatTimingOrderBatchingAverage: 0.00035725722273998145
+StatTimingOrderBatchingOverall: 0.3833370000000001
+StatTimingOrderBatchingCount: 1073
+>>> Overall
+StatOverallBundlesPlaced: 596
+StatOverallItemsOrdered: 524
+StatOverallOrdersPlaced: 313
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 517
+StatOverallItemsHandled: 472
+StatOverallLinesHandled: 446
+StatOverallOrdersHandled: 297
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 15378.044539910477
+StatOverallDistanceEstimated: 14607
+StatOverallAssignedTasks: 791
+StatMaxMemoryUsed: 151.5546875
+StatRealTimeUsed: 58.6749164
+StatAverageTurnoverTime: 497.84547155928567
+StatMedianTurnoverTime: 392.6559608179676
+StatLowerQuartileTurnoverTime: 189.7046791038468
+StatUpperQuartileTurnoverTime: 704.0379846807386
+StatAverageThroughputTime: 79.7045500327837
+StatMedianThroughputTime: 50.90870945536369
+StatLowerQuartileThroughputTime: 30.04451257114556
+StatUpperQuartileThroughputTime: 119.01606867972419
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 1842.3006216353022
+StatEnergyE1AccelKJ: 650.3824672330081
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 506.26491055812744
+StatEnergyE4RotationKJ: 216.97504924141572
+StatEnergyE5LiftLowerKJ: 468.67819460275086
+StatEnergyPerOrderKJ: 6.203032396078458
+StatEnergyPerMeterJoule: 119.45925441805876
+StatEnergyIdleKJ: 2007.2683536063591
+StatEnergyTotalWithIdleKJ: 3849.5689752416615
+StatEnergyPerOrderWithIdleKJ: 12.961511701150375
+StatDistanceTraveledRizqiM: 15422
+>>> Motion Behavior
+StatTurningCount: 1966
+StatStopAndGoCount: 2380
+StatLoadedDistanceM: 10584
+StatLoadedTurningCount: 1488
+StatLoadedStopAndGoCount: 1840
+StatEmptyTurningCount: 478
+StatEmptyStopAndGoCount: 540
+StatWaitTimeSec: 22371.016611296134
+StatPathPlanningTimeouts: 0
+StatMoveEnergyEmptyKJ: 69.013075
+StatMoveTimeEmptySec: 6089.63742365059
+StatTurnEnergyEmptyKJ: 9.214313126278306
+StatTurnTimeEmptySec: 506.7976528572391
+StatMoveEnergyLoadedKJ: 1087.6343027911355
+StatMoveTimeLoadedSec: 15543.017294251858
+StatTurnEnergyLoadedKJ: 207.76073611513735
+StatTurnTimeLoadedSec: 1521.5376981336763
+StatPrefEmptyW: 11.85904010559778
+StatPrefLoadedW: 75.91144565353727
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

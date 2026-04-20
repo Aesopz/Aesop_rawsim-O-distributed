@@ -1,0 +1,100 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/16/2026 22:31:15
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/ecbs-test.xinst
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+StatisticsDir: output_compare/
+Seed: 42
+Additionally the following tag was passed: mb-small
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: ecbs-test-aesop-aesop-ecbs-42
+Done!
+Executing ... 
+ 22:31:17 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    |  75.57MB  
+ 00:00:01 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent6(8->7)
+ 00:00:02 | Pausing bundle generation due to inventory+reserved+backlog level (currently at: 0.8502236630985567)
+ 00:00:03 | 00:00:00 | 0.00:30:00 | 100.00%  |   220   |   328    | 83%  |   7531   |   0    |  80.68MB  
+ 00:00:03 | >>> Simulation finished - writing results ...
+ 00:00:04 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.004557221882352941
+StatTimingPathPlanningOverall: 1.9368193
+StatTimingPathPlanningCount: 425
+StatTimingTaskAllocationAverage: 0.0011863063559322043
+StatTimingTaskAllocationOverall: 0.5599366000000005
+StatTimingTaskAllocationCount: 472
+StatTimingItemStorageAverage: 1.4199164345403923E-05
+StatTimingItemStorageOverall: 0.005097500000000008
+StatTimingItemStorageCount: 359
+StatTimingPodStorageAverage: 0.0019513180952380961
+StatTimingPodStorageOverall: 0.20488840000000008
+StatTimingPodStorageCount: 105
+StatTimingReplenishmentBatchingAverage: 5.158039215686274E-05
+StatTimingReplenishmentBatchingOverall: 0.0184142
+StatTimingReplenishmentBatchingCount: 357
+StatTimingOrderBatchingAverage: 0.00016747402422611024
+StatTimingOrderBatchingOverall: 0.12443319999999991
+StatTimingOrderBatchingCount: 743
+>>> Overall
+StatOverallBundlesPlaced: 139
+StatOverallItemsOrdered: 397
+StatOverallOrdersPlaced: 243
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 328
+StatOverallItemsHandled: 350
+StatOverallLinesHandled: 328
+StatOverallOrdersHandled: 220
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 7530.738924983937
+StatOverallDistanceEstimated: 6623
+StatOverallAssignedTasks: 472
+StatMaxMemoryUsed: 80.67578125
+StatRealTimeUsed: 3.9791676
+StatAverageTurnoverTime: 640.2938862277035
+StatMedianTurnoverTime: 532.4623160136357
+StatLowerQuartileTurnoverTime: 275.9391702631275
+StatUpperQuartileTurnoverTime: 935.2311111111114
+StatAverageThroughputTime: 165.4067329117445
+StatMedianThroughputTime: 61.56916307020356
+StatLowerQuartileThroughputTime: 40.462777777777774
+StatUpperQuartileThroughputTime: 274.44222222222186
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 1274.4912147086843
+StatEnergyE1AccelKJ: 278.2789732605411
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 581.1550641695735
+StatEnergyE4RotationKJ: 238.1795757630301
+StatEnergyE5LiftLowerKJ: 176.87760151553937
+StatEnergyPerOrderKJ: 5.793141885039474
+StatEnergyPerMeterJoule: 169.0755126968273
+StatDistanceTraveledRizqiM: 7538
+>>> Motion Behavior
+StatTurningCount: 1154
+StatStopAndGoCount: 1644
+StatLoadedDistanceM: 5768
+StatLoadedTurningCount: 892
+StatWaitTimeSec: 27607.63669572182
+StatMoveEnergyEmptyKJ: 99.94289999999998
+StatMoveTimeEmptySec: 1615.8626261595603
+StatTurnEnergyEmptyKJ: 26.046082317047155
+StatTurnTimeEmptySec: 157.0484415106182
+StatMoveEnergyLoadedKJ: 759.4911374301146
+StatMoveTimeLoadedSec: 5739.278931762987
+StatTurnEnergyLoadedKJ: 212.1334934459829
+StatTurnTimeLoadedSec: 565.061298693947
+StatPrefEmptyW: 71.06334018356151
+StatPrefLoadedW: 154.11995472295044
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS
