@@ -59,7 +59,24 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockStatEnergyE4;
         private TextBlock _blockStatEnergyE5;
         private TextBlock _blockStatTurningCount;
-        private TextBlock _blockStatStopAndGoCount;
+        // KPI (Layer 1 / Layer 6)
+        private TextBlock _blockKpiStationArrivals;
+        private TextBlock _blockKpiTotalDistance;
+        private TextBlock _blockKpiLoadedDistance;
+        private TextBlock _blockKpiEmptyDistance;
+        private TextBlock _blockKpiEnergyPerOrder;
+        private TextBlock _blockKpiTripLoaded;
+        private TextBlock _blockKpiTripEmpty;
+        private TextBlock _blockKpiWaitTimeLoaded;
+        private TextBlock _blockKpiWaitTimeEmpty;
+        private TextBlock _blockKpiTurnLoaded;
+        private TextBlock _blockKpiTurnEmpty;
+        private TextBlock _blockKpiCompMove;
+        private TextBlock _blockKpiCompTurn;
+        private TextBlock _blockKpiCompLift;
+        private TextBlock _blockKpiCompWait;
+        private TextBlock _blockKpiCompSupport;
+        private TextBlock _blockKpiEnergyEmptyLoadedRatio;
         // Per-bot dynamic blocks
         private Dictionary<IBotInfo, TextBlock> _blocksBotLoad = new Dictionary<IBotInfo, TextBlock>();
         private Dictionary<IBotInfo, TextBlock> _blocksBotEnergy = new Dictionary<IBotInfo, TextBlock>();
@@ -147,7 +164,7 @@ namespace RAWSimO.Visualization.Rendering
             if (_blockStatEnergyTotal != null)
             {
                 double sumTotal = 0, sumE1 = 0, sumE2 = 0, sumE3 = 0, sumE4 = 0, sumE5 = 0;
-                int sumTurning = 0, sumStopAndGo = 0;
+                int sumTurning = 0;
                 foreach (var b in _instance.GetInfoBots())
                 {
                     if (b is RAWSimO.Core.Bots.BotNormal bn)
@@ -159,7 +176,6 @@ namespace RAWSimO.Visualization.Rendering
                         sumE4 += bn.StatEnergyE4RotationJ;
                         sumE5 += bn.StatEnergyE5LiftLowerJ;
                         sumTurning += bn.StatTurningCount;
-                        sumStopAndGo += bn.StatStopAndGoCount;
                     }
                 }
                 _blockStatEnergyTotal.Text = (sumTotal / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
@@ -169,7 +185,67 @@ namespace RAWSimO.Visualization.Rendering
                 _blockStatEnergyE4.Text = (sumE4 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
                 _blockStatEnergyE5.Text = (sumE5 / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ";
                 if (_blockStatTurningCount != null) _blockStatTurningCount.Text = sumTurning.ToString();
-                if (_blockStatStopAndGoCount != null) _blockStatStopAndGoCount.Text = sumStopAndGo.ToString();
+            }
+            // Fleet KPI (Layer 1 / 6) update
+            if (_blockKpiStationArrivals != null)
+            {
+                double moveE = 0, turnE = 0, waitE = 0, liftE = 0, idleE = 0, mechE = 0;
+                double distLoaded = 0, distEmpty = 0;
+                double waitTimeLoaded = 0, waitTimeEmpty = 0;
+                double eLoaded = 0, eEmpty = 0;
+                int orders = _instance.GetInfoStatOrdersHandled();
+                int stations = 0, tripLoaded = 0, tripEmpty = 0;
+                int turnLoaded = 0, turnEmpty = 0;
+                double totalDist = 0;
+                foreach (var b in _instance.GetInfoBots())
+                {
+                    if (b is RAWSimO.Core.Bots.BotNormal bn)
+                    {
+                        stations += bn.StatStationArrivals;
+                        totalDist += bn.StatDistanceTraveledM;
+                        distLoaded += bn.StatLoadedDistanceM;
+                        distEmpty += bn.StatEmptyDistanceM;
+                        tripLoaded += bn.StatTripCountLoaded;
+                        tripEmpty += bn.StatTripCountEmpty;
+                        waitTimeLoaded += bn.StatWaitTimeLoadedSec;
+                        waitTimeEmpty += bn.StatWaitTimeEmptySec;
+                        turnLoaded += bn.StatLoadedTurningCount;
+                        turnEmpty += bn.StatEmptyTurningCount;
+                        moveE += bn.StatMoveEnergyEmptyJ + bn.StatMoveEnergyLoadedJ;
+                        turnE += bn.StatTurnEnergyEmptyJ + bn.StatTurnEnergyLoadedJ;
+                        waitE += bn.StatWaitEnergyLoadedJ + bn.StatWaitEnergyEmptyJ;
+                        liftE += bn.StatEnergyE5LiftLowerJ;
+                        idleE += bn.StatEnergyIdleJ;
+                        mechE += bn.StatEnergyTotalJ;
+                        eLoaded += bn.StatMoveEnergyLoadedJ + bn.StatTurnEnergyLoadedJ + bn.StatWaitEnergyLoadedJ;
+                        eEmpty  += bn.StatMoveEnergyEmptyJ  + bn.StatTurnEnergyEmptyJ  + bn.StatWaitEnergyEmptyJ;
+                    }
+                }
+                // 5-component composition: move+turn+lift+wait+support = E_mech + E_idle
+                double supportE = idleE - waitE;
+                double comp5 = moveE + turnE + liftE + waitE + supportE;
+                _blockKpiStationArrivals.Text = stations.ToString();
+                _blockKpiTotalDistance.Text = totalDist.ToString("F0", IOConstants.FORMATTER) + " m";
+                _blockKpiLoadedDistance.Text = distLoaded.ToString("F0", IOConstants.FORMATTER) + " m";
+                _blockKpiEmptyDistance.Text = distEmpty.ToString("F0", IOConstants.FORMATTER) + " m";
+                _blockKpiEnergyPerOrder.Text = orders > 0 ? (mechE / orders / 1000.0).ToString("F2", IOConstants.FORMATTER) + " kJ" : "-";
+                _blockKpiTripLoaded.Text = tripLoaded.ToString();
+                _blockKpiTripEmpty.Text = tripEmpty.ToString();
+                _blockKpiWaitTimeLoaded.Text = waitTimeLoaded.ToString("F0", IOConstants.FORMATTER) + " s";
+                _blockKpiWaitTimeEmpty.Text = waitTimeEmpty.ToString("F0", IOConstants.FORMATTER) + " s";
+                _blockKpiTurnLoaded.Text = turnLoaded.ToString();
+                _blockKpiTurnEmpty.Text = turnEmpty.ToString();
+                if (comp5 > 0)
+                {
+                    _blockKpiCompMove.Text    = (moveE    / comp5 * 100).ToString("F1", IOConstants.FORMATTER) + "%";
+                    _blockKpiCompTurn.Text    = (turnE    / comp5 * 100).ToString("F1", IOConstants.FORMATTER) + "%";
+                    _blockKpiCompLift.Text    = (liftE    / comp5 * 100).ToString("F1", IOConstants.FORMATTER) + "%";
+                    _blockKpiCompWait.Text    = (waitE    / comp5 * 100).ToString("F1", IOConstants.FORMATTER) + "%";
+                    _blockKpiCompSupport.Text = (supportE / comp5 * 100).ToString("F1", IOConstants.FORMATTER) + "%";
+                }
+                _blockKpiEnergyEmptyLoadedRatio.Text = eLoaded > 0
+                    ? (eEmpty / eLoaded).ToString("F3", IOConstants.FORMATTER)
+                    : "-";
             }
         }
 
@@ -262,6 +338,51 @@ namespace RAWSimO.Visualization.Rendering
                 _blockStatCollisions = new TextBlock { Text = _instance.GetInfoStatCollisions().ToString(), MinWidth = _infoPanelRightColumnWidth };
                 collisionsPanel.Children.Add(_blockStatCollisions);
                 _root.Items.Add(collisionsPanel);
+                // === Fleet KPI panel (Layer 1 / Layer 6) ===
+                TreeViewItem kpiNode = new TreeViewItem { Header = "Fleet KPI (L1/L6)", IsExpanded = true };
+                System.Func<string, TextBlock, WrapPanel> addKpiRow = (label, tb) =>
+                {
+                    var p = new WrapPanel { Orientation = Orientation.Horizontal };
+                    p.Children.Add(new TextBlock { Text = label, TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                    p.Children.Add(tb);
+                    return p;
+                };
+                _blockKpiStationArrivals = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Station arrivals: ", _blockKpiStationArrivals));
+                _blockKpiTotalDistance = new TextBlock { Text = "0 m", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Total distance: ", _blockKpiTotalDistance));
+                _blockKpiLoadedDistance = new TextBlock { Text = "0 m", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("  loaded: ", _blockKpiLoadedDistance));
+                _blockKpiEmptyDistance = new TextBlock { Text = "0 m", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("  empty:  ", _blockKpiEmptyDistance));
+                _blockKpiEnergyPerOrder = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Energy/order: ", _blockKpiEnergyPerOrder));
+                _blockKpiTripLoaded = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Trips loaded: ", _blockKpiTripLoaded));
+                _blockKpiTripEmpty = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Trips empty:  ", _blockKpiTripEmpty));
+                _blockKpiTurnLoaded = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Turn loaded:  ", _blockKpiTurnLoaded));
+                _blockKpiTurnEmpty = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Turn empty:   ", _blockKpiTurnEmpty));
+                _blockKpiWaitTimeLoaded = new TextBlock { Text = "0 s", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Wait loaded: ", _blockKpiWaitTimeLoaded));
+                _blockKpiWaitTimeEmpty = new TextBlock { Text = "0 s", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("Wait empty:  ", _blockKpiWaitTimeEmpty));
+                _blockKpiCompMove = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E move %:    ", _blockKpiCompMove));
+                _blockKpiCompTurn = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E turn %:    ", _blockKpiCompTurn));
+                _blockKpiCompLift = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E lift %:    ", _blockKpiCompLift));
+                _blockKpiCompWait = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E wait %:    ", _blockKpiCompWait));
+                _blockKpiCompSupport = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E support %: ", _blockKpiCompSupport));
+                _blockKpiEnergyEmptyLoadedRatio = new TextBlock { Text = "-", MinWidth = _infoPanelRightColumnWidth };
+                kpiNode.Items.Add(addKpiRow("E empty/loaded: ", _blockKpiEnergyEmptyLoadedRatio));
+                _root.Items.Add(kpiNode);
+
                 // Add fleet energy stats (Rizqi model)
                 TreeViewItem energyNode = new TreeViewItem { Header = "Fleet Energy (Rizqi)" };
                 // Total
@@ -306,12 +427,6 @@ namespace RAWSimO.Visualization.Rendering
                 _blockStatTurningCount = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
                 turningPanel.Children.Add(_blockStatTurningCount);
                 energyNode.Items.Add(turningPanel);
-                // Stop-and-Go count
-                WrapPanel sagPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                sagPanel.Children.Add(new TextBlock { Text = "Stop&Go: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockStatStopAndGoCount = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
-                sagPanel.Children.Add(_blockStatStopAndGoCount);
-                energyNode.Items.Add(sagPanel);
                 _root.Items.Add(energyNode);
                 // Per-bot stats panel
                 TreeViewItem botStatsNode = new TreeViewItem { Header = "Per-Bot Stats" };
@@ -942,7 +1057,6 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockEnergyE4;
         private TextBlock _blockEnergyE5;
         private TextBlock _blockBotTurning;
-        private TextBlock _blockBotStopAndGo;
         // Per-bot personal stats (Lift up/down, orders, distance, wait, loaded distance/turning)
         private TextBlock _blockBotPickup;
         private TextBlock _blockBotSetdown;
@@ -957,9 +1071,7 @@ namespace RAWSimO.Visualization.Rendering
         private TextBlock _blockBotIdleTime;
         private TextBlock _blockBotUtilization;
         private TextBlock _blockBotESupportRatio;
-        // Stop-and-go and move/turn energy split by loaded/empty
-        private TextBlock _blockBotStopGoEnergyEmpty;
-        private TextBlock _blockBotStopGoEnergyLoaded;
+        // Move/turn energy split by loaded/empty
         private TextBlock _blockBotMoveEnergyEmpty;
         private TextBlock _blockBotMoveEnergyLoaded;
         private TextBlock _blockBotTurnEnergyEmpty;
@@ -1024,7 +1136,6 @@ namespace RAWSimO.Visualization.Rendering
                 _blockEnergyE4.Text = (botNormal.StatEnergyE4RotationJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 _blockEnergyE5.Text = (botNormal.StatEnergyE5LiftLowerJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 if (_blockBotTurning != null) _blockBotTurning.Text = botNormal.StatTurningCount.ToString();
-                if (_blockBotStopAndGo != null) _blockBotStopAndGo.Text = botNormal.StatStopAndGoCount.ToString();
                 if (_blockBotPickup != null) _blockBotPickup.Text = botNormal.StatPickupCount.ToString();
                 if (_blockBotSetdown != null) _blockBotSetdown.Text = botNormal.StatSetdownCount.ToString();
                 if (_blockBotOrders != null) _blockBotOrders.Text = botNormal.StatOrdersCompleted.ToString();
@@ -1048,11 +1159,7 @@ namespace RAWSimO.Visualization.Rendering
                         ? botNormal.StatESupportJ / botNormal.StatEnergyTotalJ : double.NaN;
                     _blockBotESupportRatio.Text = double.IsNaN(ratio) ? "n/a" : ratio.ToString("P2", IOConstants.FORMATTER);
                 }
-                // Stop-and-go and move/turn energy split by loaded/empty
-                if (_blockBotStopGoEnergyEmpty != null)
-                    _blockBotStopGoEnergyEmpty.Text = (botNormal.StatStopAndGoEnergyEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
-                if (_blockBotStopGoEnergyLoaded != null)
-                    _blockBotStopGoEnergyLoaded.Text = (botNormal.StatStopAndGoEnergyLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                // Move/turn energy split by loaded/empty
                 if (_blockBotMoveEnergyEmpty != null)
                     _blockBotMoveEnergyEmpty.Text = (botNormal.StatMoveEnergyEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 if (_blockBotMoveEnergyLoaded != null)
@@ -1294,12 +1401,6 @@ namespace RAWSimO.Visualization.Rendering
                 _blockBotTurning = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
                 turnPanel.Children.Add(_blockBotTurning);
                 energyNode.Items.Add(turnPanel);
-                // Stop-and-Go
-                WrapPanel sagPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                sagPanel.Children.Add(new TextBlock { Text = "Stop&Go: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockBotStopAndGo = new TextBlock { Text = "0", MinWidth = _infoPanelRightColumnWidth };
-                sagPanel.Children.Add(_blockBotStopAndGo);
-                energyNode.Items.Add(sagPanel);
                 root.Items.Add(energyNode);
 
                 // ── Per-bot Activity sub-panel ──
@@ -1382,18 +1483,6 @@ namespace RAWSimO.Visualization.Rendering
                 _blockBotESupportRatio = new TextBlock { Text = "n/a", MinWidth = _infoPanelRightColumnWidth };
                 eSupportRatioPanel.Children.Add(_blockBotESupportRatio);
                 activityNode.Items.Add(eSupportRatioPanel);
-                // Stop-and-go energy (empty)
-                WrapPanel stopGoEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                stopGoEmptyPanel.Children.Add(new TextBlock { Text = "S&G E_empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockBotStopGoEnergyEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
-                stopGoEmptyPanel.Children.Add(_blockBotStopGoEnergyEmpty);
-                activityNode.Items.Add(stopGoEmptyPanel);
-                // Stop-and-go energy (loaded)
-                WrapPanel stopGoLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                stopGoLoadedPanel.Children.Add(new TextBlock { Text = "S&G E_loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
-                _blockBotStopGoEnergyLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
-                stopGoLoadedPanel.Children.Add(_blockBotStopGoEnergyLoaded);
-                activityNode.Items.Add(stopGoLoadedPanel);
                 // Move energy (empty)
                 WrapPanel moveEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
                 moveEmptyPanel.Children.Add(new TextBlock { Text = "Move E_empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });

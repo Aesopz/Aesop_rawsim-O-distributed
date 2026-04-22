@@ -128,21 +128,90 @@ namespace RAWSimO.Core.Bots
         private bool _isRotatingThisTick = false;
 
         /// <summary>
-        /// Per-trip tracking: timestamp when current loaded trip started (pickup complete).
+        /// Per-trip tracking: timestamp when current trip started (at _appendMoveStates dispatch).
         /// </summary>
-        private double _tripLoadedStartTime = 0.0;
+        private double _tripStartTime = 0.0;
         /// <summary>
-        /// Per-trip tracking: cumulative wait time in current loaded trip [s].
+        /// Per-trip tracking: cumulative wait time in current trip [s].
         /// </summary>
-        private double _currentTripLoadedWaitSec = 0.0;
+        private double _currentTripWaitSec = 0.0;
+        /// <summary>Per-trip snapshot: StatEnergyTotalJ at trip start.</summary>
+        private double _tripStartEnergyJ = 0.0;
+        /// <summary>Per-trip snapshot: StatDistanceTraveledM at trip start.</summary>
+        private double _tripStartDistanceM = 0.0;
+        /// <summary>Per-trip cumulative turn count.</summary>
+        private int _currentTripTurnCount = 0;
         /// <summary>
-        /// Per-trip tracking: timestamp when current empty trip started (setdown complete or simulation start).
+        /// Per-trip tracking: whether the currently-open trip is loaded (Pod!=null at its start).
         /// </summary>
-        private double _tripEmptyStartTime = 0.0;
+        private bool _activeTripLoaded = false;
         /// <summary>
-        /// Per-trip tracking: cumulative wait time in current empty trip [s].
+        /// Per-trip tracking: whether a trip is currently open (awaiting close-out at arrival).
         /// </summary>
-        private double _currentTripEmptyWaitSec = 0.0;
+        private bool _tripOpen = false;
+        /// <summary>
+        /// Per-trip tracking: queue of loaded/empty flags for trips opened at dispatch but not yet
+        /// activated (multiple _appendMoveStates may run in same tick before any movement).
+        /// </summary>
+        private Queue<bool> _pendingTripsLoaded = new Queue<bool>();
+
+        /// <summary>Per-trip recorded metrics (flushed at CloseCurrentTrip).</summary>
+        public struct TripRecord
+        {
+            public double DurationSec;
+            public double DistanceM;
+            public double EnergyJ;       // mechanical (E1..E5) consumed during trip
+            public double WaitTimeSec;
+            public int TurnCount;
+        }
+        /// <summary>Per-trip records for loaded trips.</summary>
+        public List<TripRecord> PerTripRecordsLoaded = new List<TripRecord>();
+        /// <summary>Per-trip records for empty trips.</summary>
+        public List<TripRecord> PerTripRecordsEmpty  = new List<TripRecord>();
+
+        /// <summary>
+        /// Close the currently-open trip (bot arrived at trip destination). Called at
+        /// PickupPod/SetdownPod/PutItems/GetItems init.
+        /// </summary>
+        internal void CloseCurrentTrip(double currentTime)
+        {
+            if (_tripOpen)
+            {
+                double dur = currentTime - _tripStartTime;
+                if (dur > 0.0)
+                {
+                    double waitRatio = Math.Min(1.0, _currentTripWaitSec / dur);
+                    var rec = new TripRecord
+                    {
+                        DurationSec = dur,
+                        DistanceM   = StatDistanceTraveledM - _tripStartDistanceM,
+                        EnergyJ     = StatEnergyTotalJ - _tripStartEnergyJ,
+                        WaitTimeSec = _currentTripWaitSec,
+                        TurnCount   = _currentTripTurnCount,
+                    };
+                    if (_activeTripLoaded) { PerTripWaitRatioLoaded.Add(waitRatio); PerTripRecordsLoaded.Add(rec); }
+                    else                   { PerTripWaitRatioEmpty.Add(waitRatio);  PerTripRecordsEmpty.Add(rec);  }
+                }
+                _tripOpen = false;
+            }
+        }
+
+        /// <summary>
+        /// Activate next pending trip when bot starts moving. Called at BotMove init.
+        /// </summary>
+        internal void ActivateNextTripIfPending(double currentTime)
+        {
+            if (!_tripOpen && _pendingTripsLoaded.Count > 0)
+            {
+                _activeTripLoaded = _pendingTripsLoaded.Dequeue();
+                _tripStartTime = currentTime;
+                _currentTripWaitSec = 0.0;
+                _tripStartEnergyJ = StatEnergyTotalJ;
+                _tripStartDistanceM = StatDistanceTraveledM;
+                _currentTripTurnCount = 0;
+                _tripOpen = true;
+            }
+        }
 
         /// <summary>
         /// rotate until
@@ -270,26 +339,28 @@ namespace RAWSimO.Core.Bots
         public int StatSetdownCount;
         /// <summary>Number of turning events (segments with rotation).</summary>
         public int StatTurningCount;
-        /// <summary>Number of stop-and-go events (completed segments).</summary>
-        public int StatStopAndGoCount;
         /// <summary>Number of extract orders completed by this bot.</summary>
         public int StatOrdersCompleted;
         /// <summary>Total distance traveled [m].</summary>
         public double StatDistanceTraveledM;
         /// <summary>Distance traveled while carrying a pod [m].</summary>
         public double StatLoadedDistanceM;
+        /// <summary>Distance traveled while empty (no pod) [m].</summary>
+        public double StatEmptyDistanceM;
+        /// <summary>Total wait time while loaded [s] (path-wait only: not moving, not rotating, not in pickup/setdown).</summary>
+        public double StatWaitTimeLoadedSec;
+        /// <summary>Total wait time while empty [s].</summary>
+        public double StatWaitTimeEmptySec;
+        /// <summary>Wait energy while loaded [J] = P_IDLE × StatWaitTimeLoadedSec.</summary>
+        public double StatWaitEnergyLoadedJ => Metrics.EnergyConsumption.P_IDLE * StatWaitTimeLoadedSec;
+        /// <summary>Wait energy while empty [J].</summary>
+        public double StatWaitEnergyEmptyJ  => Metrics.EnergyConsumption.P_IDLE * StatWaitTimeEmptySec;
+        /// <summary>Edge-triggered count of arrivals at any station queue zone (entered: false→true).</summary>
+        public int StatStationArrivals;
         /// <summary>Number of turning events while carrying a pod.</summary>
         public int StatLoadedTurningCount;
-        /// <summary>Number of stop-and-go events while carrying a pod.</summary>
-        public int StatLoadedStopAndGoCount;
-        /// <summary>Number of stop-and-go events while empty (no pod).</summary>
-        public int StatEmptyStopAndGoCount;
         /// <summary>Number of turning events while empty (no pod).</summary>
         public int StatEmptyTurningCount;
-        /// <summary>Energy consumed during stop-and-go events while empty [J].</summary>
-        public double StatStopAndGoEnergyEmptyJ;
-        /// <summary>Energy consumed during stop-and-go events while loaded [J].</summary>
-        public double StatStopAndGoEnergyLoadedJ;
         /// <summary>Total number of completed loaded trips (pickup → setdown).</summary>
         public int StatTripCountLoaded;
         /// <summary>Total number of completed empty trips (setdown → next pickup).</summary>
@@ -358,16 +429,11 @@ namespace RAWSimO.Core.Bots
             StatESupportLoadedJ = 0.0;
             StatESupportEmptyJ = 0.0;
             StatTurningCount = 0;
-            StatStopAndGoCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
             StatLoadedDistanceM = 0.0;
             StatLoadedTurningCount = 0;
-            StatLoadedStopAndGoCount = 0;
-            StatEmptyStopAndGoCount = 0;
             StatEmptyTurningCount = 0;
-            StatStopAndGoEnergyEmptyJ = 0.0;
-            StatStopAndGoEnergyLoadedJ = 0.0;
             StatWaitTimeSec = 0.0;
             StatEnergyIdleJ = 0.0;
             StatMoveEnergyEmptyJ   = 0.0;
@@ -382,10 +448,19 @@ namespace RAWSimO.Core.Bots
             StatTripCountEmpty = 0;
             PerTripWaitRatioLoaded.Clear();
             PerTripWaitRatioEmpty.Clear();
-            _tripLoadedStartTime = 0.0;
-            _currentTripLoadedWaitSec = 0.0;
-            _tripEmptyStartTime = 0.0;
-            _currentTripEmptyWaitSec = 0.0;
+            PerTripRecordsLoaded.Clear();
+            PerTripRecordsEmpty.Clear();
+            StatEmptyDistanceM = 0.0;
+            StatWaitTimeLoadedSec = 0.0;
+            StatWaitTimeEmptySec = 0.0;
+            StatStationArrivals = 0;
+            _tripStartTime = 0.0;
+            _currentTripWaitSec = 0.0;
+            _tripStartEnergyJ = 0.0;
+            _tripStartDistanceM = 0.0;
+            _currentTripTurnCount = 0;
+            _activeTripLoaded = false;
+            _tripOpen = false;
         }
 
         #endregion
@@ -491,8 +566,8 @@ namespace RAWSimO.Core.Bots
                         Instance.Controller.BotManager.TaskAborted(this, storePodTask);
                         return;
                     }
-                    // Add the move states for parking the pod
-                    _appendMoveStates(CurrentWaypoint, storePodTask.StorageLocation);
+                    // Add the move states for parking the pod (loaded: carrying pod to storage)
+                    _appendMoveStates(CurrentWaypoint, storePodTask.StorageLocation, tripLoaded: true);
                     // After bringing the pod to the storage location set it down
                     StateQueueEnqueue(new BotSetdownPod(storePodTask.StorageLocation));
 
@@ -506,12 +581,12 @@ namespace RAWSimO.Core.Bots
                     // If don't have pod requested to store, then go get it 
                     if (Pod == null)
                     {
-                        // Add states for getting the pod
-                        _appendMoveStates(CurrentWaypoint, repositionPodTask.Pod.Waypoint);
+                        // Add states for getting the pod (empty: going to pod)
+                        _appendMoveStates(CurrentWaypoint, repositionPodTask.Pod.Waypoint, tripLoaded: false);
                         // Add state for picking up pod
                         StateQueueEnqueue(new BotPickupPod(repositionPodTask.Pod));
-                        // Add states for repositioning the pod
-                        _appendMoveStates(repositionPodTask.Pod.Waypoint, repositionPodTask.StorageLocation);
+                        // Add states for repositioning the pod (loaded: carrying pod to storage)
+                        _appendMoveStates(repositionPodTask.Pod.Waypoint, repositionPodTask.StorageLocation, tripLoaded: true);
                         // After bringing the pod to the storage location set it down
                         StateQueueEnqueue(new BotSetdownPod(repositionPodTask.StorageLocation));
                         // Log a repositioning move
@@ -535,13 +610,13 @@ namespace RAWSimO.Core.Bots
                     if (storeTask.ReservedPod != Pod)
                     {
                         var podWaypoint = storeTask.ReservedPod.Waypoint;
-                        _appendMoveStates(CurrentWaypoint, podWaypoint);
+                        _appendMoveStates(CurrentWaypoint, podWaypoint, tripLoaded: false);
                         StateQueueEnqueue(new BotPickupPod(storeTask.ReservedPod));
-                        _appendMoveStates(podWaypoint, storeTask.InputStation.Waypoint);
+                        _appendMoveStates(podWaypoint, storeTask.InputStation.Waypoint, tripLoaded: true);
                     }
                     else
                     {
-                        _appendMoveStates(CurrentWaypoint, storeTask.InputStation.Waypoint);
+                        _appendMoveStates(CurrentWaypoint, storeTask.InputStation.Waypoint, tripLoaded: true);
                     }
                     StateQueueEnqueue(new BotGetItems(storeTask));
 
@@ -555,13 +630,13 @@ namespace RAWSimO.Core.Bots
                     if (extractTask.ReservedPod != Pod)
                     {
                         var podWaypoint = extractTask.ReservedPod.Waypoint;
-                        _appendMoveStates(CurrentWaypoint, podWaypoint);
+                        _appendMoveStates(CurrentWaypoint, podWaypoint, tripLoaded: false);
                         StateQueueEnqueue(new BotPickupPod(extractTask.ReservedPod));
-                        _appendMoveStates(podWaypoint, extractTask.OutputStation.Waypoint);
+                        _appendMoveStates(podWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true);
                     }
                     else
                     {
-                        _appendMoveStates(CurrentWaypoint, extractTask.OutputStation.Waypoint);
+                        _appendMoveStates(CurrentWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true);
                     }
                     StateQueueEnqueue(new BotPutItems(extractTask));
 
@@ -587,8 +662,23 @@ namespace RAWSimO.Core.Bots
         /// </summary>
         /// <param name="waypointFrom">The from waypoint.</param>
         /// <param name="waypointTo">The destination waypoint.</param>
-        private void _appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo)
+        private void _appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo, bool? tripLoaded = null)
         {
+            // ── Per-trip tracking: each solver-dispatched path (currentWaypoint → destinationWaypoint)
+            // counts as one trip. Loaded/empty passed by caller (task dispatch knows the semantic —
+            // Pod state in queue may not reflect runtime state yet). Rest task (tripLoaded==null)
+            // is excluded (non-task return-to-idle). Replans do not pass through here.
+            if (tripLoaded.HasValue)
+            {
+                // Close-out of the previous trip happens in CloseCurrentTrip() when the bot
+                // actually arrives at its destination (PickupPod/SetdownPod/PutItems/GetItems
+                // Act-init). Here we only open the new trip — multiple _appendMoveStates can
+                // run in the same tick at task dispatch without the close-out being premature.
+                if (tripLoaded.Value) StatTripCountLoaded++;
+                else                  StatTripCountEmpty++;
+                _pendingTripsLoaded.Enqueue(tripLoaded.Value);
+            }
+
             double distance;
             var checkPoints = Instance.Controller.PathManager.FindElevatorSequence(this, waypointFrom, waypointTo, out distance);
             StatDistanceEstimated += distance;
@@ -671,6 +761,11 @@ namespace RAWSimO.Core.Bots
                 double segmentDistance = CurrentWaypoint.GetDistance(NextWaypoint);
                 _driveDuration = Physics.getTimeNeededToMove(0, segmentDistance);
 
+                // ── Rest-task gate: no productive metrics recorded during return-to-park ──
+                bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
+                if (isRestTask)
+                    return true;
+
                 // ── Energy Hook: E1 + E2 + E3 (segment drive) + E4 (rotation) ──
                 double mTotal = EnergyConsumption.GetTotalMass(Pod);
                 double e1, e2, e3;
@@ -718,21 +813,23 @@ namespace RAWSimO.Core.Bots
                 }
 
                 // Motion behavior counters
-                StatStopAndGoCount++;
                 if (_rotateDuration > 0) StatTurningCount++;
                 // Loaded/Empty-specific counters
                 if (Pod != null)
                 {
                     StatLoadedDistanceM += segmentDistance;
-                    StatLoadedStopAndGoCount++;
-                    StatStopAndGoEnergyLoadedJ += moveE + turnE;
                     if (_rotateDuration > 0) StatLoadedTurningCount++;
                 }
                 else
                 {
-                    StatEmptyStopAndGoCount++;
-                    StatStopAndGoEnergyEmptyJ += moveE + turnE;
+                    StatEmptyDistanceM += segmentDistance;
                     if (_rotateDuration > 0) StatEmptyTurningCount++;
+                }
+
+                // Per-trip cumulative counters (tied to the currently-open trip)
+                if (_tripOpen)
+                {
+                    if (_rotateDuration > 0) _currentTripTurnCount++;
                 }
 
                 return true;
@@ -858,6 +955,30 @@ namespace RAWSimO.Core.Bots
         /// </summary>
         /// <param name="station">The station to check.</param>
         /// <returns><code>true</code> if the bot is within the stations queueing area, <code>false</code> otherwise.</returns>
+        /// <summary>
+        /// Previous-tick snapshot of whether the bot was inside any station queue zone.
+        /// Used for edge-triggered station-arrival counting.
+        /// </summary>
+        private bool _prevInAnyStationQueue = false;
+
+        /// <summary>
+        /// Edge-triggered station arrival counter: increments StatStationArrivals on false→true
+        /// transition of "inside any input or output station queue zone". Called once per tick
+        /// from _updateStatistics. Excluded during Rest task.
+        /// </summary>
+        private void _updateStationArrival()
+        {
+            if (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest) { _prevInAnyStationQueue = false; return; }
+            // Count one arrival per physical reach: rising edge of "currently processing at station"
+            // (top of state queue is GetItems or PutItems). Each pod-trip to a station triggers
+            // exactly one such state, so this avoids re-entry/oscillation double-counting.
+            bool atStation = StateQueueCount > 0 &&
+                (StateQueuePeek().Type == BotStateType.GetItems ||
+                 StateQueuePeek().Type == BotStateType.PutItems);
+            if (atStation && !_prevInAnyStationQueue) StatStationArrivals++;
+            _prevInAnyStationQueue = atStation;
+        }
+
         private bool IsInStationQueueZone(OutputStation station)
         {
             if (_queueZonesOStations == null)
@@ -1134,23 +1255,39 @@ namespace RAWSimO.Core.Bots
                 StatTotalTimeQueueing += delta;
             // Measure wait time: stationary AND not in a real rotation phase AND not in pickup/setdown.
             // Per-trip wait should only count actual congestion/CBS waits, not mechanical action time.
+            // Exclude mechanical stationary actions AND station-process states from wait:
+            // - PickupPod/SetdownPod: lift-up/down in place
+            // - GetItems/PutItems: items being loaded/unloaded at input/output station
             bool inPickupOrSetdown = StateQueueCount > 0 &&
-                (StateQueuePeek().Type == BotStateType.PickupPod || StateQueuePeek().Type == BotStateType.SetdownPod);
-            if (!Moving && !_isRotatingThisTick && !inPickupOrSetdown)
+                (StateQueuePeek().Type == BotStateType.PickupPod || StateQueuePeek().Type == BotStateType.SetdownPod ||
+                 StateQueuePeek().Type == BotStateType.GetItems  || StateQueuePeek().Type == BotStateType.PutItems);
+            // Also exclude any time the bot is physically inside a station queue zone (queueing at station)
+            bool inStationQueue = false;
+            foreach (var s in Instance.OutputStations) { if (IsInStationQueueZone(s)) { inStationQueue = true; break; } }
+            if (!inStationQueue)
+                foreach (var s in Instance.InputStations) { if (IsInStationQueueZone(s)) { inStationQueue = true; break; } }
+            if (inStationQueue) inPickupOrSetdown = true;
+
+            // Rest-task gate: return-to-park is a non-productive trip — no energy / wait / station metrics
+            bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
+
+            if (!isRestTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown)
             {
                 StatWaitTimeSec += delta;
                 // Accumulate per-trip wait time (congestion/CBS wait only, no mechanical action)
-                if (Pod != null)
-                    _currentTripLoadedWaitSec += delta;
-                else
-                    _currentTripEmptyWaitSec += delta;
+                if (_tripOpen)
+                    _currentTripWaitSec += delta;
+                // Layer 5: wait-time split by payload state
+                if (Pod != null) StatWaitTimeLoadedSec += delta;
+                else             StatWaitTimeEmptySec  += delta;
             }
 
-            // P_IDLE energy accumulates every tick (moving, rotating, or waiting)
-            StatEnergyIdleJ += EnergyConsumption.P_IDLE * delta;
+            // P_IDLE energy accumulates every tick (moving, rotating, or waiting) — except during Rest task
+            if (!isRestTask)
+                StatEnergyIdleJ += EnergyConsumption.P_IDLE * delta;
 
             // E_support: P_IDLE while task-assigned AND stationary AND not in pickup/setdown (congestion wait / CBS hold)
-            if (!Moving && !_isRotatingThisTick && !inPickupOrSetdown && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
+            if (!isRestTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
             {
                 StatESupportJ += EnergyConsumption.P_IDLE * delta;
                 if (Pod != null)
@@ -1158,6 +1295,9 @@ namespace RAWSimO.Core.Bots
                 else
                     StatESupportEmptyJ += EnergyConsumption.P_IDLE * delta;
             }
+
+            // Station arrival (edge-triggered): false → true on entering any station queue zone.
+            _updateStationArrival();
 
             // Pref time denominators are now accumulated event-by-event in setNextWaypoint()
             // (StatMoveTimeLoadedSec, StatTurnTimeLoadedSec, etc.) — no delta-based tracking here.
@@ -1371,6 +1511,9 @@ namespace RAWSimO.Core.Bots
 
                     // Mark initialized
                     _initialized = true;
+                    // Activate next pending trip (empty/loaded flag) so wait accumulator targets
+                    // the correct list. Only activates if no trip is currently open.
+                    bot.ActivateNextTripIfPending(currentTime);
                 }
 
                 //not while driving
@@ -1561,7 +1704,7 @@ namespace RAWSimO.Core.Bots
                 bot._lastExteriorState = Type;
 
                 // Initialize
-                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; }
+                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; (self as BotNormal)?.CloseCurrentTrip(currentTime); }
 
                 // Dequeue the state as soon as it is finished
                 if (_executed)
@@ -1583,19 +1726,6 @@ namespace RAWSimO.Core.Bots
                     bot.StatEnergyE5LiftLowerJ += e5a;
                     bot.StatEnergyTotalJ += e5a;
                     bot.StatPickupCount++;
-
-                    // ── Per-trip tracking: end empty trip, start loaded trip ──
-                    double emptyTripDur = currentTime - bot._tripEmptyStartTime;
-                    if (emptyTripDur > 0.0)
-                    {
-                        double waitRatio = Math.Min(1.0, bot._currentTripEmptyWaitSec / emptyTripDur);
-                        bot.PerTripWaitRatioEmpty.Add(waitRatio);
-                    }
-                    bot.StatTripCountEmpty++;
-                    bot._currentTripEmptyWaitSec = 0.0;
-                    // Start loaded trip
-                    bot._tripLoadedStartTime = currentTime;
-                    bot._currentTripLoadedWaitSec = 0.0;
 
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked
@@ -1641,7 +1771,7 @@ namespace RAWSimO.Core.Bots
                 bot._lastExteriorState = Type;
 
                 // Initialize
-                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; }
+                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; (self as BotNormal)?.CloseCurrentTrip(currentTime); }
 
                 // Dequeue the state as soon as it is finished
                 if (_executed)
@@ -1669,19 +1799,6 @@ namespace RAWSimO.Core.Bots
                     bot.StatEnergyE5LiftLowerJ += e5b;
                     bot.StatEnergyTotalJ += e5b;
                     bot.StatSetdownCount++;
-
-                    // ── Per-trip tracking: end loaded trip, start empty trip ──
-                    double loadedTripDur = currentTime - bot._tripLoadedStartTime;
-                    if (loadedTripDur > 0.0)
-                    {
-                        double waitRatio = Math.Min(1.0, bot._currentTripLoadedWaitSec / loadedTripDur);
-                        bot.PerTripWaitRatioLoaded.Add(waitRatio);
-                    }
-                    bot.StatTripCountLoaded++;
-                    bot._currentTripLoadedWaitSec = 0.0;
-                    // Start empty trip
-                    bot._tripEmptyStartTime = currentTime;
-                    bot._currentTripEmptyWaitSec = 0.0;
 
                     //#RealWorldIntegraton.Start
                     //Trigger comes from outside => stay blocked
@@ -1733,6 +1850,7 @@ namespace RAWSimO.Core.Bots
                 {
                     self.StatTotalStateCounts[Type]++;
                     _initialized = true;
+                    bot.CloseCurrentTrip(currentTime);
                 }
 
                 //#RealWorldIntegration.start
@@ -1846,6 +1964,7 @@ namespace RAWSimO.Core.Bots
                 {
                     self.StatTotalStateCounts[Type]++;
                     _initialized = true;
+                    bot.CloseCurrentTrip(currentTime);
                 }
 
                 //#RealWorldIntegration.start
