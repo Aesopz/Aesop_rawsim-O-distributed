@@ -42,9 +42,25 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         delegate double NodeSelectionExpression(EnergyConflictTree.Node node);
 
         /// <summary>
-        /// The deadlock handler
+        /// The deadlock handler (ECBS 專用版，認得 committed wait)
         /// </summary>
-        private DeadlockHandler _deadlockHandler;
+        private EnergyDeadlockHandler _deadlockHandler;
+
+        /// <summary>
+        /// Per-agent「連續誤觸發」計數：committed wait 重置為 0，真卡住累加。
+        /// 達到 StuckHopThreshold 才允許 RandomHop；在此之前用 InPlaceWait。
+        /// </summary>
+        private Dictionary<int, int> _stuckRounds = new Dictionary<int, int>();
+
+        /// <summary>
+        /// 超過此閾值才視為真 livelock，允許 RandomHop 破壞對稱性。
+        /// </summary>
+        private const int StuckHopThreshold = 3;
+
+        /// <summary>
+        /// ε 用於 committed wait 判定，與 EnergyDeadlockHandler 對齊。
+        /// </summary>
+        private const double COMMITTED_WAIT_EPSILON = 0.5;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ECBSMethod"/> class.
@@ -59,7 +75,18 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 graph.GenerateBackwardEgdes();
             _reservationTable = new ReservationTable(graph);
             _agentReservationTable = new ReservationTable(graph, false, true, false);
-            _deadlockHandler = new DeadlockHandler(graph, seed);
+            _deadlockHandler = new EnergyDeadlockHandler(graph, seed);
+        }
+
+        /// <summary>
+        /// 判斷 agent 是否正在履行 committed wait：
+        /// PathManager 已註冊的 reservation 延伸到未來，表示 bot 還沒抵達 NextNode，
+        /// 它應繼續按上輪 ECBS 指派執行，不需被本輪覆寫。
+        /// </summary>
+        private static bool IsCommittedWait(Agent agent, double currentTime)
+        {
+            return !agent.FixedPosition
+                && agent.ArrivalTimeAtNextNode > currentTime + COMMITTED_WAIT_EPSILON;
         }
 
         /// <summary>
@@ -86,13 +113,12 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         public int StatRandomHopMutations { get; private set; } = 0;
 
         /// <summary>
-        /// When true, suppress the post-search RandomHop deadlock mutation so that the executed
-        /// path exactly matches the high-level bestNode solution. Useful for validating the
-        /// algorithm itself (CT SolutionCost == executed energy). Default: false (keep safety net).
-        /// Default: true (disabled). Set env var RMFS_ECBS_ENABLE_RANDOMHOP=1 to re-enable.
+        /// When true, suppress the post-search RandomHop deadlock mutation.
+        /// Default: false (RandomHop enabled as livelock safety valve).
+        /// Set env var RMFS_ECBS_DISABLE_RANDOMHOP=1 to suppress.
         /// </summary>
         public bool DisableRandomHopMutation { get; set; } =
-            Environment.GetEnvironmentVariable("RMFS_ECBS_ENABLE_RANDOMHOP") != "1";
+            Environment.GetEnvironmentVariable("RMFS_ECBS_DISABLE_RANDOMHOP") == "1";
 
         public override void FindPaths(double currentTime, List<Agent> agents)
         {
@@ -121,6 +147,10 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             foreach (var agent in agents.Where(a => a.FixedPosition))
                 Graph.NodeInfo[agent.NextNode].IsLocked = true;
 
+            // NOTE: 初版曾嘗試把其他 bot 的 ReservationsToNextNode 整包 seed 進 low-level
+            // _reservationTable（Fix A）。實驗發現 17 agents × ~10 intervals = ~170 seeds 會嚴重
+            // over-constrain A*（"could not obtain an initial solution" 大量湧現）→ 移除。
+            // 衝突偵測仍由 ValidatePath + CT branching 處理，與原 CBS 機制相同。
             // TODO this only works as long as a possible solution is guaranteed - maybe instead ignore paths to plan for agents with no possible solution and hope that it clears by others moving on?
             //first node initialization
             List<Agent> unsolvableAgents = null;
@@ -176,7 +206,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 p = Open.Dequeue().Value;
 
                 //check the path
-                var hasNoConflicts = ValidatePath(p, agents, out agentId1, out agentId2, out interval);
+                var hasNoConflicts = ValidatePath(p, agents, currentTime, out agentId1, out agentId2, out interval);
 
                 //has no conflicts? => optimal: this is the lowest SolutionCost conflict-free node
                 if (hasNoConflicts)
@@ -226,27 +256,48 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
 
             //return the solution => suboptimal (may still contain conflicts if timed out)
             int hopCountThisCall = 0;
+            int inPlaceWaitCount = 0;
             foreach (var agent in agents)
             {
                 agent.Path = bestNode.getSolution(agent.ID);
+
+                // FIX: when low-level A* failed to find any initial solution for this agent,
+                // getSolution() returns new Path() (empty). An empty path causes
+                // StateQueueCount==0 → hasFixedPosition()==true → IsLocked cascade next call.
+                // Give a minimal wait step so the bot keeps a BotMove state, preventing the
+                // cascade. The node stays occupied via time-bounded reservations (not IsLocked).
+                if (agent.Path.Count == 0 &&
+                    unsolvableAgents != null &&
+                    unsolvableAgents.Any(a => a.ID == agent.ID))
+                {
+                    agent.Path.AddFirst(agent.NextNode, true, LengthOfAWaitStep);
+                }
+
                 if (_deadlockHandler.IsInDeadlock(agent, currentTime))
                 {
-                    // RandomHop mutates agent.Path post-search, which decouples the executed
-                    // trajectory from bestNode.SolutionCost. We count every mutation so the
-                    // experimenter can see how much the deadlock handler distorts comparisons.
+                    // 實驗發現 InPlaceWait 作為預設會在單向走道造成級聯阻塞（orders 崩半）。
+                    // EnergyDeadlockHandler 的 committed-wait 感知已經大幅降低誤觸發；
+                    // 殘留觸發視為真阻塞，用 RandomHop 讓擁塞散開。
                     StatRandomHopMutations++;
                     hopCountThisCall++;
                     if (!DisableRandomHopMutation)
+                    {
                         _deadlockHandler.RandomHop(agent);
+                        if (agent.Path.Count > 0)
+                            agent.Path.AddLast(agent.Path.LastAction.Node, true, LengthOfAWaitStep);
+                    }
                 }
             }
+
             if (hopCountThisCall > 0)
-                Communicator.LogDefault($"ECBS RandomHop mutated {hopCountThisCall}/{agents.Count} agent paths" +
-                    (DisableRandomHopMutation ? " [SUPPRESSED]" : "") +
-                    $" (cumulative={StatRandomHopMutations})");
+                Communicator.LogDefault(
+                    $"ECBS FindPaths: agents={agents.Count}" +
+                    $" stuck_hop={hopCountThisCall}" +
+                    (DisableRandomHopMutation ? " [HOP_SUPPRESSED]" : "") +
+                    $" (cumulative_hops={StatRandomHopMutations})");
         }
 
-        private bool ValidatePath(EnergyConflictTree.Node node, List<Agent> agents, out int agentId1, out int agentId2, out ReservationTable.Interval interval)
+        private bool ValidatePath(EnergyConflictTree.Node node, List<Agent> agents, double currentTime, out int agentId1, out int agentId2, out ReservationTable.Interval interval)
         {
             //clear
             _agentReservationTable.Clear();
@@ -258,8 +309,13 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             //get all reservations sorted
             var reservations = new FibonacciHeap<double, Tuple<Agent, ReservationTable.Interval>>();
             foreach (var agent in agents.Where(a => !a.FixedPosition))
-                foreach (var reservation in node.getReservation(agent.ID))
+            {
+                var agentReservations = node.getReservation(agent.ID);
+                if (agentReservations == null)
+                    continue;
+                foreach (var reservation in agentReservations)
                     reservations.Enqueue(reservation.Start, Tuple.Create(agent, reservation));
+            }
 
             //check all reservations
             while (reservations.Count > 0)
