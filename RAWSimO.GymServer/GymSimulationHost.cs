@@ -148,10 +148,14 @@ namespace RAWSimO.GymServer
 
             var infos = _bots.ToDictionary(
                 b => "bot_" + b.GetInfoID(),
-                b => (object)new Dictionary<string, object>
+                b =>
                 {
-                    ["action_mask"] = GetActionMask(b),
-                    ["collision_count"] = collisionMap.TryGetValue(b, out var c) ? c : 0
+                    var d = new Dictionary<string, object>
+                    {
+                        ["action_mask"] = GetActionMask(b),
+                        ["collision_count"] = collisionMap.TryGetValue(b, out var c) ? c : 0
+                    };
+                    return (object)d;
                 });
 
             return new GymStepResult(observations, rewards, simDone, truncated, infos);

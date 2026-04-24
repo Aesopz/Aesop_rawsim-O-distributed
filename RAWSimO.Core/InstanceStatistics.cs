@@ -118,14 +118,57 @@ namespace RAWSimO.Core
         public double StatOverallEnergyE4J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE4RotationJ); } }
         /// <summary>Fleet pod lift/lower energy E5 [J].</summary>
         public double StatOverallEnergyE5J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE5LiftLowerJ); } }
-        /// <summary>Fleet station processing energy E6 [J].</summary>
-        public double StatOverallEnergyE6J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE6StationJ); } }
-        /// <summary>Fleet conflict stop-go energy E7 [J].</summary>
-        public double StatOverallEnergyConflictJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyConflictStopGoJ); } }
+        /// <summary>Fleet idle (base electronics) energy [J] = P_IDLE × Σ bot existence time.</summary>
+        public double StatOverallEnergyIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyIdleJ); } }
+        /// <summary>Fleet total energy including idle [J] = E_mech + P_IDLE×t (aligns with planner objective).</summary>
+        public double StatOverallEnergyTotalWithIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyTotalWithIdleJ); } }
+        /// <summary>Total turning events across all bots.</summary>
+        public int StatOverallTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurningCount); } }
         /// <summary>Total orders completed across all bots.</summary>
         public int StatOverallOrdersCompletedByBots { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatOrdersCompleted); } }
         /// <summary>Total distance traveled by bots (Rizqi tracker) [m].</summary>
         public double StatOverallDistanceTraveledRizqi { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatDistanceTraveledM); } }
+        /// <summary>Total distance traveled while carrying a pod [m].</summary>
+        public double StatOverallLoadedDistanceM { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedDistanceM); } }
+        /// <summary>Total turning events while carrying a pod.</summary>
+        public int StatOverallLoadedTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatLoadedTurningCount); } }
+        /// <summary>Total turning events while empty.</summary>
+        public int StatOverallEmptyTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyTurningCount); } }
+        /// <summary>Total wait time across all bots (stationary, not rotating) [s].</summary>
+        public double StatOverallWaitTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeSec); } }
+        /// <summary>Fleet E_support (P_IDLE while task-assigned AND stationary) [J].</summary>
+        public double StatOverallESupportJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportJ); } }
+        /// <summary>Fleet E_support while loaded [J].</summary>
+        public double StatOverallESupportLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportLoadedJ); } }
+        /// <summary>Fleet E_support while empty [J].</summary>
+        public double StatOverallESupportEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportEmptyJ); } }
+        /// <summary>Fleet idle time (no task assigned) [s].</summary>
+        public double StatOverallTimeIdleSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTimeIdleSec); } }
+        // ── Pref calibration: event-level 8-accumulator aggregation ───────────────
+        public double StatOverallMoveEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveEnergyEmptyJ); } }
+        public double StatOverallMoveTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeEmptySec); } }
+        public double StatOverallTurnEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnEnergyEmptyJ); } }
+        public double StatOverallTurnTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnTimeEmptySec); } }
+        public double StatOverallMoveEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveEnergyLoadedJ); } }
+        public double StatOverallMoveTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatMoveTimeLoadedSec); } }
+        public double StatOverallTurnEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnEnergyLoadedJ); } }
+        public double StatOverallTurnTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurnTimeLoadedSec); } }
+        /// <summary>Total number of completed loaded trips (pickup → setdown) across all bots.</summary>
+        public int StatOverallTripCountLoaded { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTripCountLoaded); } }
+        /// <summary>Total number of completed empty trips (setdown → next pickup) across all bots.</summary>
+        public int StatOverallTripCountEmpty { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTripCountEmpty); } }
+        /// <summary>Fleet distance traveled while empty [m].</summary>
+        public double StatOverallEmptyDistanceM { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyDistanceM); } }
+        /// <summary>Fleet wait time while loaded [s].</summary>
+        public double StatOverallWaitTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeLoadedSec); } }
+        /// <summary>Fleet wait time while empty [s].</summary>
+        public double StatOverallWaitTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeEmptySec); } }
+        /// <summary>Fleet wait energy while loaded [J] = P_IDLE × wait time.</summary>
+        public double StatOverallWaitEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitEnergyLoadedJ); } }
+        /// <summary>Fleet wait energy while empty [J].</summary>
+        public double StatOverallWaitEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitEnergyEmptyJ); } }
+        /// <summary>Fleet station-arrival count (edge-triggered entries into any station queue zone).</summary>
+        public int StatOverallStationArrivals { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatStationArrivals); } }
         /// <summary>
         /// The estimated distance by the bots.
         /// </summary>
@@ -755,6 +798,20 @@ namespace RAWSimO.Core
         }
 
         /// <summary>
+        /// Calculates the p-th percentile of a sorted list of values.
+        /// </summary>
+        /// <param name="sortedValues">List of values already sorted in ascending order.</param>
+        /// <param name="p">Percentile (0.0 to 1.0), e.g., 0.50 for median, 0.95 for p95.</param>
+        /// <returns>The percentile value, or NaN if list is empty.</returns>
+        private static double Percentile(List<double> sortedValues, double p)
+        {
+            if (sortedValues.Count == 0) return double.NaN;
+            double idx = p * (sortedValues.Count - 1);
+            int lo = (int)Math.Floor(idx), hi = (int)Math.Ceiling(idx);
+            return sortedValues[lo] + (sortedValues[hi] - sortedValues[lo]) * (idx - lo);
+        }
+
+        /// <summary>
         /// Writes and flushes all statistics to the directory specified in the configuration.
         /// </summary>
         public void WriteStatistics()
@@ -772,6 +829,10 @@ namespace RAWSimO.Core
             using (StreamWriter sw = new StreamWriter(Path.Combine(SettingConfig.StatisticsDirectory, IOConstants.StatFileNames[IOConstants.StatFile.Footprint])))
                 // Write stat line
                 sw.WriteLine(new FootprintDatapoint(this).GetFootprint());
+
+            // Write 6-Layer KPI report (always, regardless of log level)
+            using (StreamWriter sw = new StreamWriter(Path.Combine(SettingConfig.StatisticsDirectory, "kpi_report.csv")))
+                WriteKpiReport(sw);
 
             // Write further statistics
             switch (SettingConfig.LogFileLevel)
@@ -1032,13 +1093,247 @@ namespace RAWSimO.Core
             sb.AppendLine("StatEnergyE3CruiseKJ: " + (StatOverallEnergyE3J / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyE4RotationKJ: " + (StatOverallEnergyE4J / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyE5LiftLowerKJ: " + (StatOverallEnergyE5J / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatEnergyE6StationKJ: " + (StatOverallEnergyE6J / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatEnergyConflictKJ: " + (StatOverallEnergyConflictJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEnergyPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatEnergyPerMeterJoule: " + (StatOverallDistanceTraveledRizqi > 0 ? (StatOverallEnergyTotalJ / StatOverallDistanceTraveledRizqi).ToString(IOConstants.FORMATTER) : "0"));
+            sb.AppendLine("StatEnergyIdleKJ: " + (StatOverallEnergyIdleJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEnergyTotalWithIdleKJ: " + (StatOverallEnergyTotalWithIdleJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEnergyPerOrderWithIdleKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalWithIdleJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatDistanceTraveledRizqiM: " + StatOverallDistanceTraveledRizqi.ToString(IOConstants.FORMATTER));
+            sb.AppendLine(">>> Motion Behavior");
+            sb.AppendLine("StatTurningCount: " + StatOverallTurningCount);
+            sb.AppendLine("StatLoadedDistanceM: " + StatOverallLoadedDistanceM.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatLoadedTurningCount: " + StatOverallLoadedTurningCount);
+            sb.AppendLine("StatEmptyTurningCount: " + StatOverallEmptyTurningCount);
+            sb.AppendLine("StatWaitTimeSec: " + StatOverallWaitTimeSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatPathPlanningTimeouts: " + StatOverallPathPlanningTimeouts);
+            // ── Pref calibration output (event-level, move/turn split) ───────────
+            sb.AppendLine("StatMoveEnergyEmptyKJ: "  + (StatOverallMoveEnergyEmptyJ  / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveTimeEmptySec: "   + StatOverallMoveTimeEmptySec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnEnergyEmptyKJ: "  + (StatOverallTurnEnergyEmptyJ  / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnTimeEmptySec: "   + StatOverallTurnTimeEmptySec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveEnergyLoadedKJ: " + (StatOverallMoveEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatMoveTimeLoadedSec: "  + StatOverallMoveTimeLoadedSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnEnergyLoadedKJ: " + (StatOverallTurnEnergyLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatTurnTimeLoadedSec: "  + StatOverallTurnTimeLoadedSec.ToString(IOConstants.FORMATTER));
+            // Pref = (moveE + turnE) / (moveT + turnT)  — power during active motion only
+            double prefEmpty  = (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  > 0
+                ? (StatOverallMoveEnergyEmptyJ  + StatOverallTurnEnergyEmptyJ)  / (StatOverallMoveTimeEmptySec  + StatOverallTurnTimeEmptySec)  : 0.0;
+            double prefLoaded = (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) > 0
+                ? (StatOverallMoveEnergyLoadedJ + StatOverallTurnEnergyLoadedJ) / (StatOverallMoveTimeLoadedSec + StatOverallTurnTimeLoadedSec) : 0.0;
+            sb.AppendLine("StatPrefEmptyW: "  + prefEmpty.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatPrefLoadedW: " + prefLoaded.ToString(IOConstants.FORMATTER));
+            // ── Per-trip wait ratio statistics ───────────────
+            var totalPickupCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.StatPickupCount);
+            var totalSetdownCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.StatSetdownCount);
+            var totalWaitRatiosEmptyCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.PerTripWaitRatioEmpty.Count);
+            var totalWaitRatiosLoadedCount = Bots.OfType<Bots.BotNormal>().Sum(b => b.PerTripWaitRatioLoaded.Count);
+            sb.AppendLine("StatPickupCount: " + totalPickupCount);
+            sb.AppendLine("StatSetdownCount: " + totalSetdownCount);
+            sb.AppendLine("PerTripWaitRatioEmptyCount: " + totalWaitRatiosEmptyCount);
+            sb.AppendLine("PerTripWaitRatioLoadedCount: " + totalWaitRatiosLoadedCount);
+            sb.AppendLine("StatTripCountLoaded: " + StatOverallTripCountLoaded);
+            sb.AppendLine("StatTripCountEmpty: " + StatOverallTripCountEmpty);
+            // ── Per-robot diagnostics ───────────────
+            sb.AppendLine(">>> Per-Robot Trip Counts");
+            foreach (var bot in Bots.OfType<Bots.BotNormal>().OrderBy(b => b.ID))
+            {
+                sb.AppendLine($"  Bot{bot.ID}: pickupCount={bot.StatPickupCount}, tripCountEmpty={bot.StatTripCountEmpty}, setdownCount={bot.StatSetdownCount}, tripCountLoaded={bot.StatTripCountLoaded}, ordersCompleted={bot.StatOrdersCompleted}");
+            }
+            // Aggregate all per-trip wait ratios from all bots
+            var allWaitRatiosLoaded = Bots.OfType<Bots.BotNormal>()
+                .SelectMany(b => b.PerTripWaitRatioLoaded).ToList();
+            if (allWaitRatiosLoaded.Count > 0)
+            {
+                allWaitRatiosLoaded.Sort();
+                double meanLoaded = allWaitRatiosLoaded.Average();
+                double medianLoaded = Percentile(allWaitRatiosLoaded, 0.50);
+                double p95Loaded = Percentile(allWaitRatiosLoaded, 0.95);
+                sb.AppendLine("StatTripWaitRatioLoadedMean: " + meanLoaded.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioLoadedMedian: " + medianLoaded.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioLoadedP95: " + p95Loaded.ToString(IOConstants.FORMATTER));
+            }
+            var allWaitRatiosEmpty = Bots.OfType<Bots.BotNormal>()
+                .SelectMany(b => b.PerTripWaitRatioEmpty).ToList();
+            if (allWaitRatiosEmpty.Count > 0)
+            {
+                allWaitRatiosEmpty.Sort();
+                double meanEmpty = allWaitRatiosEmpty.Average();
+                double medianEmpty = Percentile(allWaitRatiosEmpty, 0.50);
+                double p95Empty = Percentile(allWaitRatiosEmpty, 0.95);
+                sb.AppendLine("StatTripWaitRatioEmptyMean: " + meanEmpty.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioEmptyMedian: " + medianEmpty.ToString(IOConstants.FORMATTER));
+                sb.AppendLine("StatTripWaitRatioEmptyP95: " + p95Empty.ToString(IOConstants.FORMATTER));
+            }
+            sb.AppendLine(">>> Support & Utilization");
+            int botCount = Bots.OfType<Bots.BotNormal>().Count();
+            double utilization = (StatTime > 0 && botCount > 0)
+                ? 1.0 - (StatOverallTimeIdleSec / (StatTime * botCount))
+                : double.NaN;
+            sb.AppendLine("StatESupportKJ: " + (StatOverallESupportJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportLoadedKJ: " + (StatOverallESupportLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportEmptyKJ: " + (StatOverallESupportEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatESupportPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallESupportJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            sb.AppendLine("StatTimeIdleSec: " + StatOverallTimeIdleSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatRobotUtilization: " + (double.IsNaN(utilization) ? "NaN" : utilization.ToString(IOConstants.FORMATTER)));
+            double eSupportToMechRatio = StatOverallEnergyTotalJ > 0
+                ? StatOverallESupportJ / StatOverallEnergyTotalJ : double.NaN;
+            sb.AppendLine("StatESupportToMechRatio: " + (double.IsNaN(eSupportToMechRatio) ? "NaN" : eSupportToMechRatio.ToString(IOConstants.FORMATTER)));
             // Write output
             writer(sb.ToString());
+        }
+
+        /// <summary>
+        /// Writes a CSV KPI report covering the 6-layer metrics framework.
+        /// Columns: layer,metric,empty,loaded,total,unit
+        /// </summary>
+        private void WriteKpiReport(StreamWriter sw)
+        {
+            var bots = Bots.OfType<Bots.BotNormal>().ToList();
+            string fmt(double v) => v.ToString(IOConstants.FORMATTER);
+            string row(string layer, string metric, object empty, object loaded, object total, string unit)
+                => $"{layer},{metric},{empty},{loaded},{total},{unit}";
+
+            double totalEnergyJ   = StatOverallEnergyTotalWithIdleJ;
+            double totalMechJ     = StatOverallEnergyTotalJ;
+            double totalDistM     = StatOverallDistanceTraveledRizqi;
+            double totalDistLoad  = StatOverallLoadedDistanceM;
+            double totalDistEmpty = StatOverallEmptyDistanceM;
+            int    totalOrders    = StatOverallOrdersHandled;
+            double durationSec    = StatTime;
+            int    tripsLoaded    = StatOverallTripCountLoaded;
+            int    tripsEmpty     = StatOverallTripCountEmpty;
+
+            double moveE_L = StatOverallMoveEnergyLoadedJ, moveE_E = StatOverallMoveEnergyEmptyJ;
+            double turnE_L = StatOverallTurnEnergyLoadedJ, turnE_E = StatOverallTurnEnergyEmptyJ;
+            double waitE_L = StatOverallWaitEnergyLoadedJ,  waitE_E = StatOverallWaitEnergyEmptyJ;
+
+            double moveT_L = StatOverallMoveTimeLoadedSec, moveT_E = StatOverallMoveTimeEmptySec;
+            double turnT_L = StatOverallTurnTimeLoadedSec, turnT_E = StatOverallTurnTimeEmptySec;
+            double waitT_L = StatOverallWaitTimeLoadedSec, waitT_E = StatOverallWaitTimeEmptySec;
+
+            int tnC_L = StatOverallLoadedTurningCount,   tnC_E = StatOverallEmptyTurningCount;
+
+            sw.WriteLine("layer,metric,empty,loaded,total,unit");
+
+            // Layer 1
+            sw.WriteLine(row("L1", "orders_completed", "", "", totalOrders, "orders"));
+            double opH = durationSec > 0 ? totalOrders / (durationSec / 3600.0) : 0.0;
+            sw.WriteLine(row("L1", "orders_per_hour", "", "", fmt(opH), "orders/h"));
+            sw.WriteLine(row("L1", "total_energy_kJ", "", "", fmt(totalEnergyJ / 1000.0), "kJ"));
+            sw.WriteLine(row("L1", "total_energy_mech_kJ", "", "", fmt(totalMechJ / 1000.0), "kJ"));
+            sw.WriteLine(row("L1", "energy_per_order_kJ", "", "",
+                fmt(totalOrders > 0 ? totalEnergyJ / 1000.0 / totalOrders : 0.0), "kJ/order"));
+            sw.WriteLine(row("L1", "total_distance_m", "", "", fmt(totalDistM), "m"));
+            sw.WriteLine(row("L1", "station_arrivals", "", "", StatOverallStationArrivals, "count"));
+
+            // Layer 2: trip split
+            sw.WriteLine(row("L2", "trip_count", tripsEmpty, tripsLoaded, tripsEmpty + tripsLoaded, "trips"));
+            sw.WriteLine(row("L2", "distance_m", fmt(totalDistEmpty), fmt(totalDistLoad), fmt(totalDistM), "m"));
+            double timeLoad = moveT_L + turnT_L + waitT_L;
+            double timeEmpty = moveT_E + turnT_E + waitT_E;
+            sw.WriteLine(row("L2", "total_time_sec", fmt(timeEmpty), fmt(timeLoad), fmt(timeEmpty + timeLoad), "s"));
+            double energyL_mech = moveE_L + turnE_L, energyE_mech = moveE_E + turnE_E;
+            // E1-E4 only (E5 cannot be cleanly split by load state; see L3 for full phase breakdown)
+            sw.WriteLine(row("L2", "total_move_turn_energy_kJ", fmt(energyE_mech / 1000.0), fmt(energyL_mech / 1000.0),
+                fmt((energyE_mech + energyL_mech) / 1000.0), "kJ"));
+            sw.WriteLine(row("L2", "move_turn_pct_of_mech",
+                fmt(totalMechJ > 0 ? 100.0 * energyE_mech / totalMechJ : 0.0),
+                fmt(totalMechJ > 0 ? 100.0 * energyL_mech / totalMechJ : 0.0),
+                "", "%"));
+            sw.WriteLine(row("L2", "avg_distance_per_trip_m",
+                fmt(tripsEmpty  > 0 ? totalDistEmpty / tripsEmpty : 0.0),
+                fmt(tripsLoaded > 0 ? totalDistLoad  / tripsLoaded : 0.0), "", "m/trip"));
+            sw.WriteLine(row("L2", "avg_time_per_trip_sec",
+                fmt(tripsEmpty  > 0 ? timeEmpty / tripsEmpty : 0.0),
+                fmt(tripsLoaded > 0 ? timeLoad  / tripsLoaded : 0.0), "", "s/trip"));
+            sw.WriteLine(row("L2", "avg_energy_per_trip_kJ",
+                fmt(tripsEmpty  > 0 ? energyE_mech / 1000.0 / tripsEmpty : 0.0),
+                fmt(tripsLoaded > 0 ? energyL_mech / 1000.0 / tripsLoaded : 0.0), "", "kJ/trip"));
+
+            // Layer 3: energy phase breakdown (E1–E5), denominator = totalMechJ
+            double e1J = StatOverallEnergyE1J;
+            double e2J = StatOverallEnergyE2J;
+            double e3J = StatOverallEnergyE3J;
+            double e4J = StatOverallEnergyE4J;
+            double e5J = StatOverallEnergyE5J;
+            string mechPct(double v) => fmt(totalMechJ > 0 ? 100.0 * v / totalMechJ : 0.0);
+            sw.WriteLine(row("L3", "e1_accel_kJ",  "", "", fmt(e1J / 1000.0), "kJ"));
+            sw.WriteLine(row("L3", "e2_decel_kJ",  "", "", fmt(e2J / 1000.0), "kJ"));
+            sw.WriteLine(row("L3", "e3_cruise_kJ", "", "", fmt(e3J / 1000.0), "kJ"));
+            sw.WriteLine(row("L3", "e4_rotation_kJ", "", "", fmt(e4J / 1000.0), "kJ"));
+            sw.WriteLine(row("L3", "e5_lift_kJ",   "", "", fmt(e5J / 1000.0), "kJ"));
+            sw.WriteLine(row("L3", "e1_pct_of_mech", "", "", mechPct(e1J), "%"));
+            sw.WriteLine(row("L3", "e2_pct_of_mech", "", "", mechPct(e2J), "%"));
+            sw.WriteLine(row("L3", "e3_pct_of_mech", "", "", mechPct(e3J), "%"));
+            sw.WriteLine(row("L3", "e4_pct_of_mech", "", "", mechPct(e4J), "%"));
+            sw.WriteLine(row("L3", "e5_pct_of_mech", "", "", mechPct(e5J), "%"));
+
+            // Layer 4: turning
+            sw.WriteLine(row("L4", "turn_count", tnC_E, tnC_L, tnC_E + tnC_L, "events"));
+            sw.WriteLine(row("L4", "turn_energy_kJ", fmt(turnE_E / 1000.0), fmt(turnE_L / 1000.0),
+                fmt((turnE_E + turnE_L) / 1000.0), "kJ"));
+            sw.WriteLine(row("L4", "turn_pct_of_total",
+                fmt(totalEnergyJ > 0 ? 100.0 * turnE_E / totalEnergyJ : 0.0),
+                fmt(totalEnergyJ > 0 ? 100.0 * turnE_L / totalEnergyJ : 0.0), "", "%"));
+            sw.WriteLine(row("L4", "turn_pct_of_state",
+                fmt(energyE_mech > 0 ? 100.0 * turnE_E / energyE_mech : 0.0),
+                fmt(energyL_mech > 0 ? 100.0 * turnE_L / energyL_mech : 0.0), "", "%"));
+            sw.WriteLine(row("L4", "turn_per_trip",
+                fmt(tripsEmpty  > 0 ? (double)tnC_E / tripsEmpty : 0.0),
+                fmt(tripsLoaded > 0 ? (double)tnC_L / tripsLoaded : 0.0), "", "per trip"));
+            sw.WriteLine(row("L4", "turn_per_m",
+                fmt(totalDistEmpty > 0 ? tnC_E / totalDistEmpty : 0.0),
+                fmt(totalDistLoad  > 0 ? tnC_L / totalDistLoad  : 0.0), "", "per m"));
+
+            // Layer 5: wait
+            sw.WriteLine(row("L5", "wait_time_sec", fmt(waitT_E), fmt(waitT_L), fmt(waitT_E + waitT_L), "s"));
+            sw.WriteLine(row("L5", "wait_energy_kJ", fmt(waitE_E / 1000.0), fmt(waitE_L / 1000.0),
+                fmt((waitE_E + waitE_L) / 1000.0), "kJ"));
+            sw.WriteLine(row("L5", "wait_pct_of_total",
+                fmt(totalEnergyJ > 0 ? 100.0 * waitE_E / totalEnergyJ : 0.0),
+                fmt(totalEnergyJ > 0 ? 100.0 * waitE_L / totalEnergyJ : 0.0), "", "%"));
+            // wait_ratio stats (combined + split)
+            var wrAll = bots.SelectMany(b => b.PerTripWaitRatioLoaded.Concat(b.PerTripWaitRatioEmpty)).ToList();
+            var wrL = bots.SelectMany(b => b.PerTripWaitRatioLoaded).ToList();
+            var wrE = bots.SelectMany(b => b.PerTripWaitRatioEmpty).ToList();
+            double meanR(List<double> xs) => xs.Count > 0 ? xs.Average() : 0.0;
+            double medR (List<double> xs) { if (xs.Count == 0) return 0.0; xs.Sort(); return Percentile(xs, 0.50); }
+            double p95R (List<double> xs) { if (xs.Count == 0) return 0.0; xs.Sort(); return Percentile(xs, 0.95); }
+            sw.WriteLine(row("L5", "wait_ratio_mean", fmt(meanR(wrE)), fmt(meanR(wrL)), fmt(meanR(wrAll)), "ratio"));
+            sw.WriteLine(row("L5", "wait_ratio_median", fmt(medR(wrE)), fmt(medR(wrL)), fmt(medR(wrAll)), "ratio"));
+            sw.WriteLine(row("L5", "wait_ratio_p95", fmt(p95R(wrE)), fmt(p95R(wrL)), fmt(p95R(wrAll)), "ratio"));
+
+            // Layer 6: derived insight metrics
+            // 5-component energy composition — non-overlapping, sum = totalEnergyJ (E_mech + E_idle)
+            //   move    = E1+E2+E3 (mechanical drive)
+            //   turn    = E4       (mechanical rotation)
+            //   lift    = E5       (mechanical lift/lower)
+            //   wait    = P_IDLE × WaitTimeSec  (routing-induced stop cost)
+            //   support = E_idle − wait          (background P_IDLE during motion & station service)
+            // denominator = move+turn+lift+wait+support = StatOverallEnergyTotalWithIdleJ
+            double totMove = moveE_L + moveE_E;
+            double totTurn = turnE_L + turnE_E;
+            double totLift = StatOverallEnergyE5J;
+            double totWait = waitE_L + waitE_E;
+            double totSupport = StatOverallEnergyIdleJ - totWait;
+            double comp5Total = totMove + totTurn + totLift + totWait + totSupport; // == StatOverallEnergyTotalWithIdleJ
+            string compPct(double v) => fmt(comp5Total > 0 ? 100.0 * v / comp5Total : 0.0);
+            sw.WriteLine(row("L6", "composition_move_pct",    "", "", compPct(totMove),    "%"));
+            sw.WriteLine(row("L6", "composition_turn_pct",    "", "", compPct(totTurn),    "%"));
+            sw.WriteLine(row("L6", "composition_lift_pct",    "", "", compPct(totLift),    "%"));
+            sw.WriteLine(row("L6", "composition_wait_pct",    "", "", compPct(totWait),    "%"));
+            sw.WriteLine(row("L6", "composition_support_pct", "", "", compPct(totSupport), "%"));
+            sw.WriteLine(row("L6", "energy_empty_to_loaded_ratio", "", "",
+                fmt(energyL_mech > 0 ? energyE_mech / energyL_mech : 0.0), "ratio"));
+            double travT = moveT_L + moveT_E + turnT_L + turnT_E;
+            sw.WriteLine(row("L6", "effective_motion_ratio", "", "",
+                fmt((travT + waitT_L + waitT_E) > 0 ? travT / (travT + waitT_L + waitT_E) : 0.0), "ratio"));
+            sw.WriteLine(row("L6", "wait_energy_per_order_kJ", "", "",
+                fmt(totalOrders > 0 ? (waitE_L + waitE_E) / 1000.0 / totalOrders : 0.0), "kJ/order"));
+            sw.WriteLine(row("L6", "energy_per_m_empty_J",
+                fmt(totalDistEmpty > 0 ? energyE_mech / totalDistEmpty : 0.0), "", "", "J/m"));
+            sw.WriteLine(row("L6", "energy_per_m_loaded_J", "",
+                fmt(totalDistLoad > 0 ? energyL_mech / totalDistLoad : 0.0), "", "J/m"));
         }
 
         /// <summary>

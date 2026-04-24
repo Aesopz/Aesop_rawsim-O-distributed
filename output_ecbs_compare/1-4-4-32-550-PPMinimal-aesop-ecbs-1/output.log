@@ -1,0 +1,31 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/15/2026 01:30:16
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/PP/1-4-4-32-550.xinst
+Setting: Material/Instances/PP/PPMinimal.xsett
+ControlConfig: Material/Instances/PP/aesop-ecbs.xconf
+StatisticsDir: output_ecbs_compare/
+Seed: 1
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: 1-4-4-32-550-PPMinimal-aesop-ecbs-1
+Done!
+Executing ... 
+ 01:30:18 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 60%  |    0     |   0    | 124.86MB  
+ 00:00:05 |  > 24h   | 0.00:00:00 |  0.00%   |    0    |    0     | 60%  |    0     |   0    | 205.02MB  
+ 00:00:10 | 03:20:15 | 0.00:00:23 |  0.08%   |    0    |    0     | 60%  |   192    |   0    | 192.17MB  
+ 00:00:15 | 04:33:55 | 0.00:00:26 |  0.09%   |    0    |    0     | 60%  |   210    |   0    | 207.11MB  
+ 00:00:20 | 05:51:21 | 0.00:00:27 |  0.09%   |    0    |    0     | 60%  |   223    |   0    | 195.75MB  
+ 00:00:25 | 06:47:57 | 0.00:00:29 |  0.10%   |    0    |    0     | 60%  |   243    |   0    | 195.41MB  
+ 00:00:30 | 07:36:55 | 0.00:00:31 |  0.11%   |    0    |    0     | 60%  |   265    |   0    | 195.85MB  
+ 00:00:35 | 08:35:31 | 0.00:00:32 |  0.11%   |    0    |    0     | 60%  |   276    |   0    | 207.41MB  
+ 00:00:40 | 09:29:30 | 0.00:00:33 |  0.12%   |    0    |    0     | 60%  |   286    |   0    | 191.00MB  
+ 00:00:45 | 10:25:05 | 0.00:00:34 |  0.12%   |    0    |    0     | 60%  |   294    |   0    | 194.16MB  
+ 00:00:50 | 10:52:58 | 0.00:00:36 |  0.13%   |    0    |    0     | 60%  |   316    |   0    | 199.91MB  

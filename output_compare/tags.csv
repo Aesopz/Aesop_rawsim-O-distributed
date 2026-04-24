@@ -1,0 +1,15 @@
+Tag;Instance;Setting;Config;Seed;Timestamp
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260415-015039
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260416-000654
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-002828
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-205943
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260416-205958
+pareto-sanity;Material/Instances/CoreBenchmark/ecbs-test.xinst;Material/Instances/CoreBenchmark/test-short.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-214236
+pareto-cbs;Material/Instances/CoreBenchmark/ecbs-test.xinst;Material/Instances/CoreBenchmark/test-short.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260416-214255
+pareto;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-214934
+pareto2;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-220344
+mb-small;Material/Instances/CoreBenchmark/ecbs-test.xinst;Material/Instances/CoreBenchmark/test-short.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-223121
+n.a.;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260416-224044
+params-test;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/aesop.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260417-024328
+test-cbs-small;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/test-short.xsett;Material/Instances/CoreBenchmark/aesop-cbs.xconf;42;20260417-033716
+test-ecbs-small;Material/Instances/CoreBenchmark/aesop.xlayo;Material/Instances/CoreBenchmark/test-short.xsett;Material/Instances/CoreBenchmark/aesop-ecbs.xconf;42;20260417-033752

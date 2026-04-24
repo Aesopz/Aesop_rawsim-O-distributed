@@ -40,13 +40,13 @@ namespace RAWSimO.Core.Bots
         /// Collisions are expected in AgentAStar mode — expensive diagnostics are skipped.
         /// Null until first Update() call because ControllerConfig is set after Instance construction.
         /// </summary>
-        private bool? _isAgentAStarMode;
+        private bool? _isDecentralizedMode;
         /// <summary>
         /// When true, BotNormal should suppress the per-move "Potential collision" LogInfo call.
         /// In AgentAStar mode, bots intentionally overlap — logging every failed move attempt
         /// floods the UI and causes severe lag (hundreds of log calls per simulation step).
         /// </summary>
-        public bool SuppressMoveFailureLog => _isAgentAStarMode ?? false;
+        public bool SuppressMoveFailureLog => _isDecentralizedMode ?? false;
         /// <summary>
         /// Adds a bot the the list of potentially crashed bots.
         /// </summary>
@@ -79,10 +79,13 @@ namespace RAWSimO.Core.Bots
         public void Update(double lastTime, double currentTime)
         {
             // Lazily cache the mode flag — ControllerConfig is not set at construction time.
-            if (!_isAgentAStarMode.HasValue && _instance.ControllerConfig != null)
-                _isAgentAStarMode = _instance.ControllerConfig.PathPlanningConfig.GetMethodType() == PathPlanningMethodType.AgentAStar;
+            if (!_isDecentralizedMode.HasValue && _instance.ControllerConfig != null)
+            {
+                var pt = _instance.ControllerConfig.PathPlanningConfig.GetMethodType();
+                _isDecentralizedMode = pt == PathPlanningMethodType.AgentAStar;
+            }
 
-            if (_isAgentAStarMode == true)
+            if (_isDecentralizedMode == true)
             {
                 // AgentAStar: collisions are expected by design (no reservation gate).
                 // Proactive scan: check ALL bots every step.

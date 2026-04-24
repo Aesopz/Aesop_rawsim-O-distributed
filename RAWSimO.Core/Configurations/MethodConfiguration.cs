@@ -80,6 +80,11 @@ namespace RAWSimO.Core.Configurations
         CBS,
 
         /// <summary>
+        /// Energy-aware Conflict-based Search (ECBS)
+        /// </summary>
+        ECBS,
+
+        /// <summary>
         /// Erdmann - Parallel Multi-Agent Pathfinding
         /// </summary>
         PAS,
@@ -90,7 +95,14 @@ namespace RAWSimO.Core.Configurations
         /// Serves as LOCAL PATH EXECUTOR for Plan 2 (Gym) and Plan 3 (World Model).
         /// No collision avoidance — conflict resolution delegated to higher-level controller.
         /// </summary>
-        AgentAStar
+        AgentAStar,
+
+        /// <summary>
+        /// Fixed-Route Priority Wait Scheduler.
+        /// Each bot computes a candidate A* path; a central scheduler resolves
+        /// pairwise conflicts by inserting wait actions into lower-priority bots.
+        /// </summary>
+        FixedRoutePriorityScheduler,
 
     }
     /// <summary>
@@ -497,9 +509,11 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(ODIDPathPlanningConfiguration))]
     [XmlInclude(typeof(BCPPathPlanningConfiguration))]
     [XmlInclude(typeof(CBSPathPlanningConfiguration))]
+    [XmlInclude(typeof(ECBSPathPlanningConfiguration))]
     [XmlInclude(typeof(PASPathPlanningConfiguration))]
     [XmlInclude(typeof(DecentralAStarPathPlanningConfiguration))]
-    [XmlInclude(typeof(PathPlanningConfiguration))]
+    [XmlInclude(typeof(FixedRoutePrioritySchedulerPathPlanningConfiguration))]
+[XmlInclude(typeof(PathPlanningConfiguration))]
     public abstract class PathPlanningConfiguration : ControllerConfigurationBase
     {
         /// <summary>

@@ -2,9 +2,6 @@
 using RAWSimO.MultiAgentPathFinding.Physic;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RAWSimO.MultiAgentPathFinding.Elements
 {
@@ -13,7 +10,6 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
     /// </summary>
     public class Agent
     {
-
         /// <summary>
         /// The identifier
         /// </summary>
@@ -85,14 +81,39 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         public bool Queueing;
 
         /// <summary>
+        /// Energy-related current state of the robot.
+        /// </summary>
+        public EnergyState CurrentEnergyState = new EnergyState();
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
         public override string ToString()
         {
             return "Agent" + this.ID;
+        }
+
+        public class EnergyState //aesop energy CBS
+        {
+            /// <summary>
+            /// Whether the robot is currently carrying a pod.
+            /// </summary>
+            public bool CarryingPod;
+
+            /// <summary>
+            /// Robot self weight in kg.
+            /// </summary>
+            public double RobotWeight;
+
+            /// <summary>
+            /// Current payload weight in kg.
+            /// </summary>
+            public double PayloadWeight;
+
+            /// <summary>
+            /// Total current mass used by the energy model.
+            /// </summary>
+            public double TotalWeight => RobotWeight + PayloadWeight;
         }
 
         #region Debug fields
@@ -101,6 +122,7 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         /// The destination object of the bot.
         /// </summary>
         public object DestinationNodeObject;
+
         /// <summary>
         /// The next node object of the bot.
         /// </summary>

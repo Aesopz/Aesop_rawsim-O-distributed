@@ -1,0 +1,113 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/20/2026 02:06:51
+Starting RAWSimO wrapper with the following arguments:
+Instance: C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\Material\Instances\CoreBenchmark\aesop-tiny.xinst
+Setting: C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\Material\Instances\CoreBenchmark\aesop.xsett
+ControlConfig: C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\Material\Instances\CoreBenchmark\aesop-ecbs.xconf
+StatisticsDir: C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\results\tiny-1bot-28800s-cbs-vs-ecbs\sim_out/
+Seed: 46
+Additionally the following tag was passed: CBS-energy-seed46
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: aesop-tiny-aesop-aesop-ecbs-46
+Done!
+Executing ... 
+ 02:06:51 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 121.70MB  
+ 00:00:03 | 00:00:00 | 0.08:00:00 | 100.00%  |   483   |    0     | 67%  |  21554   |   0    | 206.79MB  
+ 00:00:03 | >>> Simulation finished - writing results ...
+ 00:00:03 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.00048084941634241263
+StatTimingPathPlanningOverall: 0.4943132000000002
+StatTimingPathPlanningCount: 1028
+StatTimingTaskAllocationAverage: 0.0015651382481751842
+StatTimingTaskAllocationOverall: 1.0721197000000011
+StatTimingTaskAllocationCount: 685
+StatTimingItemStorageAverage: 3.406587615283248E-06
+StatTimingItemStorageOverall: 0.0025855999999999852
+StatTimingItemStorageCount: 759
+StatTimingPodStorageAverage: 0.00038433479532163766
+StatTimingPodStorageOverall: 0.13144250000000007
+StatTimingPodStorageCount: 342
+StatTimingReplenishmentBatchingAverage: 0.00143892
+StatTimingReplenishmentBatchingOverall: 0.0071946
+StatTimingReplenishmentBatchingCount: 5
+StatTimingOrderBatchingAverage: 6.421757770632359E-05
+StatTimingOrderBatchingOverall: 0.059914999999999906
+StatTimingOrderBatchingCount: 933
+>>> Overall
+StatOverallBundlesPlaced: 17
+StatOverallItemsOrdered: 788
+StatOverallOrdersPlaced: 494
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 0
+StatOverallItemsHandled: 757
+StatOverallLinesHandled: 720
+StatOverallOrdersHandled: 483
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 21554.100545632795
+StatOverallDistanceEstimated: 19677
+StatOverallAssignedTasks: 685
+StatMaxMemoryUsed: 206.78515625
+StatRealTimeUsed: 3.617657
+StatAverageTurnoverTime: 9184.983174720535
+StatMedianTurnoverTime: 9532.280743138386
+StatLowerQuartileTurnoverTime: 3394.2126911792866
+StatUpperQuartileTurnoverTime: 15395.566666666666
+StatAverageThroughputTime: 622.425050356446
+StatMedianThroughputTime: 86.18500000000176
+StatLowerQuartileThroughputTime: 31.1294444444452
+StatUpperQuartileThroughputTime: 408.9721284308107
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 3882.3328572830565
+StatEnergyE1AccelKJ: 699.2796438093236
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 1918.9737028865925
+StatEnergyE4RotationKJ: 722.1220271772908
+StatEnergyE5LiftLowerKJ: 541.9574834098872
+StatEnergyPerOrderKJ: 8.037956226258917
+StatEnergyPerMeterJoule: 180.0043053265512
+StatEnergyIdleKJ: 2569.5506110564907
+StatEnergyTotalWithIdleKJ: 6451.883468339547
+StatEnergyPerOrderWithIdleKJ: 13.357936787452479
+StatDistanceTraveledRizqiM: 21568
+>>> Motion Behavior
+StatTurningCount: 3394
+StatStopAndGoCount: 3398
+StatLoadedDistanceM: 18151
+StatLoadedTurningCount: 2781
+StatLoadedStopAndGoCount: 2782
+StatEmptyTurningCount: 613
+StatEmptyStopAndGoCount: 616
+StatWaitTimeSec: 6659.8463133622545
+StatPathPlanningTimeouts: 0
+StatMoveEnergyEmptyKJ: 192.19282499999957
+StatMoveTimeEmptySec: 3188.5339101842223
+StatTurnEnergyEmptyKJ: 59.987925386301804
+StatTurnTimeEmptySec: 345.9731457507319
+StatMoveEnergyLoadedKJ: 2426.0605216959116
+StatMoveTimeLoadedSec: 16135.94054779576
+StatTurnEnergyLoadedKJ: 662.1341017909938
+StatTurnTimeLoadedSec: 1788.7358369300855
+StatPrefEmptyW: 71.3482096358679
+StatPrefLoadedW: 172.28732933323406
+>>> Support & Utilization
+StatESupportKJ: 599.3861682024568
+StatESupportLoadedKJ: 529.184037027027
+StatESupportEmptyKJ: 70.202131175452
+StatESupportPerOrderKJ: 1.2409651515578817
+StatTimeIdleSec: 0.42
+StatRobotUtilization: 0.9999854166666666
+StatESupportToMechRatio: 0.15438814502420606
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

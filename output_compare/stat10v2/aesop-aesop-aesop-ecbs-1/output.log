@@ -1,0 +1,227 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/17/2026 04:02:12
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-ecbs.xconf
+StatisticsDir: output_compare/stat10v2/
+Seed: 1
+Adding handler for unhandled exceptions ...
+Initializing ... 
+LayoutConfiguration recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing layout config ...
+Generating instance...
+Info about all directions within the generated instance:
+# # # # # e p e p p p p p p p p p p p p p p p p p e p p p p p p p p p p p p p p p p p e p p p p p p p p p e s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n w d d d d d d d d d w d d d d d d d d d d d d d d d d d w d d d d d d d d d d d d d d d d d w d w # # # # # 
+
+
+Info about all types within the generated instance:
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+
+
+[EnergyConsumption] Configured from LayoutConfiguration: RobotMass=100 kg, PodFrameMass=300 kg
+StatisticsFolder: aesop-aesop-aesop-ecbs-1
+Done!
+Executing ... 
+ 04:02:14 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 151.96MB  
+ 00:00:04 | ECBS timeout #1 fallback=bestLB SolutionCost=75202.36 generated=136
+ 00:00:05 | 00:03:12 | 0.00:00:45 |  2.55%   |    0    |    0     | 70%  |   623    |   0    | 157.64MB  
+ 00:00:06 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(13->2)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(13->2)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->1)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->1)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->1)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->1)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->2)
+ 00:00:07 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(11->2)
+ 00:00:10 | 00:00:49 | 0.00:05:00 |  16.69%  |   57    |    79    | 71%  |   2731   |   0    | 158.74MB  
+ 00:00:10 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(64->63)
+ 00:00:10 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(64->63)
+ 00:00:10 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(64->63)
+ 00:00:10 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent25(64->63)
+ 00:00:10 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent23(12->11)
+ 00:00:11 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:11 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:11 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:11 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent19(34->33)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(24->23)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(24->23)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent3(24->23)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(4->3)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(4->3)
+ 00:00:14 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(4->3)
+ 00:00:15 | 00:00:18 | 0.00:13:20 |  44.49%  |   168   |   236    | 72%  |   7389   |   0    | 160.49MB  
+ 00:00:18 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(12->11)
+ 00:00:18 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(12->11)
+ 00:00:18 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent10(12->11)
+ 00:00:20 | 00:00:12 | 0.00:18:25 |  61.40%  |   231   |   325    | 73%  |  10595   |   0    | 162.14MB  
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=1)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=2)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=3)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=4)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=5)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=6)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=7)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=8)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=9)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=10)
+ 00:00:24 | ECBS RandomHop mutated 1/13 agent paths (cumulative=11)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=12)
+ 00:00:24 | ECBS RandomHop mutated 2/11 agent paths (cumulative=14)
+ 00:00:24 | ECBS RandomHop mutated 2/11 agent paths (cumulative=16)
+ 00:00:24 | ECBS RandomHop mutated 1/12 agent paths (cumulative=17)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=18)
+ 00:00:24 | ECBS RandomHop mutated 1/11 agent paths (cumulative=19)
+ 00:00:25 | 00:00:03 | 0.00:26:14 |  87.50%  |   324   |   461    | 74%  |  15354   |   0    | 163.96MB  
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(14->13)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(14->13)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(14->13)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(14->13)
+ 00:00:28 | WARNING! Aborting ECBS - could not obtain an initial solution for the following agents: Agent8(14->13)
+ 00:00:28 | 00:00:00 | 0.00:30:00 | 100.00%  |   361   |   522    | 75%  |  17973   |   0    | 167.47MB  
+ 00:00:28 | >>> Simulation finished - writing results ...
+ 00:00:28 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.016033896050096353
+StatTimingPathPlanningOverall: 16.643184100000013
+StatTimingPathPlanningCount: 1038
+StatTimingTaskAllocationAverage: 0.012843958503401353
+StatTimingTaskAllocationOverall: 9.440309499999994
+StatTimingTaskAllocationCount: 735
+StatTimingItemStorageAverage: 9.858213716108458E-06
+StatTimingItemStorageOverall: 0.006181100000000003
+StatTimingItemStorageCount: 627
+StatTimingPodStorageAverage: 0.014549220093457941
+StatTimingPodStorageOverall: 3.1135330999999993
+StatTimingPodStorageCount: 214
+StatTimingReplenishmentBatchingAverage: 2.4199222395023282E-05
+StatTimingReplenishmentBatchingOverall: 0.01556009999999997
+StatTimingReplenishmentBatchingCount: 643
+StatTimingOrderBatchingAverage: 0.00014013617200674534
+StatTimingOrderBatchingOverall: 0.16620149999999997
+StatTimingOrderBatchingCount: 1186
+>>> Overall
+StatOverallBundlesPlaced: 602
+StatOverallItemsOrdered: 634
+StatOverallOrdersPlaced: 377
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 522
+StatOverallItemsHandled: 573
+StatOverallLinesHandled: 545
+StatOverallOrdersHandled: 361
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 17972.86259539361
+StatOverallDistanceEstimated: 16550
+StatOverallAssignedTasks: 735
+StatMaxMemoryUsed: 167.47265625
+StatRealTimeUsed: 28.2094829
+StatAverageTurnoverTime: 533.8580159846027
+StatMedianTurnoverTime: 419.9047560864974
+StatLowerQuartileTurnoverTime: 195.45952844039925
+StatUpperQuartileTurnoverTime: 774.1980496205524
+StatAverageThroughputTime: 81.61355503106886
+StatMedianThroughputTime: 62.09463202727016
+StatLowerQuartileThroughputTime: 31.022718354358403
+StatUpperQuartileThroughputTime: 123.26973097333575
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 2184.9255929228543
+StatEnergyE1AccelKJ: 794.6520389291435
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 564.8803488068996
+StatEnergyE4RotationKJ: 264.74199148643606
+StatEnergyE5LiftLowerKJ: 560.6512137003748
+StatEnergyPerOrderKJ: 6.052425465160261
+StatEnergyPerMeterJoule: 120.64746509789366
+StatDistanceTraveledRizqiM: 18110
+>>> Motion Behavior
+StatTurningCount: 2388
+StatStopAndGoCount: 2883
+StatLoadedDistanceM: 12469
+StatLoadedTurningCount: 1797
+StatWaitTimeSec: 17981.263032858926
+StatMoveEnergyEmptyKJ: 80.44067500000001
+StatMoveTimeEmptySec: 7174.758866733987
+StatTurnEnergyEmptyKJ: 11.367449655134227
+StatTurnTimeEmptySec: 623.883319491637
+StatMoveEnergyLoadedKJ: 1279.0917127360433
+StatMoveTimeLoadedSec: 18621.58137698482
+StatTurnEnergyLoadedKJ: 253.3745418313018
+StatTurnTimeLoadedSec: 1860.1585977614623
+StatPrefEmptyW: 11.772321702012517
+StatPrefLoadedW: 74.82109705800659
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

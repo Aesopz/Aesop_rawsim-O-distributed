@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <EnergyParameters>
-    <RobotMass>300</RobotMass>           <!-- AGV chassis mass [kg] -->
+    <RobotMass>100</RobotMass>           <!-- AGV chassis mass [kg] -->
     <RobotWidth>0.6</RobotWidth>         <!-- AGV width [m] -->
     <RobotLength>0.75</RobotLength>      <!-- AGV length [m] -->
     <RollingFriction>0.02</RollingFriction>  <!-- Rolling friction coefficient μ_r -->
     <InertiaCoeff>0.15</InertiaCoeff>    <!-- Drivetrain inertia equiv. coeff. η -->
     <LiftHeight>0.2</LiftHeight>         <!-- Pod lift height h [m] -->
-    <PodFrameMass>40</PodFrameMass>      <!-- Pod shelf frame mass (excl. cargo) [kg] -->
+    <PodFrameMass>50</PodFrameMass>      <!-- Pod shelf frame mass (excl. cargo) [kg] -->
     <StationHoldPowerW>15</StationHoldPowerW>  <!-- Station hold power P [W] -->
   </EnergyParameters>
   <Seed>0</Seed>
   <TierCount>1</TierCount>
   <TierHeight>4</TierHeight>
-  <BotCount>30</BotCount>
+  <BotCount>26</BotCount>
   <BotRadius>0.35</BotRadius>
-  <MaxAcceleration>1</MaxAcceleration>
-  <MaxDeceleration>1</MaxDeceleration>
+  <MaxAcceleration>0.25</MaxAcceleration>
+  <MaxDeceleration>0.25</MaxDeceleration>
   <MaxVelocity>1.5</MaxVelocity>
-  <TurnSpeed>4</TurnSpeed>
+  <TurnSpeed>4.0</TurnSpeed>
   <CollisionPenaltyTime>0.5</CollisionPenaltyTime>
   <PodTransferTime>4</PodTransferTime>
   <PodAmount>0.9</PodAmount>

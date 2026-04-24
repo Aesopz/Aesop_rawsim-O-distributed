@@ -35,11 +35,13 @@ namespace RAWSimO.Core.Control
                 case PathPlanningMethodType.FAR: PathManager = new FARPathManager(instance); break;
                 case PathPlanningMethodType.BCP: PathManager = new BCPPathManager(instance); break;
                 case PathPlanningMethodType.CBS: PathManager = new CBSPathManager(instance); break;
+                case PathPlanningMethodType.ECBS: PathManager = new ECBSPathManager(instance); break;
                 case PathPlanningMethodType.OD_ID: PathManager = new ODIDPathManager(instance); break;
                 case PathPlanningMethodType.WHCAnStar: PathManager = new WHCAnStarPathManager(instance); break;
                 case PathPlanningMethodType.PAS: PathManager = new PASPathManager(instance); break;
                 case PathPlanningMethodType.AgentAStar: PathManager = new AgentAStarPathManager(instance, (DecentralAStarPathPlanningConfiguration)instance.ControllerConfig.PathPlanningConfig); break;
-                default: throw new ArgumentException("Unknown path planning engine: " + instance.ControllerConfig.PathPlanningConfig.GetMethodType());
+                case PathPlanningMethodType.FixedRoutePriorityScheduler: throw new NotImplementedException("FixedRoutePriorityScheduler has been removed.");
+default: throw new ArgumentException("Unknown path planning engine: " + instance.ControllerConfig.PathPlanningConfig.GetMethodType());
             }
             // Init bot manager
             switch (instance.ControllerConfig.TaskAllocationConfig.GetMethodType())

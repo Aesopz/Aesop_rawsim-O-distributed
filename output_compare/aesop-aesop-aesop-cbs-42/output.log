@@ -1,0 +1,205 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/17/2026 03:36:41
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/aesop.xlayo
+Setting: Material/Instances/CoreBenchmark/test-short.xsett
+ControlConfig: Material/Instances/CoreBenchmark/aesop-cbs.xconf
+StatisticsDir: output_compare/
+Seed: 42
+Additionally the following tag was passed: test-cbs-small
+Adding handler for unhandled exceptions ...
+Initializing ... 
+LayoutConfiguration recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing layout config ...
+Generating instance...
+Info about all directions within the generated instance:
+# # # # # e p e p p p p p p p p p p p p p p p p p e p p p p p p p p p p p p p p p p p e p p p p p p p p p e s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+s w w w w d q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q w w w w w 
+p e e e s b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b p e e e e n 
+s w w w w d q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q n w w w d 
+e e e e e b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b p e e e e n 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q d < < < < < < < < q < < < < < < < < d < < < < < < < < q < < < < < < < < d < < < < < < < < q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b > > > > > > > > p > > > > > > > > b > > > > > > > > p > > > > > > > > b > > > > > > > > p b s # # # # # 
+# # # # # n q ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + q d q # # # # # 
+# # # # # b p b + + + + + + + + v + + + + + + + + ^ + + + + + + + + v + + + + + + + + ^ + + + + + + + + v b s # # # # # 
+# # # # # n w d d d d d d d d d w d d d d d d d d d d d d d d d d d w d d d d d d d d d d d d d d d d d w d w # # # # # 
+
+
+Info about all types within the generated instance:
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+b b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b o 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+b b b b b r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r b b b b b 
+i b b b b r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r b b b b b 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r s s s s s s s s r r r # # # # # 
+# # # # # r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r # # # # # 
+
+
+[EnergyConsumption] Configured from LayoutConfiguration: RobotMass=100 kg, PodFrameMass=300 kg
+StatisticsFolder: aesop-aesop-aesop-cbs-42
+Done!
+Executing ... 
+ 03:36:43 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 151.77MB  
+ 00:00:05 | 00:03:22 | 0.00:00:43 |  2.41%   |    0    |    0     | 70%  |   584    |   0    | 166.50MB  
+ 00:00:10 | 00:05:00 | 0.00:00:58 |  3.23%   |    0    |    0     | 70%  |   782    |   0    | 176.99MB  
+ 00:00:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(74->73)
+ 00:00:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(74->73)
+ 00:00:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(74->73)
+ 00:00:12 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(74->73)
+ 00:00:15 | 00:01:13 | 0.00:05:05 |  16.99%  |   58    |    79    | 71%  |   2747   |   0    | 180.04MB  
+ 00:00:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(1->0)
+ 00:00:15 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent10(1->0)
+ 00:00:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(32->31)
+ 00:00:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(32->31)
+ 00:00:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(32->31)
+ 00:00:16 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent0(32->31)
+ 00:00:17 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent8(11->10)
+ 00:00:20 | 00:00:33 | 0.00:11:07 |  37.07%  |   144   |   193    | 72%  |   6084   |   0    | 181.27MB  
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(53->52)
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(53->52)
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(53->52)
+ 00:00:22 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(53->52)
+ 00:00:25 | 00:00:14 | 0.00:18:59 |  63.33%  |   243   |   347    | 73%  |  10657   |   0    | 186.09MB  
+ 00:00:26 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(63->62)
+ 00:00:26 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(63->62)
+ 00:00:26 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent25(63->62)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:28 | WARNING! Aborting CBS - could not obtain an initial solution for the following agents: Agent7(54->53)
+ 00:00:30 | 00:00:04 | 0.00:25:55 |  86.42%  |   318   |   468    | 74%  |  15133   |   0    | 195.15MB  
+ 00:00:32 | 00:00:00 | 0.00:30:00 | 100.00%  |   363   |   544    | 75%  |  17617   |   0    | 194.30MB  
+ 00:00:32 | >>> Simulation finished - writing results ...
+ 00:00:33 | >>> Results written
+Simulation finished.
+>>> Timings
+StatTimingPathPlanningAverage: 0.02102015759849905
+StatTimingPathPlanningOverall: 22.407487999999987
+StatTimingPathPlanningCount: 1066
+StatTimingTaskAllocationAverage: 0.011241996361185985
+StatTimingTaskAllocationOverall: 8.3415613
+StatTimingTaskAllocationCount: 742
+StatTimingItemStorageAverage: 1.1635256410256401E-05
+StatTimingItemStorageOverall: 0.007260399999999995
+StatTimingItemStorageCount: 624
+StatTimingPodStorageAverage: 0.01069183963963964
+StatTimingPodStorageOverall: 2.3735884
+StatTimingPodStorageCount: 222
+StatTimingReplenishmentBatchingAverage: 2.6934493192133197E-05
+StatTimingReplenishmentBatchingOverall: 0.017803700000000044
+StatTimingReplenishmentBatchingCount: 661
+StatTimingOrderBatchingAverage: 0.00013230695012264937
+StatTimingOrderBatchingOverall: 0.1618114000000002
+StatTimingOrderBatchingCount: 1223
+>>> Overall
+StatOverallBundlesPlaced: 621
+StatOverallItemsOrdered: 616
+StatOverallOrdersPlaced: 382
+StatOverallBundlesRejected: 0
+StatOverallOrdersRejected: 0
+StatOverallBundlesHandled: 544
+StatOverallItemsHandled: 572
+StatOverallLinesHandled: 547
+StatOverallOrdersHandled: 363
+StatOverallCollisions: 0
+StatOverallDistanceTraveled: 17617.44465887036
+StatOverallDistanceEstimated: 16486
+StatOverallAssignedTasks: 742
+StatMaxMemoryUsed: 195.1875
+StatRealTimeUsed: 32.7402185
+StatAverageTurnoverTime: 541.9341886331383
+StatMedianTurnoverTime: 401.4587852538814
+StatLowerQuartileTurnoverTime: 197.39920459443562
+StatUpperQuartileTurnoverTime: 769.6054301434589
+StatAverageThroughputTime: 81.36983487984136
+StatMedianThroughputTime: 51.51729337952409
+StatLowerQuartileThroughputTime: 31.2222222222224
+StatUpperQuartileThroughputTime: 119.71169530860914
+>>> Energy (Rizqi model)
+StatEnergyTotalKJ: 2197.421248918136
+StatEnergyE1AccelKJ: 778.8596404261353
+StatEnergyE2DecelKJ: 0
+StatEnergyE3CruiseKJ: 588.1301501841097
+StatEnergyE4RotationKJ: 257.2966188906514
+StatEnergyE5LiftLowerKJ: 573.1348394172394
+StatEnergyPerOrderKJ: 6.053502063135361
+StatEnergyPerMeterJoule: 123.91706134992027
+StatDistanceTraveledRizqiM: 17733
+>>> Motion Behavior
+StatTurningCount: 2307
+StatStopAndGoCount: 2861
+StatLoadedDistanceM: 12515
+StatLoadedTurningCount: 1761
+StatWaitTimeSec: 18506.827042064302
+StatMoveEnergyEmptyKJ: 73.67940000000003
+StatMoveTimeEmptySec: 6741.299945011892
+StatTurnEnergyEmptyKJ: 10.321642088427016
+StatTurnTimeEmptySec: 556.8623844734168
+StatMoveEnergyLoadedKJ: 1293.3103906102451
+StatMoveTimeLoadedSec: 18645.38163896534
+StatTurnEnergyLoadedKJ: 246.97497680222438
+StatTurnTimeLoadedSec: 1800.9799225174997
+StatPrefEmptyW: 11.509889516851988
+StatPrefLoadedW: 75.33298101869048
+
+Marked tag finished after 1 tries!
+.Fin. - SUCCESS

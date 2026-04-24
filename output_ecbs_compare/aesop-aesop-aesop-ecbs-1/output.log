@@ -1,0 +1,44 @@
+<<< Welcome to the RAWSimO CLI >>>
+The time is: 04/15/2026 01:04:15
+Starting RAWSimO wrapper with the following arguments:
+Instance: Material/Instances/CoreBenchmark/aesop.xinst
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/PP/aesop-ecbs.xconf
+StatisticsDir: output_ecbs_compare/
+Seed: 1
+Adding handler for unhandled exceptions ...
+Initializing ... 
+Instance recognized!
+Parsing setting config ...
+Parsing control config ...
+Parsing instance ...
+StatisticsFolder: aesop-aesop-aesop-ecbs-1
+Done!
+Executing ... 
+ 01:04:17 | >>> Warming up ...
+ 00:00:00 | >>> Warmup finished - starting simulation ...
+ Realtime |   ETA    |  Sim.Time  | Progress | #Orders | #Bundles | Inv. | Distance | #Coll. |   Memory    
+ 00:00:00 |   n/a    | 0.00:00:00 |  0.00%   |    0    |    0     | 70%  |    0     |   0    | 160.66MB  
+-----------------------------------------------------------
+!!! Caught an unhandled exception: Value cannot be null. (Parameter 'key') timestamp: 04/15/2026 01:04:18
+-----------------------------------------------------------
+Time: 2026/4/15 上午 01:04:18
+Instance: Material/Instances/CoreBenchmark/aesop.xinst
+Setting: Material/Instances/CoreBenchmark/aesop.xsett
+ControlConfig: Material/Instances/PP/aesop-ecbs.xconf
+Seed: 1
+Tag: <null>
+Stacktrace:
+   at System.Collections.Generic.Dictionary`2.FindValue(TKey key)
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at RAWSimO.Core.Control.PathManager.FindElevatorSequence(BotNormal bot, Waypoint start, Waypoint end, Double& distance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\PathManager.cs:line 674
+   at RAWSimO.Core.Bots.BotNormal._appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 523
+   at RAWSimO.Core.Bots.BotNormal.AssignTask(BotTask t) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 488
+   at RAWSimO.Core.Control.BotManager.RequestNewTask(Bot bot) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\BotManagerCore.cs:line 309
+   at RAWSimO.Core.Bots.BotNormal.Update(Double lastTime, Double currentTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Bots\BotNormal.cs:line 881
+   at RAWSimO.Core.Control.Controller.Update(Double elapsedTime) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\Controller.cs:line 249
+   at RAWSimO.Core.Control.SimulationExecutor.Execute(Instance instance) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.Core\Control\SimulationExecutor.cs:line 33
+   at RAWSimO.CLI.Program.Main(String[] args) in C:\Users\Aesop\Desktop\rawsim-o-rmfs-world-models\RAWSimO.CLI\Program.cs:line 182
+InnerException: 
+None
+-----------------------------------------------------------

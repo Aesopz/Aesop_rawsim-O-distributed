@@ -315,6 +315,47 @@ namespace RAWSimO.Core.Configurations
         }
     }
     /// <summary>
+    /// The configuration for the ECBS method.
+    /// </summary>
+    public class ECBSPathPlanningConfiguration : PathPlanningConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.ECBS; }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            string name = "ppECBS";
+            switch (SearchMethod)
+            {
+                case ECBSMethod.ECBSSearchMethod.BestFirst: name += "O"; break;
+                case ECBSMethod.ECBSSearchMethod.DepthFirst: name += "D"; break;
+                case ECBSMethod.ECBSSearchMethod.BreathFirst: name += "B"; break;
+                default: throw new ArgumentException("Unexpected argument!");
+            }
+            return name;
+        }
+        /// <summary>
+        /// The search method
+        /// </summary>
+        public ECBSMethod.ECBSSearchMethod SearchMethod = ECBSMethod.ECBSSearchMethod.BestFirst;
+        /// <summary>
+        /// Parses the specified arguments.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        public override void Parse(string[] args)
+        {
+            base.Parse(args);
+            SearchMethod = (ECBSMethod.ECBSSearchMethod)Enum.Parse(typeof(ECBSMethod.ECBSSearchMethod), (args[2]));
+        }
+    }
+    /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
     public class BCPPathPlanningConfiguration : PathPlanningConfiguration
@@ -524,6 +565,41 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public double RuntimeLimitPerAgentMs = 10.0;
 
+        #region Stage B — Local Transition Claims
+
+        /// <summary>
+        /// [Stage B] Enable local transition claim gate for waypoint transitions.
+        /// When enabled, a minimal claim table tracks single-step transitions to detect conflicts.
+        /// Default false for backward compatibility.
+        /// </summary>
+        public bool EnableLocalTransitionClaims = false;
+
+        /// <summary>
+        /// [Stage B] TTL (time-to-live) in seconds for transition claims.
+        /// Default 2.0 seconds.
+        /// </summary>
+        public double LocalTransitionClaimTtl = 2.0;
+
+        #endregion
+
+        #region Stage C — Navigation Anomaly Handling
+
+        /// <summary>
+        /// [Stage C] Enable no-progress watchdog to detect and recover from stalls.
+        /// When enabled, a bot that fails to progress for N consecutive ticks will
+        /// trigger soft recovery (replan request).
+        /// Default false for backward compatibility.
+        /// </summary>
+        public bool EnableNoProgressWatchdog = false;
+
+        /// <summary>
+        /// [Stage C] Threshold (number of consecutive ticks) before marking a bot as stalled.
+        /// Default 20 ticks.
+        /// </summary>
+        public int NoProgressTickThreshold = 20;
+
+        #endregion
+
         /// <summary>
         /// Checks whether the path planning configuration is valid.
         /// </summary>
@@ -541,9 +617,59 @@ namespace RAWSimO.Core.Configurations
                 errorMessage = "Problem with AgentAStar configuration: RuntimeLimitPerAgentMs must be > 0.";
                 return false;
             }
+            if (EnableLocalTransitionClaims && LocalTransitionClaimTtl <= 0)
+            {
+                errorMessage = "Problem with AgentAStar configuration: LocalTransitionClaimTtl must be > 0 when enabled.";
+                return false;
+            }
+            if (EnableNoProgressWatchdog && NoProgressTickThreshold <= 0)
+            {
+                errorMessage = "Problem with AgentAStar configuration: NoProgressTickThreshold must be > 0 when enabled.";
+                return false;
+            }
             errorMessage = "";
             return true;
         }
+    }
+
+    /// <summary>
+    /// Configuration for the Fixed-Route Priority Wait Scheduler (FRPWS) path planner.
+    /// Each bot independently computes an A* candidate path; a central scheduler
+    /// resolves all pairwise conflicts by inserting wait actions into lower-priority bots.
+    /// </summary>
+    public class FixedRoutePrioritySchedulerPathPlanningConfiguration : PathPlanningConfiguration
+    {
+        /// <summary>Returns the method type enum value.</summary>
+        public override PathPlanningMethodType GetMethodType() => PathPlanningMethodType.FixedRoutePriorityScheduler;
+
+        /// <summary>Returns the method name for statistics output.</summary>
+        public override string GetMethodName() => string.IsNullOrWhiteSpace(Name) ? "ppFRPWS" : Name;
+
+        /// <summary>
+        /// If true, idle (resting) bots are treated as blocked nodes during A* path computation.
+        /// </summary>
+        public bool TreatIdleBotsAsObstacles = true;
+
+        /// <summary>
+        /// If true, zone classification (intersection / corridor) is inferred automatically from waypoint degree.
+        /// </summary>
+        public bool AutoInferResourceZones = true;
+
+        /// <summary>
+        /// If true, bots request a schedule rebuild when they arrive at a new waypoint.
+        /// </summary>
+        public bool RecomputeOnWaypointArrival = true;
+
+        /// <summary>
+        /// Maximum number of conflict-resolution iterations per schedule rebuild.
+        /// </summary>
+        public int MaxConflictResolutionIterations = 10000;
+
+        /// <summary>
+        /// Maximum total wait time (in simulation seconds) that can be added to a single bot's schedule.
+        /// Bots exceeding this budget are marked infeasible for this cycle.
+        /// </summary>
+        public double MaxAdditionalWaitPerBot = 300.0;
     }
 
     #endregion

@@ -41,14 +41,14 @@ namespace RAWSimO.Core.Metrics
         /// Added to mLoad for E5/E6 even when pod carries no items.
         /// From xinst EnergyParameters.PodFrameMass.
         /// </summary>
-        public static double POD_FRAME_MASS = 40.0;
+        public static double POD_FRAME_MASS = 50.0;
 
         /// <summary>
-        /// Continuous hold power while AGV supports a pod at a station [W].
-        /// Replaces the dimensionally-incorrect mu_lift formula.
-        /// From xinst EnergyParameters.StationHoldPowerW.
+        /// Idle (base electronics) power draw [W].
+        /// Must match EnergyModel.P_IDLE in MultiAgentPathFinding so that
+        /// statistics-side idle energy aligns with planner-side cost.
         /// </summary>
-        public static double STATION_HOLD_POWER_W = 15.0;
+        public const double P_IDLE = 90;
 
         #endregion
 
@@ -67,8 +67,7 @@ namespace RAWSimO.Core.Metrics
             double rollingFriction,
             double inertiaCoeff,
             double liftHeight,
-            double podFrameMass,
-            double stationHoldPowerW)
+            double podFrameMass)
         {
             ROBOT_MASS          = robotMass;
             ROBOT_WIDTH         = robotWidth;
@@ -78,7 +77,10 @@ namespace RAWSimO.Core.Metrics
             INERTIA             = inertiaCoeff;
             LIFT_HEIGHT         = liftHeight;
             POD_FRAME_MASS      = podFrameMass;
-            STATION_HOLD_POWER_W = stationHoldPowerW;
+
+            // DEBUG: Log energy config to verify xlayo was loaded correctly
+            System.Diagnostics.Debug.WriteLine(
+                $"[EnergyConsumption.Configure] RobotMass={robotMass}, PodFrameMass={podFrameMass}");
         }
 
         #endregion
@@ -162,24 +164,27 @@ namespace RAWSimO.Core.Metrics
         /// <param name="thetaRad">Actual rotation angle [radians].</param>
         /// <param name="turnSpeed">Seconds for a full 360° rotation [s] (from xinst Bot.TurnSpeed).</param>
         /// <returns>Rotation energy [J].</returns>
-        public static double E4_Rotation(double thetaRad, double turnSpeed)
+        /// <param name="mTotal">Total dynamic mass [kg] = ROBOT_MASS + pod load.
+        /// Use GetTotalMass(Pod) so loaded robots correctly reflect increased rotational inertia.</param>
+        public static double E4_Rotation(double thetaRad, double turnSpeed, double mTotal)
         {
-            if (thetaRad <= 0.0 || turnSpeed <= 0.0)
+            if (thetaRad <= 0.0 || turnSpeed <= 0.0 || mTotal <= 0.0)
                 return 0.0;
 
             // ω = 2π / T  where T = turnSpeed [s/rev]
             double omega = 2.0 * Math.PI / turnSpeed;
 
             // Moment of inertia for uniform rectangular body about vertical centroid axis
-            // I = (1/12)·m·(L² + W²)
-            double momentOfInertia = (1.0 / 12.0) * ROBOT_MASS
+            // I = (1/12)·mTotal·(L² + W²)
+            // mTotal includes pod mass when loaded — pod sits on robot, shifts rotational inertia.
+            double momentOfInertia = (1.0 / 12.0) * mTotal
                 * (ROBOT_LENGTH * ROBOT_LENGTH + ROBOT_WIDTH * ROBOT_WIDTH);
 
             // Kinetic energy to spin up: (1/2)·I·ω²
             double eKinetic = 0.5 * momentOfInertia * omega * omega;
 
-            // Friction energy while rotating: m·g·μ_r·r·θ
-            double eFriction = ROBOT_MASS * GRAVITY * FRICTION * ROBOT_RADIUS * thetaRad;
+            // Friction energy while rotating: mTotal·g·μ_r·r·θ
+            double eFriction = mTotal * GRAVITY * FRICTION * ROBOT_RADIUS * thetaRad;
 
             return eKinetic + eFriction;
         }
@@ -217,27 +222,6 @@ namespace RAWSimO.Core.Metrics
 
         #endregion
 
-        #region E6 — Station Processing Energy (corrected to power model)
-
-        /// <summary>
-        /// E6 — Energy consumed while AGV holds a pod stationary at a station.
-        /// Uses a constant power model: P_hold [W] × duration [s] = energy [J].
-        /// P_hold (STATION_HOLD_POWER_W) represents the motor/actuator power needed to
-        /// maintain the lifted pod position. Configured via xinst EnergyParameters.StationHoldPowerW.
-        ///
-        /// Replaces the previous formula mLoad·g·μ_lift·t which had incorrect units (N·s ≠ J).
-        /// </summary>
-        /// <param name="duration">Station dwell time [s].</param>
-        /// <returns>Station processing energy [J].</returns>
-        public static double E6_StationProcessing(double duration)
-        {
-            if (duration <= 0.0)
-                return 0.0;
-
-            return STATION_HOLD_POWER_W * duration;
-        }
-
-        #endregion
 
         #region Mass Helpers
 
