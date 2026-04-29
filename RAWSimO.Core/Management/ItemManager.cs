@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RAWSimO.Core.Management
@@ -1319,7 +1320,20 @@ namespace RAWSimO.Core.Management
                 _openOrders.Add(order);
             }
         }
-
+        /// <summary>
+        /// delete a order .
+        /// </summary>
+        /// <returns>The order.</returns>
+        public void DeleteOrder(Order order)
+        {
+            lock (_syncRoot)
+            {
+                _availableOrders.Remove(order);
+                // Notify instance about new order
+                Instance.NotifyOrderDeleted(order);
+                Instance.StockInfo.DeleteAvailableStock(order);
+            }
+        }
         /// <summary>
         /// Returns the next available bundle and removes it from the list.
         /// </summary>
@@ -1688,7 +1702,6 @@ namespace RAWSimO.Core.Management
                                 // Check for generation pause
                                 if (CheckForOrderGenerationPause())
                                     break;
-
                                 // Generate a new order
                                 Order order = GenerateRandomOrder();
                                 // Only submit order if we successfully generated one

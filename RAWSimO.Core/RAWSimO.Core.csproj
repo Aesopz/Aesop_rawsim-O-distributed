@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RAWSimO.MultiAgentPathFinding\RAWSimO.MultiAgentPathFinding.csproj" />
     <ProjectReference Include="..\RAWSimO.Toolbox\RAWSimO.Toolbox.csproj" />
+    <ProjectReference Include="..\RAWSimO.SolverWrappers\RAWSimO.SolverWrappers.csproj" />
   </ItemGroup>
 
 </Project>

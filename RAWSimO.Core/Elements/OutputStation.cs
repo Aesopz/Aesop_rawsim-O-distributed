@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace RAWSimO.Core.Elements
 {
@@ -141,6 +141,15 @@ namespace RAWSimO.Core.Elements
                 throw new InvalidOperationException("Cannot reserve more capacity than this station has!");
 
         }
+        /// <summary>
+        /// Remove the order from queue in for this station.
+        /// </summary>
+        /// <param name="order">The order to queue in.</param>
+        internal void RemoveQueueOrder(Order order)
+        {
+            StatCurrentlyOpenQueuedItems -= order.Requests.Count();
+            _queuedOrders.Remove(order);
+        }
 
         /// <summary>
         /// The order to queue in for this station.
@@ -151,7 +160,13 @@ namespace RAWSimO.Core.Elements
             StatCurrentlyOpenQueuedItems += order.Requests.Count();
             _queuedOrders.Add(order);
         }
-
+        /// <summary>
+        /// Clser the order to queue in for this station.
+        /// </summary>
+        internal void ClserQueueOrder()
+        {
+            _queuedOrders.Clear();
+        }
         /// <summary>
         /// Assigns a new order to this station.
         /// </summary>
@@ -170,11 +185,11 @@ namespace RAWSimO.Core.Elements
                 // Keep track of current number of items to pick
                 StatCurrentlyOpenItems += order.Positions.Sum(p => p.Value);
                 // Remove order from queue, if it came from the queue
-                if (_queuedOrders.Contains(order))
-                {
-                    StatCurrentlyOpenQueuedItems -= order.Requests.Count();
-                    _queuedOrders.Remove(order);
-                }
+                //if (_queuedOrders.Contains(order))
+                //{
+                //    StatCurrentlyOpenQueuedItems -= order.Requests.Count();
+                //    _queuedOrders.Remove(order);
+                //}
                 // Reset rest-time
                 _statDepletionTime = double.PositiveInfinity;
                 // Update the order list for the visualization, if present
@@ -190,7 +205,6 @@ namespace RAWSimO.Core.Elements
                 return false;
             }
         }
-
         /// <summary>
         /// The queue of items to extract from the pods.
         /// </summary>
@@ -207,6 +221,8 @@ namespace RAWSimO.Core.Elements
         /// <returns><code>true</code> if there was an item to pick and the operation was successful, <code>false</code> otherwise.</returns>
         protected bool TakeItemFromPod(double currentTime)
         {
+            //if(_requestsExtract.Count == 0 && _assignedOrders.Count > 0)
+            //    Thread.Sleep(1);
             // Keep going through queue until have something to take or done with queue
             while (_requestsExtract.Count > 0)
             {

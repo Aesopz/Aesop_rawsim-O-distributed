@@ -17,11 +17,11 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         public static double ROBOT_RADIUS = 0.3;
 
         /// <summary>
-        /// Standby (idle) power from literature: 90 W.
-        /// E_wait = P_idle × waitDuration [J].
+        /// Fixed support power draw [W] — background electronics drain while a task is active.
+        /// E_wait = P_SUPPORT × waitDuration [J] (congestion/CBS hold).
         /// Independent of mass (control system / motor standby draw).
         /// </summary>
-        public static double P_IDLE = 90;
+        public static double P_SUPPORT = 90;
 
         /// <summary>
         /// Synchronizes physical constants with EnergyConsumption (Core).
@@ -41,7 +41,7 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         }
 
         public static double ComputeWaitEnergy(double mTotal, double waitDuration)
-            => P_IDLE * waitDuration;
+            => P_SUPPORT * waitDuration;
 
         /// <summary>
         /// Real transition cost (E1+E2+E3) — mirrors EnergyConsumption.ComputeSegmentEnergy.

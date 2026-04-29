@@ -351,10 +351,10 @@ namespace RAWSimO.Core.Bots
         public double StatWaitTimeLoadedSec;
         /// <summary>Total wait time while empty [s].</summary>
         public double StatWaitTimeEmptySec;
-        /// <summary>Wait energy while loaded [J] = P_IDLE × StatWaitTimeLoadedSec.</summary>
-        public double StatWaitEnergyLoadedJ => Metrics.EnergyConsumption.P_IDLE * StatWaitTimeLoadedSec;
-        /// <summary>Wait energy while empty [J].</summary>
-        public double StatWaitEnergyEmptyJ  => Metrics.EnergyConsumption.P_IDLE * StatWaitTimeEmptySec;
+        /// <summary>Wait energy while loaded [J] = P_SUPPORT × StatWaitTimeLoadedSec (congestion cost only).</summary>
+        public double StatWaitEnergyLoadedJ => Metrics.EnergyConsumption.P_SUPPORT * StatWaitTimeLoadedSec;
+        /// <summary>Wait energy while empty [J] = P_SUPPORT × StatWaitTimeEmptySec (congestion cost only).</summary>
+        public double StatWaitEnergyEmptyJ  => Metrics.EnergyConsumption.P_SUPPORT * StatWaitTimeEmptySec;
         /// <summary>Edge-triggered count of arrivals at any station queue zone (entered: false→true).</summary>
         public int StatStationArrivals;
         /// <summary>Number of turning events while carrying a pod.</summary>
@@ -371,17 +371,32 @@ namespace RAWSimO.Core.Bots
         public List<double> PerTripWaitRatioEmpty = new List<double>();
         /// <summary>Total time spent waiting (not moving, not rotating) [s].</summary>
         public double StatWaitTimeSec;
-        /// <summary>Cumulative idle (base electronics) energy [J] = P_IDLE × total existence time.
-        /// Aligns statistics with planner objective (E_mech + P_IDLE×t).</summary>
-        public double StatEnergyIdleJ;
-        /// <summary>Total energy including idle = E_mech + P_IDLE×t [J].</summary>
-        public double StatEnergyTotalWithIdleJ => StatEnergyTotalJ + StatEnergyIdleJ;
-        /// <summary>E_support: P_IDLE accumulated while task-assigned AND stationary (CBS wait, congestion, etc.) [J].</summary>
+        /// <summary>
+        /// Background "support" energy [J] — the per-second overhead the robot draws
+        /// whenever a task is active, regardless of whether it is moving or stationary.
+        /// Formula: P_SUPPORT × task-active time (standby/None/Rest excluded).
+        /// This is the intuitive "E_support" in the energy literature: the cost of
+        /// keeping the robot operational during mission time, electronics/sensors/etc.
+        /// Planner-agnostic — identical accumulation rules for CBS / ECBS / WHCA*.
+        /// </summary>
         public double StatESupportJ;
-        /// <summary>E_support while carrying a pod (loaded) [J].</summary>
-        public double StatESupportLoadedJ;
-        /// <summary>E_support while not carrying a pod (empty) [J].</summary>
-        public double StatESupportEmptyJ;
+        /// <summary>Total energy including support = E_mech + E_support [J].</summary>
+        public double StatEnergyTotalWithSupportJ => StatEnergyTotalJ + StatESupportJ;
+        // Backwards-compat alias so older log parsers still resolve the old name.
+        public double StatEnergyIdleJ => StatESupportJ;
+        public double StatEnergyTotalWithIdleJ => StatEnergyTotalWithSupportJ;
+
+        /// <summary>
+        /// Congestion-wait energy [J] — strict SUBSET of E_support accumulated only
+        /// during blocked stationary periods (task-assigned AND !Moving AND !rotating
+        /// AND !inPickupOrSetdown). Captures wait caused by planner-level conflicts
+        /// or queueing, NOT mission-time overhead. Not equal to E_support.
+        /// </summary>
+        public double StatEWaitJ;
+        /// <summary>Congestion-wait energy while carrying a pod (loaded) [J].</summary>
+        public double StatEWaitLoadedJ;
+        /// <summary>Congestion-wait energy while not carrying a pod (empty) [J].</summary>
+        public double StatEWaitEmptyJ;
         /// <summary>Idle time: seconds with no task assigned (BotTaskType.None).</summary>
         public double StatTimeIdleSec => StatTotalTaskTimes.TryGetValue(BotTaskType.None, out var t) ? t : 0.0;
         // ── Pref calibration: event-level 8-accumulator model ─────────────────────
@@ -426,8 +441,9 @@ namespace RAWSimO.Core.Bots
             StatPickupCount = 0;
             StatSetdownCount = 0;
             StatESupportJ = 0.0;
-            StatESupportLoadedJ = 0.0;
-            StatESupportEmptyJ = 0.0;
+            StatEWaitJ = 0.0;
+            StatEWaitLoadedJ = 0.0;
+            StatEWaitEmptyJ = 0.0;
             StatTurningCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
@@ -435,7 +451,7 @@ namespace RAWSimO.Core.Bots
             StatLoadedTurningCount = 0;
             StatEmptyTurningCount = 0;
             StatWaitTimeSec = 0.0;
-            StatEnergyIdleJ = 0.0;
+            // StatEnergyIdleJ 為 StatESupportJ 的 backwards-compat alias，不用獨立 reset
             StatMoveEnergyEmptyJ   = 0.0;
             StatMoveTimeEmptySec   = 0.0;
             StatTurnEnergyEmptyJ   = 0.0;
@@ -736,7 +752,15 @@ namespace RAWSimO.Core.Bots
             if (GetSpeed() > 0)
                 return false;
             if (X == waypoint.X && Y == waypoint.Y)
-                throw new ArgumentException("Already at the given waypoint!");
+            {
+                // Bot is physically already at the target waypoint. This can occur when
+                // the CBS path references a node at the bot's current coordinates but
+                // a different Waypoint object (e.g. after replanning mid-arrival).
+                // Treat as arrived: update CurrentWaypoint and return false so BotMove retries.
+                Instance.LogInfo($"Bot{ID}: setNextWaypoint skipped – already at ({X:F2},{Y:F2}), updating CurrentWaypoint");
+                CurrentWaypoint = waypoint;
+                return false;
+            }
 
             _startOrientation = Orientation;
             _endOrientation = Circle.GetOrientation(X, Y, waypoint.X, waypoint.Y);
@@ -1270,8 +1294,15 @@ namespace RAWSimO.Core.Bots
 
             // Rest-task gate: return-to-park is a non-productive trip — no energy / wait / station metrics
             bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
+            // Active-task gate: bot must have a real task assigned to record support energy and wait.
+            // No-task (None) = standby → P_SUPPORT = 0 (not accumulating background power).
+            bool hasActiveTask = CurrentTask != null &&
+                                 CurrentTask.Type != BotTaskType.None &&
+                                 !isRestTask;
 
-            if (!isRestTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown)
+            // Wait = congestion/CBS-hold: stationary with an active task, no mechanical action.
+            // Excludes: rotation (_isRotatingThisTick), lift/setdown (inPickupOrSetdown), no-task standby.
+            if (hasActiveTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown)
             {
                 StatWaitTimeSec += delta;
                 // Accumulate per-trip wait time (congestion/CBS wait only, no mechanical action)
@@ -1282,18 +1313,20 @@ namespace RAWSimO.Core.Bots
                 else             StatWaitTimeEmptySec  += delta;
             }
 
-            // P_IDLE energy accumulates every tick (moving, rotating, or waiting) — except during Rest task
-            if (!isRestTask)
-                StatEnergyIdleJ += EnergyConsumption.P_IDLE * delta;
+            // E_support = P_SUPPORT × active-task time (background overhead;
+            //             includes moving, rotating, waiting; excludes standby/rest).
+            if (hasActiveTask)
+                StatESupportJ += EnergyConsumption.P_SUPPORT * delta;
 
-            // E_support: P_IDLE while task-assigned AND stationary AND not in pickup/setdown (congestion wait / CBS hold)
-            if (!isRestTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown && CurrentTask != null && CurrentTask.Type != BotTaskType.None)
+            // E_wait = P_SUPPORT × congestion-wait subset (task active AND stationary
+            //          AND no mechanical action). Subset of E_support.
+            if (hasActiveTask && !Moving && !_isRotatingThisTick && !inPickupOrSetdown)
             {
-                StatESupportJ += EnergyConsumption.P_IDLE * delta;
+                StatEWaitJ += EnergyConsumption.P_SUPPORT * delta;
                 if (Pod != null)
-                    StatESupportLoadedJ += EnergyConsumption.P_IDLE * delta;
+                    StatEWaitLoadedJ += EnergyConsumption.P_SUPPORT * delta;
                 else
-                    StatESupportEmptyJ += EnergyConsumption.P_IDLE * delta;
+                    StatEWaitEmptyJ += EnergyConsumption.P_SUPPORT * delta;
             }
 
             // Station arrival (edge-triggered): false → true on entering any station queue zone.

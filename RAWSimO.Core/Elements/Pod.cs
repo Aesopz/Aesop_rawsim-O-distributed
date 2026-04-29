@@ -135,6 +135,35 @@ namespace RAWSimO.Core.Elements
         }
 
         /// <summary>
+        /// EE 線上優化使用：標記一單位 item 已被預留以待取用，但不綁定特定 ExtractRequest（提供啟發式預先佔位）。
+        /// 等同 RegisterItem 但跳過 request 綁定步驟。baseline 路徑不使用。
+        /// </summary>
+        /// <param name="item">The item that is going to be reserved for picking.</param>
+        internal void JustRegisterItem(ItemDescription item)
+        {
+            if (_itemDescriptionCountContained == null)
+                InitPodContentInfo();
+            if (_itemDescriptionCountAvailable[item] <= 0)
+                throw new InvalidOperationException("Cannot reserve an item for picking, if there is none left of the kind!");
+            _itemDescriptionCountAvailable[item]--;
+        }
+
+        /// <summary>
+        /// EE 線上優化使用：pod 排序欄位（HADGS/HAS 啟發式對 pod 排優先序）。baseline 路徑不使用。
+        /// </summary>
+        public int sequence { get; set; }
+
+        /// <summary>
+        /// EE 線上優化使用：檢查此 pod 是否對任一 SKU 集合中的 item 有可用庫存。
+        /// 由 M1G/M2G 過濾候選 pod 用。baseline 路徑不使用。
+        /// </summary>
+        public bool IsAvailabletoOiSKU(HashSet<ItemDescription> itemDescriptions)
+        {
+            if (_itemDescriptionCountAvailable == null) return false;
+            return itemDescriptions.Any(v => _itemDescriptionCountAvailable[v] > 0);
+        }
+
+        /// <summary>
         /// Reserves an item that is going to be picked at a station.
         /// </summary>
         /// <param name="item">The item that is going to be reserved for picking.</param>

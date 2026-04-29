@@ -121,5 +121,26 @@ namespace RAWSimO.Core.Metrics
         /// <param name="y2">The y-value of the second point.</param>
         /// <returns>The manhattan distance.</returns>
         public static double CalculateManhattan(double x1, double y1, double x2, double y2) { return Math.Abs(x1 - x2) + Math.Abs(y1 - y2); }
+
+        /// <summary>
+        /// EE 線上優化框架使用：與 CalculateShortestPathPodSafe 相同語意（pod-safe shortest-path）。
+        /// EE 程式碼將 distance helper 重複命名為 *1 變體；此處作為相同實作的 alias 以保留 EE manager
+        /// 程式碼一字不改可以編譯。
+        /// </summary>
+        public static double CalculateShortestPathPodSafe1(Waypoint from, Waypoint to, Instance instance)
+            => CalculateShortestPathPodSafe(from, to, instance);
+
+        /// <summary>
+        /// EE 線上優化框架使用：兩個 Circle 之間的 Manhattan 距離（不含 wrong-tier 懲罰）。
+        /// 等同於 CalculateManhattan(c1, c2, 0)。EE 用此計算 robot↔pod 的曼哈頓距離當作 cost。
+        /// </summary>
+        public static double CalculateManhattan1(Circle c1, Circle c2)
+        {
+            // EE 移植 + null-tolerant：xinst 載入時 pod 可能尚未 snap 到 waypoint（pod.Waypoint == null）
+            // 或 pod 已被 claim 移交給 bot（亦會將 Waypoint 設 null）。EE aesop xlayo 路徑不會發生
+            // 此狀況因 xlayo + InstanceGenerator 強制 binding；xinst 路徑則需此守門。
+            if (c1 == null || c2 == null) return double.MaxValue;
+            return Math.Abs(c1.X - c2.X) + Math.Abs(c1.Y - c2.Y);
+        }
     }
 }

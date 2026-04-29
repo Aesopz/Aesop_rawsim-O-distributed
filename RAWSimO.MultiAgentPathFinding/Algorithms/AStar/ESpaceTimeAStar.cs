@@ -449,7 +449,7 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                 // fallback：Euclidean 弱 heuristic
                 double dist_fb = _graph.getDistance(node2d, _RRAStar.GoalNode);
                 double h_fb_move = (dist_fb > 0.0) ? EnergyModel.ComputeMoveEnergyLowerBound(mTotal, dist_fb) : 0.0;
-                double h_fb_supp = (dist_fb > 0.0) ? EnergyModel.P_IDLE * (dist_fb / _agent.Physics.MaxSpeed) : 0.0;
+                double h_fb_supp = (dist_fb > 0.0) ? EnergyModel.P_SUPPORT * (dist_fb / _agent.Physics.MaxSpeed) : 0.0;
                 return h_fb_move + h_fb_supp;
             }
 
@@ -460,9 +460,9 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
             double d_graph = _RRAStar.getPathDistance(node2d);
             double h_move = (d_graph > 0.0) ? EnergyModel.ComputeMoveEnergyLowerBound(mTotal, d_graph) : 0.0;
 
-            // ─── h_support: P_IDLE × T_rra ───
+            // ─── h_support: P_SUPPORT × T_rra ───
             // T_rra ≤ 真實剩餘時間 → admissible
-            double h_support = EnergyModel.P_IDLE * T_rra;
+            double h_support = EnergyModel.P_SUPPORT * T_rra;
 
             // ─── h_turn: 當前朝向 → RRA* 首段方向的單次轉向能耗 ───
             // 雖為 1-step lower bound（非全程），但中型基準實測比 Manhattan min-turns 版（Method B）
@@ -479,7 +479,7 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                 if (turnRad > 0.0)
                 {
                     h_turn = EnergyModel.ComputeTurnEnergy(mTotal, turnRad, _agent.Physics.TurnSpeed);
-                    h_turn_support = EnergyModel.P_IDLE * _agent.Physics.getTimeNeededToTurn(0.0, turnRad);
+                    h_turn_support = EnergyModel.P_SUPPORT * _agent.Physics.getTimeNeededToTurn(0.0, turnRad);
                 }
             }
 
@@ -708,7 +708,7 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
                     if (turnRad > 0.0)
                         turnE = EnergyModel.ComputeTurnEnergy(mTotal, turnRad, _agent.Physics.TurnSpeed);
                 }
-                double supportTurn = (timeToTurn > 0.0) ? EnergyModel.P_IDLE * timeToTurn : 0.0;
+                double supportTurn = (timeToTurn > 0.0) ? EnergyModel.P_SUPPORT * timeToTurn : 0.0;
 
                 var foundNext = true;
                 var pathFree = false;
@@ -747,7 +747,7 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
 
                             // 查表計算 moveE（O(1)，不再重算物理積分）
                             int tableKey = (hopCells <= MaxHopCells) ? hopCells : MaxHopCells;
-                            double moveE = mTotal * _moveEnergyPerKg[tableKey] + EnergyModel.P_IDLE * timeToMove;
+                            double moveE = mTotal * _moveEnergyPerKg[tableKey] + EnergyModel.P_SUPPORT * timeToMove;
 
                             //add node to temp => will be added, if a valid successor will be found
                             NodeTimeTemp.Add(NodeTime[lastStopId] + timeToTurn + timeToMove);

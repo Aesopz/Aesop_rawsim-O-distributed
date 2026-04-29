@@ -153,7 +153,21 @@ namespace RAWSimO.Core.Management
                 _currentOverallDemand[position.Key] += position.Value;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="order"></param>
+        public void DeleteAvailableStock(Order order) 
+        {
+            foreach (var position in order.Positions)
+            {
+                _currentAvailableStock[position.Key] += position.Value;
+                if (_currentAvailableStock[position.Key] < 0)
+                    Instance.LogInfo("Warning! Unfulfillable order-position submitted: " + position.Key.ToDescriptiveString() + " (" + _currentAvailableStock[position.Key] + ")");
+                // Update demand info
+                _currentOverallDemand[position.Key] -= position.Value;
+            }
+        }
         #endregion
     }
 }

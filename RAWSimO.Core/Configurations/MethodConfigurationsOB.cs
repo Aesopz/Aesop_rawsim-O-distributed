@@ -541,4 +541,68 @@ namespace RAWSimO.Core.Configurations
     }
 
     #endregion
+
+    #region EE 線上優化框架 OrderBatching configurations
+
+    /// <summary>EE M-I-G: 一次性 MIP，同 tick 解 OA + PS + TA。需要 Gurobi/CPLEX。</summary>
+    public class M1GConfiguration : OrderBatchingConfiguration
+    {
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.GM1; }
+        public OrderSelectionTieBreaker TieBreaker = OrderSelectionTieBreaker.EarliestDueTime;
+        public bool FastLane = true;
+        public bool LateBeforeMatch = false;
+        public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "obM1G" + (FastLane ? "y" : "n");
+        }
+    }
+
+    /// <summary>EE M-II-G: 兩階段 MIP，先 PS 再 TA。需要 Gurobi/CPLEX。</summary>
+    public class M2GConfiguration : OrderBatchingConfiguration
+    {
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.GM2; }
+        public OrderSelectionTieBreaker TieBreaker = OrderSelectionTieBreaker.EarliestDueTime;
+        public bool FastLane = true;
+        public bool LateBeforeMatch = false;
+        public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "obM2G" + (FastLane ? "y" : "n");
+        }
+    }
+
+    /// <summary>EE HAS: 純啟發式變體，不需 solver。</summary>
+    public class HASConfiguration : OrderBatchingConfiguration
+    {
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.HAS; }
+        public OrderSelectionTieBreaker TieBreaker = OrderSelectionTieBreaker.EarliestDueTime;
+        public bool FastLane = true;
+        public bool LateBeforeMatch = false;
+        public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "obHAS" + (FastLane ? "y" : "n");
+        }
+    }
+
+    /// <summary>EE HADGS: 啟發式 + 局部 Gurobi MIP。EE 論文主推方法。</summary>
+    public class HADGSConfiguration : OrderBatchingConfiguration
+    {
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.HADGS; }
+        public OrderSelectionTieBreaker TieBreaker = OrderSelectionTieBreaker.EarliestDueTime;
+        public bool FastLane = true;
+        public bool LateBeforeMatch = false;
+        public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "obHADGS" + (FastLane ? "y" : "n");
+        }
+    }
+
+    #endregion
 }

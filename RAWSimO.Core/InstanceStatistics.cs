@@ -118,9 +118,9 @@ namespace RAWSimO.Core
         public double StatOverallEnergyE4J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE4RotationJ); } }
         /// <summary>Fleet pod lift/lower energy E5 [J].</summary>
         public double StatOverallEnergyE5J { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyE5LiftLowerJ); } }
-        /// <summary>Fleet idle (base electronics) energy [J] = P_IDLE × Σ bot existence time.</summary>
+        /// <summary>Fleet support energy [J] = P_SUPPORT × Σ task-active time (standby excluded).</summary>
         public double StatOverallEnergyIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyIdleJ); } }
-        /// <summary>Fleet total energy including idle [J] = E_mech + P_IDLE×t (aligns with planner objective).</summary>
+        /// <summary>Fleet total energy including support [J] = E_mech + P_SUPPORT×t_active (aligns with planner objective).</summary>
         public double StatOverallEnergyTotalWithIdleJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEnergyTotalWithIdleJ); } }
         /// <summary>Total turning events across all bots.</summary>
         public int StatOverallTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTurningCount); } }
@@ -136,12 +136,14 @@ namespace RAWSimO.Core
         public int StatOverallEmptyTurningCount { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyTurningCount); } }
         /// <summary>Total wait time across all bots (stationary, not rotating) [s].</summary>
         public double StatOverallWaitTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeSec); } }
-        /// <summary>Fleet E_support (P_IDLE while task-assigned AND stationary) [J].</summary>
+        /// <summary>Fleet E_support (background P_SUPPORT × active-task time; includes moving) [J].</summary>
         public double StatOverallESupportJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportJ); } }
-        /// <summary>Fleet E_support while loaded [J].</summary>
-        public double StatOverallESupportLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportLoadedJ); } }
-        /// <summary>Fleet E_support while empty [J].</summary>
-        public double StatOverallESupportEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatESupportEmptyJ); } }
+        /// <summary>Fleet E_wait (P_SUPPORT × congestion-wait subset; strict subset of E_support) [J].</summary>
+        public double StatOverallEWaitJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEWaitJ); } }
+        /// <summary>Fleet E_wait while loaded [J].</summary>
+        public double StatOverallEWaitLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEWaitLoadedJ); } }
+        /// <summary>Fleet E_wait while empty [J].</summary>
+        public double StatOverallEWaitEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEWaitEmptyJ); } }
         /// <summary>Fleet idle time (no task assigned) [s].</summary>
         public double StatOverallTimeIdleSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTimeIdleSec); } }
         // ── Pref calibration: event-level 8-accumulator aggregation ───────────────
@@ -163,7 +165,7 @@ namespace RAWSimO.Core
         public double StatOverallWaitTimeLoadedSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeLoadedSec); } }
         /// <summary>Fleet wait time while empty [s].</summary>
         public double StatOverallWaitTimeEmptySec  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitTimeEmptySec); } }
-        /// <summary>Fleet wait energy while loaded [J] = P_IDLE × wait time.</summary>
+        /// <summary>Fleet wait energy while loaded [J] = P_SUPPORT × congestion-wait time.</summary>
         public double StatOverallWaitEnergyLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitEnergyLoadedJ); } }
         /// <summary>Fleet wait energy while empty [J].</summary>
         public double StatOverallWaitEnergyEmptyJ  { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatWaitEnergyEmptyJ); } }
@@ -1169,12 +1171,19 @@ namespace RAWSimO.Core
             double utilization = (StatTime > 0 && botCount > 0)
                 ? 1.0 - (StatOverallTimeIdleSec / (StatTime * botCount))
                 : double.NaN;
+            // E_support = background support energy (P_SUPPORT × active-task time; includes moving)
             sb.AppendLine("StatESupportKJ: " + (StatOverallESupportJ / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatESupportLoadedKJ: " + (StatOverallESupportLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
-            sb.AppendLine("StatESupportEmptyKJ: " + (StatOverallESupportEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatESupportPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallESupportJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            // E_wait = congestion-wait subset of E_support (stationary with active task)
+            sb.AppendLine("StatEWaitKJ: " + (StatOverallEWaitJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEWaitLoadedKJ: " + (StatOverallEWaitLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEWaitEmptyKJ: " + (StatOverallEWaitEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEWaitPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEWaitJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             sb.AppendLine("StatTimeIdleSec: " + StatOverallTimeIdleSec.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatRobotUtilization: " + (double.IsNaN(utilization) ? "NaN" : utilization.ToString(IOConstants.FORMATTER)));
+            double eWaitToMechRatio = StatOverallEnergyTotalJ > 0
+                ? StatOverallEWaitJ / StatOverallEnergyTotalJ : double.NaN;
+            sb.AppendLine("StatEWaitToMechRatio: " + (double.IsNaN(eWaitToMechRatio) ? "NaN" : eWaitToMechRatio.ToString(IOConstants.FORMATTER)));
             double eSupportToMechRatio = StatOverallEnergyTotalJ > 0
                 ? StatOverallESupportJ / StatOverallEnergyTotalJ : double.NaN;
             sb.AppendLine("StatESupportToMechRatio: " + (double.IsNaN(eSupportToMechRatio) ? "NaN" : eSupportToMechRatio.ToString(IOConstants.FORMATTER)));
@@ -1308,8 +1317,8 @@ namespace RAWSimO.Core
             //   move    = E1+E2+E3 (mechanical drive)
             //   turn    = E4       (mechanical rotation)
             //   lift    = E5       (mechanical lift/lower)
-            //   wait    = P_IDLE × WaitTimeSec  (routing-induced stop cost)
-            //   support = E_idle − wait          (background P_IDLE during motion & station service)
+            //   wait    = P_SUPPORT × WaitTimeSec  (routing-induced congestion cost)
+            //   support = E_support_total − wait  (P_SUPPORT during motion & station service, no standby)
             // denominator = move+turn+lift+wait+support = StatOverallEnergyTotalWithIdleJ
             double totMove = moveE_L + moveE_E;
             double totTurn = turnE_L + turnE_E;

@@ -708,7 +708,23 @@ namespace RAWSimO.Core
                     StatFlushOrdersPlaced();
             }
         }
-
+        /// <summary>
+        /// Notifies the instance that an order was placed.
+        /// </summary>
+        /// <param name="order">The order that was placed.</param>
+        internal void NotifyOrderDeleted(Order order)
+        {
+            // Only track if there really was an order generated
+            if (order != null)
+            {
+                // Keep track of overall orders placed
+                StatOverallOrdersPlaced--;
+                // Keep track of overall item count
+                StatOverallItemsOrdered -= order.Positions.Sum(p => p.Value);
+                // Generate requests for the order
+                ResourceManager.DeleteExtractRequests(order);
+            }
+        }
         #endregion
 
         #region RejectedBundle

@@ -82,13 +82,12 @@ namespace RAWSimO.Core.Control
             // Add extraction request
             Instance.ResourceManager.NewOrderAssignedToStation(order, station);
             // Mark orders allocated
-            Instance.Controller.OrderManager.SignalOrderAllocated(order, station);
+            //Instance.Controller.OrderManager.SignalOrderAllocated(order, station);
             // Notify item manager
-            Instance.ItemManager.NewOrderAssignedToStation(station, order);
+            //Instance.ItemManager.NewOrderAssignedToStation(station, order);
             // Remove order from item manager
             (Instance.ItemManager as ItemManager).TakeAvailableOrder(order);
         }
-
         /// <summary>
         /// Submits a new replenishment assignment decision to the allocator.
         /// </summary>
@@ -119,9 +118,26 @@ namespace RAWSimO.Core.Control
         public void Queue(Order order, OutputStation station)
         {
             station.QueueOrder(order);
-            Instance.ResourceManager.NewOrderQueuedToStation(order, station);
+            //Instance.ResourceManager.NewOrderQueuedToStation(order, station);
         }
-
+        /// <summary>
+        /// Clear all orders to the queue of a station. 
+        /// </summary>
+        /// <param name="station">The station to queue the order to.</param>
+        public void ClearQueue(OutputStation station)
+        {
+            station.ClserQueueOrder();
+        }
+        /// <summary>
+        /// Delete an order to the queue of a station. 
+        /// </summary>
+        /// <param name="order">The order to queue.</param>
+        /// <param name="station">The station to queue the order to.</param>
+        public void DeleteQueue(Order order, OutputStation station)
+        {
+            station.RemoveQueueOrder(order);
+            //Instance.ResourceManager.NewOrderQueuedToStation(order, station);
+        }
         /// <summary>
         /// Checks whether an assignment of the bundle to a pod was already done.
         /// </summary>

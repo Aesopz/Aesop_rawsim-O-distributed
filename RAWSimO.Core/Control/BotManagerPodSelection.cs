@@ -9,9 +9,10 @@ using RAWSimO.Toolbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static RAWSimO.Core.Management.ResourceManager;
 using System.Text;
-using System.Threading.Tasks;
-using static RAWSimO.Core.Control.RepositioningManager;
+using System.Threading;
+using static RAWSimO.Core.Control.OrderManager;
 
 namespace RAWSimO.Core.Control
 {
@@ -64,7 +65,7 @@ namespace RAWSimO.Core.Control
         /// <summary>
         /// Initializes some fields for pod selection.
         /// </summary>
-        private void InitPodSelection()
+        protected void InitPodSelection()
         {
             if (_availableCounts == null)
                 _availableCounts = new VolatileIDDictionary<ItemDescription, int>(Instance.ItemDescriptions.Select(i => new VolatileKeyValuePair<ItemDescription, int>(i, 0)).ToList());
@@ -173,6 +174,40 @@ namespace RAWSimO.Core.Control
                     }
                 }
             }
+            // Return the result
+            return requestsToHandle;
+        }
+        /// <summary>
+        /// Returns a list of relevant items for the given pod / output-station combination.
+        /// </summary>
+        /// <param name="pod">The pod in focus.</param>
+        /// <param name="station">The station in focus.</param>
+        /// <param name="filterForReservation">Indicates the mode for filtering the requests when deciding the actual reservations for a pod.</param>
+        /// <returns>A list of tuples of items to serve the respective extract-requests.</returns>
+        internal List<ExtractRequest> GetPossibleRequestsofMP(Pod pod, OutputStation station, PodSelectionExtractRequestFilteringMode filterForReservation)
+        {
+            // Match fitting items with requests
+            List<ExtractRequest> requestsToHandle = new List<ExtractRequest>();
+            // Get current content of the pod
+            Dictionary<Symbol, int> ziops = new Dictionary<Symbol, int>(Instance.ResourceManager._Ziops[station]);
+            int j = 0;
+            foreach (var oo in Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == pod.ID))
+            {
+                int i = 0;
+                foreach (var itemRequest in Instance.ResourceManager.GetExtractRequestsOfStation(station).Where(v => v.Order.ID == oo.Key.order.ID && v.Item.ID == oo.Key.skui.ID))
+                {
+                    requestsToHandle.Add(itemRequest);
+                    if (ziops[oo.Key] > 1)
+                        ziops[oo.Key]--;
+                    else
+                        ziops.Remove(oo.Key);
+                    i++;
+                    j++;
+                    if (oo.Value == i)
+                        break;
+                }
+            }
+            Instance.ResourceManager._Ziops[station] = ziops;
             // Return the result
             return requestsToHandle;
         }
@@ -981,7 +1016,6 @@ namespace RAWSimO.Core.Control
                             return true;
                         }
                     }
-
                     // Pod is not useful anymore - put it away
                     EnqueueParkPod(bot, bot.Pod, Instance.Controller.PodStorageManager.GetStorageLocation(bot.Pod));
                     return true;
@@ -994,7 +1028,7 @@ namespace RAWSimO.Core.Control
                 _bestPodIStationCandidateSelector.Recycle();
                 foreach (var pod in Instance.ResourceManager.UnusedPods
                     // Get best pod while ensuring that any work can be done with it
-                    .Where(p => AnyRelevantRequests(p, iStation)))
+                    .Where(p => AnyRelevantRequests(p, iStation) && !Instance.ResourceManager.BottoPod.ContainsValue(p)))
                 {
                     // Update current candidate to assess
                     _currentBot = bot;
@@ -1035,7 +1069,321 @@ namespace RAWSimO.Core.Control
             // Signal no task found
             return false;
         }
+        /// <summary>
+        /// Allocates an available extract task to the bot for the predefined output-station. If no task is available the search might be extended to neighbour-stations or a rest task is done.
+        /// </summary>
+        /// <param name="bot">The bot to allocate a task to.</param>
+        /// /// <returns>true if bot has a new extract task or is just parking the pod, false if it is doing a rest task.</returns>
+        protected bool DoExtractTaskForStation2(Bot bot)
+        {
 
+            // Try another task with the current pod if there is one
+            if (bot.Pod != null)
+            {
+                // 如果存在所携带的pod正好是刚分配的pod
+                foreach (var station in bot.Tier.OutputStations.Where(v=> Instance.ResourceManager._Ziops1[v].ContainsKey(bot.Pod)))
+                {
+                    if (Instance.ResourceManager._Ziops1[station][bot.Pod].Count() > 0)
+                    {
+                        // Get all fitting requests
+                        List<ExtractRequest> fittingRequests = Instance.ResourceManager._Ziops1[station][bot.Pod];
+                        Instance.ResourceManager._Ziops1[station].Remove(bot.Pod);
+                        Instance.LogVerbose("PC (extract): Recycling combination (" + fittingRequests.Count + " requests)");
+                        // Simply execute the next task with the pod
+                        EnqueueExtract(
+                            bot, // The bot itself
+                            station, // The current station
+                            bot.Pod, // Keep the pod
+                            fittingRequests); // The requests to serve
+                        return true;
+                    }
+                }
+                // Pod is not useful anymore - put it away   将pod送回存储区域
+                EnqueueParkPod(bot, bot.Pod, Instance.Controller.PodStorageManager.GetStorageLocation(bot.Pod));
+                return true;
+            }
+            else
+            {
+                Pod bestPod = null;
+                if (Instance.ResourceManager.BottoPod.ContainsKey(bot))
+                {
+                    bestPod = Instance.ResourceManager.BottoPod[bot];
+                    Instance.ResourceManager.BottoPod.Remove(bot);
+                }
+                // See whether there was any suitable pod
+                if (bestPod != null)
+                {
+                    foreach (var station in bot.Tier.OutputStations.Where(v=> Instance.ResourceManager._Ziops1[v].ContainsKey(bestPod)))
+                    {
+                        if (Instance.ResourceManager._Ziops1[station][bestPod].Count() > 0)
+                        {
+                            // Get all fitting requests
+                            List<ExtractRequest> fittingRequests = Instance.ResourceManager._Ziops1[station][bestPod];
+                            Instance.ResourceManager._Ziops1[station].Remove(bestPod);
+                            // Log
+                            Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
+                            // Simply execute the next task with the pod
+                            EnqueueExtract(
+                                bot, // The bot itself
+                                station, // The current station
+                                bestPod, // The new pod
+                                fittingRequests); // The requests to serve
+                                                  //if (Instance.ResourceManager._Ziops[oStation].Sum(v => v.Value.Count) != Instance.ResourceManager.GetExtractRequestsOfStation(oStation).Count())
+                                                  //    throw new InvalidOperationException("Could not any request from the selected pod!");
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // Signal no task found
+            return false;
+        }
+        /// <summary>
+        /// Allocates an available extract task to the bot for the predefined output-station. If no task is available the search might be extended to neighbour-stations or a rest task is done.
+        /// </summary>
+        /// <param name="bot">The bot to allocate a task to.</param>
+        /// <param name="oStation">The station to do work for.</param>
+        /// <param name="extendSearch">Indicates whether the search can be extended to neighbor stations.</param>
+        /// <param name="config">Pod selection config to use.</param>
+        /// /// <returns>true if bot has a new extract task or is just parking the pod, false if it is doing a rest task.</returns>
+        protected bool DoExtractTaskForStation1(Bot bot, OutputStation oStation, bool extendSearch, DefaultPodSelectionConfiguration config)
+        {
+            // Init
+            InitPodSelection();
+            // --> Prepare best candidate selectors
+            if (_bestOStationCandidateSelector == null)
+            {
+                _bestOStationCandidateSelector = new BestCandidateSelector(false,
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorer),
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorerTieBreaker1),
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorerTieBreaker2));
+            }
+            if (bot.Pod != null)
+            {
+                //分配queue中的order
+                //QueueOrder(oStation, bot, oStation.Capacity - oStation.CapacityInUse);
+                // 如果存在所携带的pod正好是刚分配的pod
+                if (Instance.ResourceManager._Ziops[oStation].Select(v => v.Key.pod.ID).Contains(bot.Pod.ID))
+                {
+                    // Get all fitting requests
+                    List <ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, oStation, config.FilterForReservation);
+                    // Log
+                    Instance.LogVerbose("PC (extract): Recycling combination (" + fittingRequests.Count + " requests)");
+                    // Simply execute the next task with the pod
+                    EnqueueExtract(
+                        bot, // The bot itself
+                        oStation, // The current station
+                        bot.Pod, // Keep the pod
+                        fittingRequests); // The requests to serve
+                    return true;
+                }
+                else
+                {
+                    // Look for work to do for nearby stations (if desired)
+                    if (extendSearch)
+                    {
+                        foreach (var station in bot.Tier.OutputStations.Where(s => s != oStation))
+                        {
+                            //分配queue中的order
+                            //QueueOrder(station, bot, station.Capacity - station.CapacityInUse);
+                            if (Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == bot.Pod.ID).Count() > 0 )
+                            {
+                                // Get all fitting requests
+                                List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, station, config.FilterForReservation);
+                                // Log
+                                Instance.LogVerbose("PC (extract): Recycling pod only (" + fittingRequests.Count + " requests)");
+                                // Simply execute the next task with the pod
+                                EnqueueExtract(
+                                    bot, // The bot itself
+                                    station, // The current station
+                                    bot.Pod, // Keep the pod
+                                    fittingRequests); // The requests to serve
+                                // Log score statistics
+                                if (_statOStationForPodScorerValues == null)
+                                    _statOStationForPodScorerValues = _bestOStationCandidateSelector.BestScores.ToArray();
+                                else
+                                    for (int i = 0; i < _bestOStationCandidateSelector.BestScores.Length; i++)
+                                        _statOStationForPodScorerValues[i] += _bestOStationCandidateSelector.BestScores[i];
+                                _statOStationForPodAssignments++;
+                                return true;
+                            }
+                        }
+                    }
+                    // Pod is not useful anymore - put it away   将pod送回存储区域
+                    EnqueueParkPod(bot, bot.Pod, Instance.Controller.PodStorageManager.GetStorageLocation(bot.Pod));
+                    return true;
+                }
+            }
+            else//需要分配pod给空的robot
+            {
+                Pod bestPod = null;
+                if (Instance.ResourceManager.BottoPod.ContainsKey(bot))
+                {
+                    bestPod = Instance.ResourceManager.BottoPod[bot];
+                    Instance.ResourceManager.BottoPod.Remove(bot);
+                }
+                // See whether there was any suitable pod
+                if (bestPod != null)
+                {
+                    if (Instance.ResourceManager._Ziops[oStation].Where(v => v.Key.pod.ID == bestPod.ID).Count() > 0)
+                    {
+                        // Get all fitting requests
+                        List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bestPod, oStation, config.FilterForReservation);
+                        // Log
+                        Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
+                        // Simply execute the next task with the pod
+                        EnqueueExtract(
+                            bot, // The bot itself
+                            oStation, // The current station
+                            bestPod, // The new pod
+                            fittingRequests); // The requests to serve
+                        return true;
+                    }
+                    else
+                    {
+                        foreach (var station in bot.Tier.OutputStations.Where(s => s != oStation))
+                        {
+                            if (Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == bestPod.ID).Count() > 0)
+                            {
+                                // Get all fitting requests
+                                List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bestPod, station, config.FilterForReservation);
+                                // Log
+                                Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
+                                // Simply execute the next task with the pod
+                                EnqueueExtract(
+                                    bot, // The bot itself
+                                    station, // The current station
+                                    bestPod, // The new pod
+                                    fittingRequests); // The requests to serve
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            // Signal no task found
+            return false;
+        }
+        /// <summary>
+        /// Allocates an available extract task to the bot for the predefined output-station. If no task is available the search might be extended to neighbour-stations or a rest task is done.
+        /// </summary>
+        /// <param name="bot">The bot to allocate a task to.</param>
+        /// <param name="oStation">The station to do work for.</param>
+        /// <param name="extendSearch">Indicates whether the search can be extended to neighbor stations.</param>
+        /// <param name="config">Pod selection config to use.</param>
+        /// /// <returns>true if bot has a new extract task or is just parking the pod, false if it is doing a rest task.</returns>
+        protected bool DoExtractTaskForStation3(Bot bot, OutputStation oStation, bool extendSearch, DefaultPodSelectionConfiguration config)
+        {
+            // Init
+            InitPodSelection();
+            // --> Prepare best candidate selectors
+            if (_bestOStationCandidateSelector == null)
+            {
+                _bestOStationCandidateSelector = new BestCandidateSelector(false,
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorer),
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorerTieBreaker1),
+                    GenerateScorerOStationForBotWithPod(config.OutputExtendedSearchScorerTieBreaker2));
+            }
+            if (_bestPodOStationCandidateSelector == null)
+            {
+                _bestPodOStationCandidateSelector = new BestCandidateSelector(false,
+                    GenerateScorerPodForOStationBot(config.OutputPodScorerTieBreaker1),
+                    GenerateScorerPodForOStationBot(config.OutputPodScorerTieBreaker2));
+            }
+
+            // Try another task with the current pod if there is one
+            if (bot.Pod != null)
+            {
+                // 如果存在所携带的pod正好是刚分配的pod
+                if (Instance.ResourceManager._Ziops[oStation].Select(v => v.Key.pod.ID).Contains(bot.Pod.ID))
+                {
+                    // Get all fitting requests
+                    List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, oStation, config.FilterForReservation);
+                    // Log
+                    Instance.LogVerbose("PC (extract): Recycling combination (" + fittingRequests.Count + " requests)");
+                    // Simply execute the next task with the pod
+                    EnqueueExtract(
+                        bot, // The bot itself
+                        oStation, // The current station
+                        bot.Pod, // Keep the pod
+                        fittingRequests); // The requests to serve
+                    return true;
+                }
+                else
+                {
+                    // Look for work to do for nearby stations (if desired)
+                    if (extendSearch)
+                    {
+                        foreach (var station in bot.Tier.OutputStations.Where(s => s != oStation))
+                        {
+                            if (Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == bot.Pod.ID).Count() > 0)
+                            {
+                                List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, station, config.FilterForReservation);
+                                // Log
+                                Instance.LogVerbose("PC (extract): Recycling pod only (" + fittingRequests.Count + " requests)");
+                                // Simply execute the next task with the pod
+                                EnqueueExtract(
+                                    bot, // The bot itself
+                                    station, // The current station
+                                    bot.Pod, // Keep the pod
+                                    fittingRequests); // The requests to serve
+                                // Log score statistics
+                                if (_statOStationForPodScorerValues == null)
+                                    _statOStationForPodScorerValues = _bestOStationCandidateSelector.BestScores.ToArray();
+                                else
+                                    for (int i = 0; i < _bestOStationCandidateSelector.BestScores.Length; i++)
+                                        _statOStationForPodScorerValues[i] += _bestOStationCandidateSelector.BestScores[i];
+                                _statOStationForPodAssignments++;
+                                return true;
+                            }
+                        }
+                    }
+                    // Pod is not useful anymore - put it away   将pod送回存储区域
+                    EnqueueParkPod(bot, bot.Pod, Instance.Controller.PodStorageManager.GetStorageLocation(bot.Pod));
+                    return true;
+                }
+            }
+            else
+            {
+                _bestPodOStationCandidateSelector.Recycle();
+                // Determine best pod
+                Pod bestPod = null;
+                //bestPod= Instance.ResourceManager._Ziops[oStation].Select(s => s.Key.pod).Distinct().Where(v => Instance.ResourceManager.UnusedPods.Contains(v)).OrderBy(v => Distances.CalculateShortestPathPodSafe
+                //(v.Waypoint, bot.CurrentWaypoint, Instance)).ThenBy(v => Distances.CalculateShortestPathPodSafe(v.Waypoint, oStation.Waypoint, Instance)).FirstOrDefault();
+                foreach (var pod in Instance.ResourceManager._Ziops[oStation].Select(v => v.Key.pod).Distinct().Where(v => Instance.ResourceManager.UnusedPods.Contains(v)))
+                {
+                    // Update current candidate to assess
+                    _currentBot = bot;
+                    _currentOStation = oStation;
+                    _currentPod = pod;
+                    // Check whether the current combination is better
+                    if (_bestPodOStationCandidateSelector.Reassess())
+                    {
+                        // Update best candidate
+                        bestPod = _currentPod;
+                    }
+                }
+                // See whether there was any suitable pod
+                if (bestPod != null)
+                {
+                    //Instance.ResourceManager._availablePodsPerStation[oStation].Remove(bestPod);
+                    // Get all fitting requests
+                    List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bestPod, oStation, config.FilterForReservation);
+                    // Log
+                    Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
+                    // Simply execute the next task with the pod
+                    EnqueueExtract(
+                        bot, // The bot itself
+                        oStation, // The current station
+                        bestPod, // The new pod
+                        fittingRequests); // The requests to serve
+                    return true;
+                }
+            }
+            // Signal no task found
+            return false;
+        }
         /// <summary>
         /// Allocates an available extract task to the bot for the predefined output-station. If no task is available the search might be extended to neighbour-stations or a rest task is done.
         /// </summary>
@@ -1130,7 +1478,6 @@ namespace RAWSimO.Core.Control
                             return true;
                         }
                     }
-
                     // Pod is not useful anymore - put it away
                     EnqueueParkPod(bot, bot.Pod, Instance.Controller.PodStorageManager.GetStorageLocation(bot.Pod));
                     return true;
@@ -1138,12 +1485,12 @@ namespace RAWSimO.Core.Control
             }
             else
             {
+                _bestPodOStationCandidateSelector.Recycle();
                 // Determine best pod
                 Pod bestPod = null;
-                _bestPodOStationCandidateSelector.Recycle();
                 foreach (var pod in Instance.ResourceManager.UnusedPods
-                    // Get best pod while ensuring that any work can be done with it
-                    .Where(p => AnyRelevantRequests(p, oStation, config.FilterForConsideration)))
+                     // Get best pod while ensuring that any work can be done with it
+                     .Where(p => AnyRelevantRequests(p, oStation, config.FilterForConsideration)))
                 {
                     // Update current candidate to assess
                     _currentBot = bot;
@@ -1182,11 +1529,9 @@ namespace RAWSimO.Core.Control
                     return true;
                 }
             }
-
             // Signal no task found
             return false;
         }
-
         #endregion
 
         #region On-the-fly work helpers
@@ -1276,15 +1621,35 @@ namespace RAWSimO.Core.Control
                     {
                         // Ensure that there is any work to do
                         if (b.CurrentTask is ExtractTask)
-                            return
-                                // Only check, if there is any on-the-fly extract work
-                                !_onTheFlyExtractSituationInvestigated &&
-                                // Only check bots that are already carrying a pod
-                                b.Pod != null &&
-                                // Only check constellations not previously checked
-                                _outputStationHasPotentialOnTheFlyWork[(b.CurrentTask as ExtractTask).OutputStation, b] &&
-                                // Only check bots that still have requests left in their extract task
+                        {
+                            ExtractTask extractTask = b.CurrentTask as ExtractTask;
+                            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+                            {
+                                                            return 
+                                !_onTheFlyExtractSituationInvestigated &&  b.Pod != null && 
+                                _outputStationHasPotentialOnTheFlyWork[(b.CurrentTask as ExtractTask).OutputStation, b]  && 
+                                (b.CurrentTask as ExtractTask).Requests.Any() && 
+                                (Instance.ResourceManager._Ziops[extractTask.OutputStation].Where(v=>v.Key.pod.ID==b.Pod.ID).Count() > 0);
+                                //|| (Instance.ResourceManager.
+                                //_QueueZiops[extractTask.OutputStation].Select(v => v.Key.pod.ID).Contains(b.Pod.ID) && extractTask.OutputStation.Capacity - extractTask.OutputStation.CapacityInUse > 0)
+                            }
+                            else if (Instance.ControllerConfig.OrderBatchingConfig is HADGSConfiguration)
+                            {
+                                                                return 
+                                !_onTheFlyExtractSituationInvestigated &&  b.Pod != null && 
+                                _outputStationHasPotentialOnTheFlyWork[(b.CurrentTask as ExtractTask).OutputStation, b]  && 
+                                (b.CurrentTask as ExtractTask).Requests.Any() && 
+                                Instance.ResourceManager._Ziops1[extractTask.OutputStation].ContainsKey(b.Pod) ;
+                            }
+                            else
+                            {
+                                                                return 
+                                !_onTheFlyExtractSituationInvestigated &&  b.Pod != null && 
+                                _outputStationHasPotentialOnTheFlyWork[(b.CurrentTask as ExtractTask).OutputStation, b]  && 
                                 (b.CurrentTask as ExtractTask).Requests.Any();
+                            }
+
+                        }
                         // Ensure that there is any work to do
                         else if (b.CurrentTask is InsertTask)
                             return
@@ -1319,17 +1684,25 @@ namespace RAWSimO.Core.Control
                             return Distances.CalculateManhattan(b, stationWP, Instance.WrongTierPenaltyDistance) + Instance.WrongTierPenaltyDistance;
                     }))
                 {
-                    // Add additional extract requests to the current task
-                    if (config.OnTheFlyExtract && bot.CurrentTask is ExtractTask)
+                    // Add additional extract requests to the current task 
+                    if (config.OnTheFlyExtract && bot.CurrentTask is ExtractTask) 
                     {
-                        // Fetch the task
                         ExtractTask extractTask = bot.CurrentTask as ExtractTask;
-                        // Match more items to orders of the station, if possible
-                        List<ExtractRequest> itemsToHandle = GetPossibleRequests(bot.Pod, extractTask.OutputStation, config.FilterForReservation);
-                        // Add new matches to current task
+                        List<ExtractRequest> itemsToHandle = new List<ExtractRequest>();
+                        if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+                        {
+                            //QueueOrder(extractTask.OutputStation, bot, extractTask.OutputStation.Capacity - extractTask.OutputStation.CapacityInUse);
+                            itemsToHandle = GetPossibleRequestsofMP(bot.Pod, extractTask.OutputStation, config.FilterForReservation);
+                        }
+                        else if (Instance.ControllerConfig.OrderBatchingConfig is HADGSConfiguration)
+                        {
+                            itemsToHandle = Instance.ResourceManager._Ziops1[extractTask.OutputStation][bot.Pod];
+                            Instance.ResourceManager._Ziops1[extractTask.OutputStation].Remove(bot.Pod);
+                        }
+                        else //if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration)
+                            itemsToHandle = GetPossibleRequests(bot.Pod, extractTask.OutputStation, config.FilterForReservation);
                         foreach (var item in itemsToHandle)
                             extractTask.AddRequest(item);
-                        // Mark situation investigated
                         _outputStationHasPotentialOnTheFlyWork[extractTask.OutputStation, bot] = false;
                     }
                     // Add additional insert requests to the current task

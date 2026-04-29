@@ -86,6 +86,13 @@ namespace RAWSimO.MultiAgentPathFinding.Elements
         public EnergyState CurrentEnergyState = new EnergyState();
 
         /// <summary>
+        /// Scalar protection score (PS) for VO-LWHCAn\*. 0 for non-VO-LWHCAn\* methods.
+        /// Populated by VoLwhcaStarPathManager from value, load, urgency, and aging components.
+        /// Higher PS means "this agent should be protected from yielding" in priority sort.
+        /// </summary>
+        public double ProtectionScore = 0.0;
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         public override string ToString()

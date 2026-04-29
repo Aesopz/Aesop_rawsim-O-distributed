@@ -253,10 +253,11 @@ namespace RAWSimO.Core
                 case PathPlanningMethodType.OD_ID:
                 case PathPlanningMethodType.CBS:
                 case PathPlanningMethodType.ECBS:
+                case PathPlanningMethodType.TBEM:
+                case PathPlanningMethodType.VoLwhcaStar:
                 case PathPlanningMethodType.PAS:
                 case PathPlanningMethodType.AgentAStar:
-                case PathPlanningMethodType.FixedRoutePriorityScheduler:
-bot = new BotNormal(id, this, radius, podTransferTime, maxAcceleration, maxDeceleration, maxVelocity, turnSpeed, collisionPenaltyTime, x, y);
+                    bot = new BotNormal(id, this, radius, podTransferTime, maxAcceleration, maxDeceleration, maxVelocity, turnSpeed, collisionPenaltyTime, x, y);
                     break;
                 default: throw new ArgumentException("Unknown path planning engine: " + ControllerConfig.PathPlanningConfig.GetMethodType());
             }

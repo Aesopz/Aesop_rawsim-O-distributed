@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static RAWSimO.Core.Control.RepositioningManager;
 
@@ -294,7 +295,6 @@ namespace RAWSimO.Core.Control
             {
                 // Measure time for fetching the task
                 DateTime before = DateTime.Now;
-
                 // No tasks available - get the next task
                 GetNextTask(bot);
 

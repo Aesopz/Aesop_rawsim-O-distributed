@@ -77,6 +77,28 @@ namespace RAWSimO.Toolbox
         }
 
         /// <summary>
+        /// EE 線上優化框架使用：與 Recycle() 同效，但保留 EE 程式中為 inner-loop 重置而設的 alias。
+        /// </summary>
+        public void Recycle2()
+        {
+            _assigned = false;
+            _max = false;
+            for (int i = 0; i < _scorers.Length; i++)
+            {
+                if (_max)
+                {
+                    _currentValue[i] = double.MinValue;
+                    _bestScores[i] = double.MinValue;
+                }
+                else
+                {
+                    _currentValue[i] = double.MaxValue;
+                    _bestScores[i] = double.MaxValue;
+                }
+            }
+        }
+
+        /// <summary>
         /// Reassess all scorers. It is assumed that the scoring functions outside this one ensure a valid assessment of the current context.
         /// </summary>
         /// <returns>Returns <code>true</code> if a new best was found, <code>false</code> otherwise.</returns>

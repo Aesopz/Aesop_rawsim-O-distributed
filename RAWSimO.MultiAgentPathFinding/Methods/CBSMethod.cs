@@ -203,6 +203,15 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
             foreach (var agent in agents)
             {
                 agent.Path = bestNode.getSolution(agent.ID);
+
+                // FIX: prevent FixedPosition→IsLocked cascade when no initial solution found.
+                if (agent.Path.Count == 0 &&
+                    unsolvableAgents != null &&
+                    unsolvableAgents.Any(a => a.ID == agent.ID))
+                {
+                    agent.Path.AddFirst(agent.NextNode, true, LengthOfAWaitStep);
+                }
+
                 if (_deadlockHandler.IsInDeadlock(agent, currentTime) && !DisableRandomHopMutation)
                     _deadlockHandler.RandomHop(agent);
             }

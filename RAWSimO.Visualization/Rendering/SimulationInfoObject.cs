@@ -1144,8 +1144,8 @@ namespace RAWSimO.Visualization.Rendering
                 if (_blockBotLoadedTurning != null) _blockBotLoadedTurning.Text = botNormal.StatLoadedTurningCount.ToString();
                 if (_blockBotWaitTime != null) _blockBotWaitTime.Text = botNormal.StatWaitTimeSec.ToString("F2", IOConstants.FORMATTER) + " s";
                 if (_blockBotESupport != null) _blockBotESupport.Text = (botNormal.StatESupportJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
-                if (_blockBotESupportLoaded != null) _blockBotESupportLoaded.Text = (botNormal.StatESupportLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
-                if (_blockBotESupportEmpty != null) _blockBotESupportEmpty.Text = (botNormal.StatESupportEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotESupportLoaded != null) _blockBotESupportLoaded.Text = (botNormal.StatEWaitLoadedJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
+                if (_blockBotESupportEmpty != null) _blockBotESupportEmpty.Text = (botNormal.StatEWaitEmptyJ / 1000.0).ToString("F4", IOConstants.FORMATTER) + " kJ";
                 if (_blockBotIdleTime != null) _blockBotIdleTime.Text = botNormal.StatTimeIdleSec.ToString("F2", IOConstants.FORMATTER) + " s";
                 if (_blockBotUtilization != null)
                 {
@@ -1447,21 +1447,21 @@ namespace RAWSimO.Visualization.Rendering
                 _blockBotWaitTime = new TextBlock { Text = "0.00 s", MinWidth = _infoPanelRightColumnWidth };
                 waitPanel.Children.Add(_blockBotWaitTime);
                 activityNode.Items.Add(waitPanel);
-                // E_support (P_IDLE × wait while task-assigned)
+                // E_support (background: P_SUPPORT × active-task time)
                 WrapPanel eSupportPanel = new WrapPanel { Orientation = Orientation.Horizontal };
                 eSupportPanel.Children.Add(new TextBlock { Text = "E_support: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
                 _blockBotESupport = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
                 eSupportPanel.Children.Add(_blockBotESupport);
                 activityNode.Items.Add(eSupportPanel);
-                // E_support loaded
+                // E_wait loaded (congestion-wait subset while carrying a pod)
                 WrapPanel eSupportLoadedPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                eSupportLoadedPanel.Children.Add(new TextBlock { Text = "E_sup Loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                eSupportLoadedPanel.Children.Add(new TextBlock { Text = "E_wait Loaded: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
                 _blockBotESupportLoaded = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
                 eSupportLoadedPanel.Children.Add(_blockBotESupportLoaded);
                 activityNode.Items.Add(eSupportLoadedPanel);
-                // E_support empty
+                // E_wait empty
                 WrapPanel eSupportEmptyPanel = new WrapPanel { Orientation = Orientation.Horizontal };
-                eSupportEmptyPanel.Children.Add(new TextBlock { Text = "E_sup Empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
+                eSupportEmptyPanel.Children.Add(new TextBlock { Text = "E_wait Empty: ", TextAlignment = TextAlignment.Right, MinWidth = _infoPanelLeftColumnWidth });
                 _blockBotESupportEmpty = new TextBlock { Text = "0.0000 kJ", MinWidth = _infoPanelRightColumnWidth };
                 eSupportEmptyPanel.Children.Add(_blockBotESupportEmpty);
                 activityNode.Items.Add(eSupportEmptyPanel);

@@ -1589,7 +1589,7 @@ namespace RAWSimO.Core.Statistics
             // Rates
             _entryValues[FootPrintEntry.BundleThroughputRate] = instance.StatOverallBundlesHandled / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
             _entryValues[FootPrintEntry.ItemThroughputRate] = instance.StatOverallItemsHandled / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
-            _entryValues[FootPrintEntry.ItemThroughputRateUB] = instance.OutputStations.Any() ? UpperBoundHelper.CalcUBItemThroughputRate(instance, instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Average(s => s.StatItemPileOn)) : 0;
+            _entryValues[FootPrintEntry.ItemThroughputRateUB] = instance.OutputStations.Any(s => s.StatNumItemsPicked > 0) ? UpperBoundHelper.CalcUBItemThroughputRate(instance, instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Average(s => s.StatItemPileOn)) : 0;
             _entryValues[FootPrintEntry.ItemThroughputRateScore] = (double)_entryValues[FootPrintEntry.ItemThroughputRate] / (double)_entryValues[FootPrintEntry.ItemThroughputRateUB];
             _entryValues[FootPrintEntry.LineThroughputRate] = instance.StatOverallLinesHandled / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
             _entryValues[FootPrintEntry.OrderThroughputRate] = instance.StatOverallOrdersHandled / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
@@ -1630,10 +1630,10 @@ namespace RAWSimO.Core.Statistics
             _entryValues[FootPrintEntry.LateOrdersRate] = instance._statOrderLatenessTimes.Count(l => l > 0) / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
             _entryValues[FootPrintEntry.OnTimeOrdersRate] = instance._statOrderLatenessTimes.Count(l => l <= 0) / TimeSpan.FromSeconds(instance.SettingConfig.SimulationDuration).TotalHours;
             // Item pile-on
-            _entryValues[FootPrintEntry.ItemPileOneAvg] = instance.OutputStations.Count == 0 ? 0 : instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Average(s => s.StatItemPileOn);
-            _entryValues[FootPrintEntry.ItemPileOneMed] = instance.OutputStations.Count == 0 ? 0 : StatisticsHelper.GetMedian(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
-            _entryValues[FootPrintEntry.ItemPileOneLQ] = instance.OutputStations.Count == 0 ? 0 : StatisticsHelper.GetLowerQuartile(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
-            _entryValues[FootPrintEntry.ItemPileOneUQ] = instance.OutputStations.Count == 0 ? 0 : StatisticsHelper.GetUpperQuartile(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
+            _entryValues[FootPrintEntry.ItemPileOneAvg] = !instance.OutputStations.Any(s => s.StatNumItemsPicked > 0) ? 0 : instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Average(s => s.StatItemPileOn);
+            _entryValues[FootPrintEntry.ItemPileOneMed] = !instance.OutputStations.Any(s => s.StatNumItemsPicked > 0) ? 0 : StatisticsHelper.GetMedian(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
+            _entryValues[FootPrintEntry.ItemPileOneLQ] = !instance.OutputStations.Any(s => s.StatNumItemsPicked > 0) ? 0 : StatisticsHelper.GetLowerQuartile(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
+            _entryValues[FootPrintEntry.ItemPileOneUQ] = !instance.OutputStations.Any(s => s.StatNumItemsPicked > 0) ? 0 : StatisticsHelper.GetUpperQuartile(instance.OutputStations.Where(s => s.StatNumItemsPicked > 0).Select(s => s.StatItemPileOn));
             // Injected item pile-on
             _entryValues[FootPrintEntry.InjectedItemPileOneAvg] = instance.OutputStations.Count == 0 ? 0 : instance.OutputStations.Average(s => s.StatInjectedItemPileOn);
             _entryValues[FootPrintEntry.InjectedItemPileOneMed] = instance.OutputStations.Count == 0 ? 0 : StatisticsHelper.GetMedian(instance.OutputStations.Select(s => s.StatInjectedItemPileOn));

@@ -76,6 +76,10 @@ namespace RAWSimO.Core
         /// </summary>
         public List<Bot> Bots = new List<Bot>();
         /// <summary>
+        ///已分配给分拣站的Bots
+        /// </summary>
+        public List<Bot> _outputstationbots = new List<Bot>();
+        /// <summary>
         /// All pods of this instance.
         /// </summary>
         public List<Pod> Pods = new List<Pod>();

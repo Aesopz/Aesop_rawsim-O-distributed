@@ -49,11 +49,26 @@ namespace RAWSimO.Core.Items
         /// The number of finished order lines.
         /// </summary>
         private int _servedPositions;
-
+        /// <summary>
+        /// The time this order is bore.
+        /// </summary>
+        public DateTime TimePlaced { get; set; }
         /// <summary>
         /// The time this order is placed.
         /// </summary>
         public double TimeStamp { get; set; }
+        /// <summary>
+        /// 离截止时间的时间
+        /// </summary>
+        public double Timestay { get; set; }
+        /// <summary>
+        /// 离截止时间的排序
+        /// </summary>
+        public double sequence { get; set; }
+        /// <summary>
+        /// Id of order.
+        /// </summary>
+        public int ID { get; set; }
         /// <summary>
         /// The time stamp this order was submitted to an output-station.
         /// </summary>
@@ -106,12 +121,42 @@ namespace RAWSimO.Core.Items
             _overallQuantity += count;
         }
         /// <summary>
+        /// Remove the request to pick the item to the order. This can be used by other components to see the particular requests' status.
+        /// </summary>
+        /// <param name="itemDescription">The SKU to add the request for.</param>
+        /// <param name="request">The particular request to pick the item.</param>
+        public void RemoveRequest(ItemDescription itemDescription, ExtractRequest request)
+        { _requests[itemDescription].Remove(request); }
+        /// <summary>
         /// Adds the request to pick the item to the order. This can be used by other components to see the particular requests' status.
         /// </summary>
         /// <param name="itemDescription">The SKU to add the request for.</param>
         /// <param name="request">The particular request to pick the item.</param>
         public void AddRequest(ItemDescription itemDescription, ExtractRequest request)
         { if (!_requests.ContainsKey(itemDescription)) _requests[itemDescription] = new HashSet<ExtractRequest>(); _requests[itemDescription].Add(request); }
+        /// <summary>
+        /// Adds the request to pick the item to the order. This can be used by other components to see the particular requests' status.
+        /// </summary>
+        /// <param name="itemDescription"></param>
+        /// <param name="numofitemDescription"></param>
+        /// <param name="listofrequest"></param>
+        public void SupplementRequest(ItemDescription itemDescription, int numofitemDescription, HashSet<ExtractRequest> listofrequest)
+        {
+            if (_requests.ContainsKey(itemDescription))
+            {
+                if (numofitemDescription == listofrequest.Count || _requests[itemDescription].Count > listofrequest.Count)
+                    _requests[itemDescription] = new HashSet<ExtractRequest>(listofrequest);
+                else if (numofitemDescription > listofrequest.Count && _requests[itemDescription].Count == listofrequest.Count)
+                {
+                    foreach (var request in listofrequest)
+                        _requests[itemDescription].Add(request);
+                }
+                else
+                    throw new InvalidOperationException("Could not any request from the old _requests!");
+            }
+            else
+                throw new InvalidOperationException("Could not any request from the old _requests!");
+        }
         /// <summary>
         /// Returns the number of units needed to fulfill the given position.
         /// </summary>

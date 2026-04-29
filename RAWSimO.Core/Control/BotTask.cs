@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RAWSimO.Core.Configurations;
 
 namespace RAWSimO.Core.Control
 {
@@ -206,7 +207,8 @@ namespace RAWSimO.Core.Control
             Instance.ResourceManager.RemoveExtractRequest(request);
             if (!ReservedPod.IsContained(request.Item))
                 throw new InvalidOperationException("Cannot add a request for an item that is not available!");
-            ReservedPod.RegisterItem(request.Item, request);
+            if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration)
+                ReservedPod.RegisterItem(request.Item, request);
             Requests.Add(request);
             request.StatInjected = true;
         }
@@ -215,13 +217,24 @@ namespace RAWSimO.Core.Control
         /// </summary>
         public override void Prepare()
         {
-            Instance.ResourceManager.ClaimPod(ReservedPod, Bot, BotTaskType.Extract);
+            //if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+            //{
+            //    OutputStation.RegisterInboundPod(ReservedPod);
+            //    //Instance.ResourceManager.ClaimPod(ReservedPod, Bot, BotTaskType.Extract);
+            //}
             OutputStation.RegisterInboundPod(ReservedPod);
+            if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration
+                || Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration)
+            {
+                Instance.ResourceManager.ClaimPod(ReservedPod, Bot, BotTaskType.Extract);
+            }
+            //Instance.ResourceManager.ClaimPod(ReservedPod, Bot, BotTaskType.Extract);
             OutputStation.RegisterExtractTask(this);
             for (int i = 0; i < Requests.Count; i++)
             {
                 Instance.ResourceManager.RemoveExtractRequest(Requests[i]);
-                ReservedPod.RegisterItem(Requests[i].Item, Requests[i]);
+                if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration)
+                    ReservedPod.RegisterItem(Requests[i].Item, Requests[i]);
             }
         }
         /// <summary>

@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace RAWSimO.Core.Management
 {
@@ -36,6 +36,9 @@ namespace RAWSimO.Core.Management
             foreach (var oStation in instance.OutputStations)
             {
                 _availableExtractRequestsPerStation[oStation] = new HashSet<ExtractRequest>();
+                _Ziops[oStation] = new Dictionary<Symbol, int>();
+                _QueueZiops[oStation] = new Dictionary<Symbol, int>();
+                _Ziops1[oStation] = new Dictionary<Pod, List<ExtractRequest>>();
                 _availableExtractRequestsPerStationQueue[oStation] = new HashSet<ExtractRequest>();
             }
             foreach (var iStation in instance.InputStations)
@@ -56,7 +59,7 @@ namespace RAWSimO.Core.Management
         /// <summary>
         /// All pods currently reserved by bots.
         /// </summary>
-        private Dictionary<Pod, Bot> _usedPods;
+        public Dictionary<Pod, Bot> _usedPods;
 
         /// <summary>
         /// All pods currently not used.
@@ -229,7 +232,7 @@ namespace RAWSimO.Core.Management
         /// </summary>
         /// <param name="waypoint">The resting location to check for availability.</param>
         /// <returns><code>true</code> if the location is unoccupied, <code>false</code> otherwise.</returns>
-        public bool IsRestingLocationAvailable(Waypoint waypoint) { return _unusedPodStorageLocations.Contains(waypoint) && !_forbiddenRestingLocations.Contains(waypoint); }
+        public bool IsRestingLocationAvailable(Waypoint waypoint) { return _unusedPodStorageLocations.Contains(waypoint); }
         /// <summary>
         /// Reserves the resting location.
         /// </summary>
@@ -346,7 +349,40 @@ namespace RAWSimO.Core.Management
         #endregion
 
         #region Extract request handling
-
+        /// <summary>
+        /// 所有的符号
+        /// </summary>
+        public class Symbol
+        {
+            /// <summary>
+            /// station
+            /// </summary>
+            public OutputStation outputstation { get; set; }
+            /// <summary>
+            /// sku
+            /// </summary>
+            public ItemDescription skui { get; set; }
+            /// <summary>
+            /// pod
+            /// </summary>
+            public Pod pod { get; set; }
+            /// <summary>
+            /// name
+            /// </summary>
+            public string name { get; set; }
+            /// <summary>
+            /// order
+            /// </summary>
+            public Order order { get; set; }
+            /// <summary>
+            /// robot
+            /// </summary>
+            public Bot robot { get; set; }
+            /// <summary>
+            /// robot
+            /// </summary>
+            public int podwaypointID { get; set; }
+        }
         /// <summary>
         /// All requests to extract an item.
         /// </summary>
@@ -355,6 +391,39 @@ namespace RAWSimO.Core.Management
         /// All available requests to extract an item per order they belong to.
         /// </summary>
         private Dictionary<Order, HashSet<ExtractRequest>> _availableExtractRequestsPerOrder = new Dictionary<Order, HashSet<ExtractRequest>>();
+        /// <summary>
+        ///已分配给工作站queue的Ziops
+        /// </summary>
+        public Dictionary<OutputStation, Dictionary<Symbol, int>> _QueueZiops = new Dictionary<OutputStation, Dictionary<Symbol, int>>();
+        /// <summary>
+        ///已分配给工作站的Ziops
+        /// </summary>
+        public Dictionary<OutputStation, Dictionary<Symbol, int>> _Ziops = new Dictionary<OutputStation, Dictionary<Symbol, int>>();
+        /// <summary>
+        ///新分配的bot对应的pod
+        /// </summary>
+        public Dictionary<Bot, Pod> BottoPod = new Dictionary<Bot, Pod>();
+        /// <summary>
+        ///已分配给工作站的Ziops1
+        /// </summary>
+        public Dictionary<OutputStation, Dictionary<Pod, List<ExtractRequest>>> _Ziops1 = new Dictionary<OutputStation, Dictionary<Pod, List<ExtractRequest>>>();
+        /// <summary>
+        /// 判断_Ziops中是否包含pod
+        /// </summary>
+        /// <param name="outputstation"></param>
+        /// <param name="pod"></param>
+        /// <returns></returns>
+        public bool IsAvailablePod(OutputStation outputstation ,Pod pod)
+        {
+            if (_Ziops[outputstation].Where(u => u.Key.pod.ID == pod.ID).Count() > 0)
+                return true;
+            else
+                return false;
+        }
+        ///// <summary>
+        /////已分配给工作站的Ziops的数量
+        ///// </summary>
+        //public Dictionary<OutputStation, int> NumofZiops = new Dictionary<OutputStation, int>();
         /// <summary>
         /// All requests to extract an item per output station they are allocated to.
         /// </summary>
@@ -386,6 +455,44 @@ namespace RAWSimO.Core.Management
             // Update demand tracking
             foreach (var pos in order.Positions)
                 _backlogDemand[pos.Key] += pos.Value;
+        }
+        /// <summary>
+        /// Creates requests for all placed orders.
+        /// </summary>
+        /// <param name="order">The order that was just placed.</param>
+        public void DeleteExtractRequests(Order order)
+        {
+            // Create requests for all lines and units of the order
+            foreach (var l in order.Positions)
+                for (int i = 0; i < l.Value; i++)
+                {
+                    ExtractRequest request = new ExtractRequest(l.Key, order, null);
+                    order.RemoveRequest(l.Key, request);
+                    _availableExtractRequests.Remove(request);
+                }
+            _availableExtractRequestsPerOrder.Remove(order);
+            // Update demand tracking
+            foreach (var pos in order.Positions)
+                _backlogDemand[pos.Key] -= pos.Value;
+        }
+        /// <summary>
+        /// supplement requests for all placed orders.
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="ziops"></param>
+        /// <param name="numberofziops"></param>
+        public void SupplementExtractRequests(Order order, Symbol ziops, int numberofziops)
+        {
+            // Create requests for all lines and units of the order
+            HashSet<ExtractRequest> listofrequest = new HashSet<ExtractRequest>();
+            var l = order.Positions.Where(v => v.Key == ziops.skui).First();
+            for (int i = 0; i < numberofziops; i++)
+            {
+                ExtractRequest request = new ExtractRequest(l.Key, order, ziops.pod, null);
+                listofrequest.Add(request);
+            }
+            order.SupplementRequest(l.Key, l.Value, listofrequest);
+            _availableExtractRequestsPerOrder[order] = new HashSet<ExtractRequest>(order.Requests);
         }
 
         /// <summary>
@@ -429,18 +536,19 @@ namespace RAWSimO.Core.Management
                 {
                     // Move request to available request list of station
                     _availableExtractRequestsPerStation[station].Add(request);
+                    //if(_availableExtractRequestsPerStationQueue[station].Count>0)
+                    //    Thread.Sleep(1);
                     _availableExtractRequestsPerStationQueue[station].Remove(request);
                     // Update demand
                     _queuedDemand[request.Item]--;
                     _assignedDemand[request.Item]++;
                 }
                 // Manage queue info
-                _stationQueuedPerExtractRequest.Remove(request);
+                //_stationQueuedPerExtractRequest.Remove(request);
             }
             station.StatCurrentlyOpenRequests = _availableExtractRequestsPerStation[station].Count;
-            station.StatCurrentlyOpenQueuedRequests = _availableExtractRequestsPerStationQueue[station].Count;
+            //station.StatCurrentlyOpenQueuedRequests = _availableExtractRequestsPerStationQueue[station].Count;
         }
-
         /// <summary>
         /// Removes the request to extract the item.
         /// </summary>
@@ -653,6 +761,14 @@ namespace RAWSimO.Core.Management
         /// <param name="order">The order.</param>
         /// <param name="station">The station.</param>
         public ExtractRequest(ItemDescription item, Order order, OutputStation station) { Item = item; Order = order; Station = station; State = RequestState.Unfinished; }
+        /// <summary>
+        /// Creates a new extraction request.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="order"></param>
+        /// <param name="pod"></param>
+        /// <param name="station"></param>
+        public ExtractRequest(ItemDescription item, Order order, Pod pod, OutputStation station) { Item = item; Order = order; Pod = pod;  Station = station; State = RequestState.Unfinished; }
         /// <summary>
         /// The state of the request.
         /// </summary>

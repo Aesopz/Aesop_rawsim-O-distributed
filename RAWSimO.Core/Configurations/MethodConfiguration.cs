@@ -85,6 +85,16 @@ namespace RAWSimO.Core.Configurations
         ECBS,
 
         /// <summary>
+        /// Time-Budgeted Energy Minimization (TBEM): pure E_mech within a (1+λ)·t_CBS deadline.
+        /// </summary>
+        TBEM,
+
+        /// <summary>
+        /// Value- and Load-aware WHCAn* (VO-LWHCAn*): Protection-score priority + delay-start yielding.
+        /// </summary>
+        VoLwhcaStar,
+
+        /// <summary>
         /// Erdmann - Parallel Multi-Agent Pathfinding
         /// </summary>
         PAS,
@@ -96,13 +106,6 @@ namespace RAWSimO.Core.Configurations
         /// No collision avoidance — conflict resolution delegated to higher-level controller.
         /// </summary>
         AgentAStar,
-
-        /// <summary>
-        /// Fixed-Route Priority Wait Scheduler.
-        /// Each bot computes a candidate A* path; a central scheduler resolves
-        /// pairwise conflicts by inserting wait actions into lower-priority bots.
-        /// </summary>
-        FixedRoutePriorityScheduler,
 
     }
     /// <summary>
@@ -134,6 +137,17 @@ namespace RAWSimO.Core.Configurations
         /// A new method that has no concept yet.
         /// </summary>
         Concept,
+        /// <summary>
+        /// Hungarian-batched variant of Balanced: same robot↔station binding,
+        /// but pod selection within each station is solved as a per-station LAP
+        /// to remove the bias of bot-id-ordered greedy scoring.
+        /// </summary>
+        Hungarian,
+        /// <summary>
+        /// Lookahead soft assignment with delayed commitment. Plans over idle and
+        /// soon-available robots, but only commits when a robot requests a task.
+        /// </summary>
+        LookaheadSoftAssignment,
     }
     /// <summary>
     /// All types of implemented station activation strategies.
@@ -300,6 +314,22 @@ namespace RAWSimO.Core.Configurations
         /// An approach exploiting information about the backlog to increase similarities of orders at the stations.
         /// </summary>
         Foresight,
+        /// <summary>
+        /// EE 線上優化（M-I-G）：一次性 MIP 同 tick 解 OA + PS + TA。需要 Gurobi。
+        /// </summary>
+        GM1,
+        /// <summary>
+        /// EE 線上優化（M-II-G）：兩階段 MIP，先 PS 再 TA。需要 Gurobi。
+        /// </summary>
+        GM2,
+        /// <summary>
+        /// EE 線上優化（HAS）：純啟發式變體，不需 solver。
+        /// </summary>
+        HAS,
+        /// <summary>
+        /// EE 線上優化（HADGS）：啟發式 + 局部 Gurobi MIP。EE 論文主推方法。
+        /// </summary>
+        HADGS,
     }
     /// <summary>
     /// All types of implemented replenishment batching strategies.
@@ -510,9 +540,10 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(BCPPathPlanningConfiguration))]
     [XmlInclude(typeof(CBSPathPlanningConfiguration))]
     [XmlInclude(typeof(ECBSPathPlanningConfiguration))]
+    [XmlInclude(typeof(TBEMPathPlanningConfiguration))]
+    [XmlInclude(typeof(VoLwhcaStarPathPlanningConfiguration))]
     [XmlInclude(typeof(PASPathPlanningConfiguration))]
     [XmlInclude(typeof(DecentralAStarPathPlanningConfiguration))]
-    [XmlInclude(typeof(FixedRoutePrioritySchedulerPathPlanningConfiguration))]
 [XmlInclude(typeof(PathPlanningConfiguration))]
     public abstract class PathPlanningConfiguration : ControllerConfigurationBase
     {
@@ -603,6 +634,8 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(SwarmTaskAllocationConfiguration))]
     [XmlInclude(typeof(ConstantRatioTaskAllocationConfiguration))]
     [XmlInclude(typeof(ConceptTaskAllocationConfiguration))]
+    [XmlInclude(typeof(HungarianTaskAllocationConfiguration))]
+    [XmlInclude(typeof(LookaheadSoftAssignmentTaskAllocationConfiguration))]
     public abstract class TaskAllocationConfiguration : ControllerConfigurationBase
     {
         /// <summary>
@@ -722,6 +755,10 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(PodMatchingOrderBatchingConfiguration))]
     [XmlInclude(typeof(LinesInCommonOrderBatchingConfiguration))]
     [XmlInclude(typeof(QueueOrderBatchingConfiguration))]
+    [XmlInclude(typeof(M1GConfiguration))]
+    [XmlInclude(typeof(M2GConfiguration))]
+    [XmlInclude(typeof(HASConfiguration))]
+    [XmlInclude(typeof(HADGSConfiguration))]
     public abstract class OrderBatchingConfiguration : ControllerConfigurationBase
     {
         /// <summary>

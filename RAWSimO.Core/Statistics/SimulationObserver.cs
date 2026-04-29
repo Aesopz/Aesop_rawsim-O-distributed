@@ -710,6 +710,12 @@ namespace RAWSimO.Core.Statistics
         /// <param name="time">The time it took to determine the output-station for the order.</param>
         public void TimeOrderBatching(double time) { _timingOrderBatchingOverall += time; _timingOrderBatchingCount++; _timingDecisionsOverall += time; }
 
+        /// <summary>EE 線上優化使用：M1G/M2G/HADGS 的 MIP 求解時間統計（合併進 OrderBatching 總時間）。</summary>
+        public void TimeOrderBatchingbyMP(double time) { _timingOrderBatchingOverall += time; _timingDecisionsOverall += time; }
+
+        /// <summary>EE 線上優化使用：M1G 的 Ziops 後處理時間統計（合併進 OrderBatching 總時間）。</summary>
+        public void TimeOrderBatchingbyziops(double time) { _timingOrderBatchingOverall += time; }
+
         #endregion
 
         #region IUpdateable Members

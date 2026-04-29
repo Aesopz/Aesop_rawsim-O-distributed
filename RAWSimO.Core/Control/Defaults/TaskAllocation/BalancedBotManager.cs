@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RAWSimO.SolverWrappers.GenerateOrderandPod;
 
 namespace RAWSimO.Core.Control.Defaults.TaskAllocation
 {
@@ -34,7 +35,9 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                 .Take((int)Math.Ceiling((_config.WeightInputStations + _config.WeightOutputStations) / (_config.WeightInputStations + _config.WeightOutputStations + _config.WeightRepositioning) * instance.Bots.Count))
                 .ToList();
             // Use all remaining bots for repositioning
-            _repositioningBots = instance.Bots.Except(_bots).ToHashSet();
+            //_repositioningBots = instance.Bots.Except(_bots).ToHashSet(); 
+            foreach (var bot in instance.Bots.Except(_bots))
+                _repositioningBots.Add(bot);
             // Keep expended search radius within limits, if same tier is preferred
             if (_config.ExtendedSearchRadius > instance.WrongTierPenaltyDistance && _config.PreferSameTier)
                 _config.ExtendedSearchRadius = instance.WrongTierPenaltyDistance;
@@ -56,7 +59,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
         /// <summary>
         /// The configuration.
         /// </summary>
-        private BalancedTaskAllocationConfiguration _config;
+        protected BalancedTaskAllocationConfiguration _config;
         /// <summary>
         /// All stations.
         /// </summary>
@@ -76,7 +79,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
         /// <summary>
         /// The stations the bots are assigned to.
         /// </summary>
-        private Dictionary<Bot, Circle> _botStations = new Dictionary<Bot, Circle>();
+        protected Dictionary<Bot, Circle> _botStations = new Dictionary<Bot, Circle>();
         /// <summary>
         /// The bots per station.
         /// </summary>
@@ -84,15 +87,15 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
         /// <summary>
         /// The number of bots working for the respective station at the current moment (including bots not assigned but extending to that station).
         /// </summary>
-        private Dictionary<Circle, int> _stationWorkerCount = new Dictionary<Circle, int>();
+        protected Dictionary<Circle, int> _stationWorkerCount = new Dictionary<Circle, int>();
         /// <summary>
         /// The stations the bots are currently working for (respects the real work - not only the assignment).
         /// </summary>
-        private Dictionary<Bot, Circle> _workerStations = new Dictionary<Bot, Circle>();
+        protected Dictionary<Bot, Circle> _workerStations = new Dictionary<Bot, Circle>();
         /// <summary>
         /// Bots currently assigned to do repositioning jobs exclusively.
         /// </summary>
-        private HashSet<Bot> _repositioningBots;
+        protected HashSet<Bot> _repositioningBots = new HashSet<Bot>();
         /// <summary>
         /// All currently unemployed bots
         /// </summary>
@@ -143,6 +146,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                 {
                     _stationBots[station].Clear();
                 }
+                Instance._outputstationbots.Clear();
                 return;
             }
             // Divide input and output station bots
@@ -200,7 +204,16 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
             // Keep on reassigning until all stations meet their goal
             List<Tuple<Bot, Circle, Circle>> reassignments = null;
             Dictionary<Circle, int> previousAssignment = null;
-            while (_stations.Any(s => stationBotGoals[s] != _stationBots[s].Count))
+            bool bb = true;
+            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+            { if (_unassignedBots.Count > 0)
+                    bb = true;
+                else
+                    bb = false;
+            }
+            else
+                bb = true;
+            while (_stations.Any(s => stationBotGoals[s] != _stationBots[s].Count) && bb) //&& _unassignedBots.Count > 0
             {
                 // Remember current assignment counts
                 if (previousAssignment == null)
@@ -238,6 +251,45 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                 _botStations[bestBot] = receivingStation;
                 _stationBots[receivingStation].Add(bestBot);
             }
+            Instance._outputstationbots.Clear();
+            Dictionary<Bot, Circle> _botStations1 = new Dictionary<Bot, Circle>();
+            foreach (var bot1 in _botStations.Where(v=>v.Value is OutputStation))
+                Instance._outputstationbots.Add(bot1.Key);
+            foreach (var bot1 in _botStations.Where(v => v.Value is InputStation && Instance.ResourceManager != null && Instance.ResourceManager.BottoPod.ContainsKey(v.Key)))
+            {
+                Instance._outputstationbots.Add(bot1.Key);
+                _stationBots[bot1.Value].Remove(bot1.Key);
+                if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration)
+                {
+                    bool ifbreak = false;
+                    foreach (var symblelist in Instance.ResourceManager._Ziops.Values)
+                    {
+                        foreach (var symble in symblelist.Keys.Where(v => v.pod == Instance.ResourceManager.BottoPod[bot1.Key]))
+                        {
+                            _botStations1[bot1.Key] = symble.outputstation;
+                            _stationBots[symble.outputstation].Add(bot1.Key);
+                            ifbreak = true;
+                            break;
+                        }
+                        if (ifbreak)
+                            break;
+                    }
+                }
+                else
+                {
+                    foreach (var symblelist in Instance.ResourceManager._Ziops1.Where(v=>v.Value.Count>0))
+                    {
+                        if (symblelist.Value.ContainsKey(Instance.ResourceManager.BottoPod[bot1.Key]))
+                        {
+                            _botStations1[bot1.Key] = symblelist.Key;
+                            _stationBots[symblelist.Key].Add(bot1.Key);
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach(var botStations in _botStations1)
+                _botStations[botStations.Key] = botStations.Value;
             // Log reassignments
             if (reassignments != null)
             {
@@ -302,11 +354,34 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                     if (station is OutputStation)
                     {
                         // Try to do an extraction task
-                        success = DoExtractTaskForStation(bot, station as OutputStation,
+                        if (Instance.ControllerConfig.OrderBatchingConfig is PodMatchingOrderBatchingConfiguration)  //判断是否使用顺序求解
+                        {
+                            success = DoExtractTaskForStation(bot, station as OutputStation,
                             // Extended search options
                             _config.ExtendSearch, _config.ExtendedSearchRadius,
                             // Pod selection rules
                             _config.PodSelectionConfig);
+                        }
+                        else if(Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration)//使用Gurobi
+                        {
+                            success = DoExtractTaskForStation1(bot, station as OutputStation,
+                             // Extended search options
+                             _config.ExtendSearch,
+                            // Pod selection rules
+                            _config.PodSelectionConfig);
+                        }
+                        else if (Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)//使用Gurobi
+                        {
+                            success = DoExtractTaskForStation3(bot, station as OutputStation,
+                            // Extended search options
+                            _config.ExtendSearch,
+                            // Pod selection rules
+                            _config.PodSelectionConfig);
+                        }
+                        else//使用HAS或者HADGS
+                        {
+                            success = DoExtractTaskForStation2(bot);
+                        }
                         if (success)
                         {
                             // Keep track of who is working for whom

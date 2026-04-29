@@ -44,11 +44,12 @@ namespace RAWSimO.Core.Metrics
         public static double POD_FRAME_MASS = 50.0;
 
         /// <summary>
-        /// Idle (base electronics) power draw [W].
-        /// Must match EnergyModel.P_IDLE in MultiAgentPathFinding so that
-        /// statistics-side idle energy aligns with planner-side cost.
+        /// Fixed support power draw [W] — background electronics drain while a task is active.
+        /// Zero when bot has no task assigned (standby = powered down for accounting).
+        /// Must match EnergyModel.P_SUPPORT in MultiAgentPathFinding so that
+        /// statistics-side support energy aligns with planner-side cost.
         /// </summary>
-        public const double P_IDLE = 90;
+        public const double P_SUPPORT = 90;
 
         #endregion
 

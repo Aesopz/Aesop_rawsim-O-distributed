@@ -201,6 +201,50 @@ namespace RAWSimO.Core.Configurations
 
         }
     }
+
+    /// <summary>
+    /// Configuration for VO-LWHCAn\* (Value- and Load-aware WHCAn*).
+    /// Inherits WHCAn\*-shaped params plus protection-score weights and yielding knobs.
+    /// </summary>
+    public class VoLwhcaStarPathPlanningConfiguration : PathPlanningConfiguration
+    {
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.VoLwhcaStar; }
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "ppVOLWHCAN";
+        }
+
+        // WHCAn-shaped
+        public double LengthOfAWindow = 15.0;
+        public bool UseBias = false;
+        public bool UseDeadlockHandler = true;
+
+        // VO-LWHCAn\* yielding
+        public double DelayStartCoef = 2.0;
+        public double HighPsBufferSec = 2.0;
+        public double HighPsProtectRatio = 0.3;
+
+        // D-VO-LWHCAn* rescue parameters
+        public double DistanceBucketSize = 5.0;
+        public double FailFallbackHorizonSec = 15.0;
+
+        // Protection Score weights (sum normalized implicitly via w_A = 0.05 aging)
+        public double W_L = 0.25;
+        public double W_S = 0.25;
+        public double W_V = 0.20;
+        public double W_U = 0.15;
+        public double W_C = 0.10;
+        public double W_A = 0.05;
+
+        public override void Parse(string[] args)
+        {
+            base.Parse(args);
+            LengthOfAWindow = double.Parse(args[2], new CultureInfo("en"));
+            UseBias = bool.Parse(args[3]);
+        }
+    }
+
     /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
@@ -355,6 +399,42 @@ namespace RAWSimO.Core.Configurations
             SearchMethod = (ECBSMethod.ECBSSearchMethod)Enum.Parse(typeof(ECBSMethod.ECBSSearchMethod), (args[2]));
         }
     }
+
+    /// <summary>
+    /// Configuration for TBEM (Time-Budgeted Energy Minimization).
+    /// Mirrors ECBS config but adds TimeBudgetSlack (λ).
+    /// </summary>
+    public class TBEMPathPlanningConfiguration : PathPlanningConfiguration
+    {
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.TBEM; }
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "ppTBEM";
+        }
+
+        /// <summary>Search ordering strategy for the TBEM high-level CBS.</summary>
+        public TBEMMethod.TBEMSearchMethod SearchMethod = TBEMMethod.TBEMSearchMethod.BestFirst;
+
+        /// <summary>
+        /// Time-budget slack λ. Paths with arrival time ≤ (1+λ)·t_CBS are accepted,
+        /// where t_CBS comes from RRA* (time-optimal assuming no other agents).
+        /// In congested multi-agent scenarios real execution time is often 2-3× t_CBS
+        /// due to waits, so λ=1.0 (default, 100% slack = 2× budget) is the practical floor.
+        /// λ=0 → reduces to CBS-time (but triggers unsolvable fallback in congestion);
+        /// λ=10 → almost free ECBS-like wait but bounded.
+        /// </summary>
+        public double TimeBudgetSlack = 1.0;
+
+        public override void Parse(string[] args)
+        {
+            base.Parse(args);
+            SearchMethod = (TBEMMethod.TBEMSearchMethod)Enum.Parse(typeof(TBEMMethod.TBEMSearchMethod), (args[2]));
+            if (args.Length > 3)
+                TimeBudgetSlack = double.Parse(args[3]);
+        }
+    }
+
     /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
@@ -630,46 +710,6 @@ namespace RAWSimO.Core.Configurations
             errorMessage = "";
             return true;
         }
-    }
-
-    /// <summary>
-    /// Configuration for the Fixed-Route Priority Wait Scheduler (FRPWS) path planner.
-    /// Each bot independently computes an A* candidate path; a central scheduler
-    /// resolves all pairwise conflicts by inserting wait actions into lower-priority bots.
-    /// </summary>
-    public class FixedRoutePrioritySchedulerPathPlanningConfiguration : PathPlanningConfiguration
-    {
-        /// <summary>Returns the method type enum value.</summary>
-        public override PathPlanningMethodType GetMethodType() => PathPlanningMethodType.FixedRoutePriorityScheduler;
-
-        /// <summary>Returns the method name for statistics output.</summary>
-        public override string GetMethodName() => string.IsNullOrWhiteSpace(Name) ? "ppFRPWS" : Name;
-
-        /// <summary>
-        /// If true, idle (resting) bots are treated as blocked nodes during A* path computation.
-        /// </summary>
-        public bool TreatIdleBotsAsObstacles = true;
-
-        /// <summary>
-        /// If true, zone classification (intersection / corridor) is inferred automatically from waypoint degree.
-        /// </summary>
-        public bool AutoInferResourceZones = true;
-
-        /// <summary>
-        /// If true, bots request a schedule rebuild when they arrive at a new waypoint.
-        /// </summary>
-        public bool RecomputeOnWaypointArrival = true;
-
-        /// <summary>
-        /// Maximum number of conflict-resolution iterations per schedule rebuild.
-        /// </summary>
-        public int MaxConflictResolutionIterations = 10000;
-
-        /// <summary>
-        /// Maximum total wait time (in simulation seconds) that can be added to a single bot's schedule.
-        /// Bots exceeding this budget are marked infeasible for this cycle.
-        /// </summary>
-        public double MaxAdditionalWaitPerBot = 300.0;
     }
 
     #endregion
