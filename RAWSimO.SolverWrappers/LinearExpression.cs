@@ -41,6 +41,18 @@ namespace RAWSimO.SolverWrappers
             return new LinearExpression() { Solver = solver, Expression = expr };
         }
 
+        public static LinearExpression Sum(IEnumerable<LinearExpression> expressions, LinearModel defaultSolver)
+        {
+            LinearExpression[] expressionArray = expressions.ToArray();
+            if (expressionArray.Length == 0)
+                return new LinearExpression() { Solver = defaultSolver, Expression = new GRBLinExpr() };
+            LinearModel solver = expressionArray.First().Solver;
+            GRBLinExpr expr = new GRBLinExpr();
+            foreach (var exp in expressionArray)
+                expr += exp.Expression;
+            return new LinearExpression() { Solver = solver, Expression = expr };
+        }
+
         public static LinearExpression operator +(LinearExpression exp1, LinearExpression exp2)
         {
             return new LinearExpression() { Solver = exp1.Solver, Expression = exp1.Expression + exp2.Expression };

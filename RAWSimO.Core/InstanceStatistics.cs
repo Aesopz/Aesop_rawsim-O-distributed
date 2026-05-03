@@ -1109,6 +1109,13 @@ namespace RAWSimO.Core
             sb.AppendLine("StatMedianThroughputTime: " + ((_statOrderThroughputTimes.Count == 0) ? "0" : StatisticsHelper.GetMedian(_statOrderThroughputTimes).ToString(IOConstants.FORMATTER)));
             sb.AppendLine("StatLowerQuartileThroughputTime: " + ((_statOrderThroughputTimes.Count == 0) ? "0" : StatisticsHelper.GetLowerQuartile(_statOrderThroughputTimes).ToString(IOConstants.FORMATTER)));
             sb.AppendLine("StatUpperQuartileThroughputTime: " + ((_statOrderThroughputTimes.Count == 0) ? "0" : StatisticsHelper.GetUpperQuartile(_statOrderThroughputTimes).ToString(IOConstants.FORMATTER)));
+            // KPI Summary (5 core metrics)
+            sb.AppendLine(">>> KPI Summary");
+            sb.AppendLine("KPI_TP: " + StatThroughputOrdersPerHour.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("KPI_PO: " + StatSystemOrderPileOn.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("KPI_RD: " + StatOverallDistanceTraveled.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("KPI_OD: " + (StatOverallOrdersHandled > 0 ? (StatOverallDistanceTraveled / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            sb.AppendLine("KPI_EOR: " + (StatOverallOrdersHandled > 0 ? (StatOverallEnergyTotalJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
             // Energy statistics (Rizqi model)
             sb.AppendLine(">>> Energy (Rizqi model)");
             sb.AppendLine("StatEnergyTotalKJ: " + (StatOverallEnergyTotalJ / 1000.0).ToString(IOConstants.FORMATTER));

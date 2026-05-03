@@ -89,6 +89,10 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// 决策变量的命名
         /// </summary>
         private Dictionary<int, List<Symbol>> _IsvariableNames = new Dictionary<int, List<Symbol>>();
+        private int _dbgCallCount = 0;
+        private int _dbgOrphanPodSkip = 0;
+        private int _dbgNoSolution = 0;
+        private int _dbgShi7Skip = 0;
         /// <summary>
         /// Checks whether an item matching the description is contained in this pod. 
         /// </summary>
@@ -373,24 +377,36 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             {
                 foreach (Pod pod in pods.Value)
                 {
-                    allPods.Add(pod);
+                    if (PodToBot.ContainsKey(pod)) continue; // 同一 pod 已處理過（出現於多個 station）
                     if (Instance.ResourceManager._usedPods.ContainsKey(pod))
                     {
+                        allPods.Add(pod);
                         Rb.Add(Instance.ResourceManager._usedPods[pod]);
                         R.Add(Instance.ResourceManager._usedPods[pod]);
-                        PodToBot.Add(pod, Instance.ResourceManager._usedPods[pod]);
+                        PodToBot[pod] = Instance.ResourceManager._usedPods[pod];
+                        Pb.Add(pod);
                     }
-                    else //if(Instance.ResourceManager.BottoPod.ContainsValue(pod))
+                    else if (Instance.ResourceManager.BottoPod.ContainsValue(pod))
                     {
-                        Rb.Add(Instance.ResourceManager.BottoPod.Where(V => V.Value.ID == pod.ID).First().Key);
-                        R.Add(Instance.ResourceManager.BottoPod.Where(V => V.Value.ID == pod.ID).First().Key);
-                        PodToBot.Add(pod, Instance.ResourceManager.BottoPod.Where(V => V.Value.ID == pod.ID).First().Key);
+                        var bot = Instance.ResourceManager.BottoPod.Where(V => V.Value.ID == pod.ID).First().Key;
+                        allPods.Add(pod);
+                        Rb.Add(bot);
+                        R.Add(bot);
+                        PodToBot[pod] = bot;
+                        Pb.Add(pod);
                     }
-                    Pb.Add(pod);
+                    else
+                    {
+                        _dbgOrphanPodSkip++; // pod-bot 連接尚未建立（快照不一致），跳過此 pod
+                    }
                 }
             }
-            foreach (var pod in Instance.ResourceManager.UnusedPods.Where(v => v.IsAvailabletoOiSKU(ItemofOiSKU) && !Instance.ResourceManager.BottoPod.ContainsValue(v)
-            && !Instance.ResourceManager._usedPods.ContainsKey(v)))//第二部分是在存储区域的pod
+            foreach (var pod in Instance.ResourceManager.UnusedPods.Where(v =>
+                v.IsAvailabletoOiSKU(ItemofOiSKU) &&
+                !Instance.ResourceManager.BottoPod.ContainsValue(v) &&
+                !Instance.ResourceManager._usedPods.ContainsKey(v) &&
+                v.Waypoint != null &&                   // 必須在儲位（非搬運中）
+                v.Waypoint.PodStorageLocation))         // waypoint 必須是 pod 儲位，排除 output/input station waypoint
             {
                 allPods.Add(pod);
                 Pa1.Add(pod);
@@ -485,12 +501,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             VariableCollection<string> variablesInteger2 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 5, (string s) => { return s; });
             VariableCollection<string> variablesInteger3 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 6, (string s) => { return s; });
             if (Ra.Count() > 0)
-                wrapper.SetObjective((LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.podwaypointID]))
-                    + LinearExpression.Sum(deVarNameyrp.Where(u => Ra.Contains(u.robot) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] *
-                    Distances.CalculateManhattan1(v.robot.CurrentWaypoint, v.pod.Waypoint)))) * w1 + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
+                wrapper.SetObjective((LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null && DistanceSet.ContainsKey(u.outputstation.Waypoint.ID) && DistanceSet[u.outputstation.Waypoint.ID].ContainsKey(u.pod.Waypoint.ID)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.pod.Waypoint.ID]), wrapper)
+                    + LinearExpression.Sum(deVarNameyrp.Where(u => Ra.Contains(u.robot) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null).Select(v => variablesBinary[v.name] *
+                    Distances.CalculateManhattan1(v.robot.CurrentWaypoint, v.pod.Waypoint)), wrapper)) * w1 + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
                     + LinearExpression.Sum(deVarNameus.Select(v => variablesInteger3[v.name])) * w3, OptimizationSense.Minimize);
             else
-                wrapper.SetObjective(LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.podwaypointID])) * w1
+                wrapper.SetObjective(LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null && DistanceSet.ContainsKey(u.outputstation.Waypoint.ID) && DistanceSet[u.outputstation.Waypoint.ID].ContainsKey(u.pod.Waypoint.ID)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.pod.Waypoint.ID]), wrapper) * w1
                     + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
                     + LinearExpression.Sum(deVarNameus.Select(v => variablesInteger3[v.name])) * w3, OptimizationSense.Minimize);
             foreach (var order in pendingOrders)//每个订单最多只能分配给一个工作站
@@ -518,6 +534,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             {
                 foreach (var pod in station.Value)
                 {
+                    if (!Pb.Contains(pod)) { _dbgShi7Skip++; continue; } // pod-bot 連接未建立，已排除出模型
                     wrapper.AddConstr(variablesBinary["xps" + "_" + pod.ID.ToString() + "_" + station.Key.ID.ToString()] == 1, "shi7");//继承系统中已经分配而未释放的货架
                     wrapper.AddConstr(variablesBinary["yrp" + "_" + PodToBot[pod].ID.ToString() + "_" + pod.ID.ToString()] == 1, "shi11");//继承系统中已经分配的机器人
                 }
@@ -759,10 +776,11 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             //    Thread.Sleep(1);
             // 对相关参数进行初始化（更新）
             HashSet<Pod> allPods = Initialize(out PiSKU, out OiSKU, out variableNames, out Cs, out pendingOrders, out inboundPods, out Ra, out Rb, out R, out Pb, out Pa, out PodToBot);
-            if (R.Count() > 0) //运用Gurobi求解
+            if (R.Count() > 0 && pendingOrders.Count > 0) //运用Gurobi求解
             {
                 Dictionary<Symbol, int> NewZiops = solve(SolverType.Gurobi, PiSKU, OiSKU, allPods, Cs, variableNames, pendingOrders, inboundPods, Ra, Rb, R, Pb, Pa, PodToBot);
-                if (_IsvariableNames[1].Count() > 0)
+                if (!_IsvariableNames.ContainsKey(1)) _dbgNoSolution++;
+                if (_IsvariableNames.ContainsKey(1) && _IsvariableNames[1].Count() > 0)
                 {
                     // 将相应的order分配给station
                     //List<Symbol> IsdeVarNamexps = _IsvariableNames[0];
@@ -784,6 +802,9 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 }
                 Instance.Observer.TimeOrderBatchingbyMP((DateTime.Now - A).TotalSeconds);
             }
+            _dbgCallCount++;
+            if (_dbgCallCount % 50 == 0)
+                Instance.SettingConfig.LogAction($"[M1G-DBG] calls={_dbgCallCount} orphanSkip={_dbgOrphanPodSkip} noSolution={_dbgNoSolution} shi7Skip={_dbgShi7Skip}");
             //else
             //    Instance.Observer.TimeOrderBatchingbyMP((DateTime.Now - A).TotalSeconds);
         }
