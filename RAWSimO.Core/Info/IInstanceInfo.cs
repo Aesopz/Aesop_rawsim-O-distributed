@@ -96,5 +96,17 @@ namespace RAWSimO.Core.Info
         /// </summary>
         /// <returns>The name of the instance.</returns>
         string GetInfoName();
+        /// <summary>
+        /// Returns the throughput in orders per hour.
+        /// </summary>
+        double GetInfoStatThroughput();
+        /// <summary>
+        /// Returns the average distance traveled per order (m/order).
+        /// </summary>
+        double GetInfoStatOrderDistance();
+        /// <summary>
+        /// Returns the order pile-on (orders per output station arrival).
+        /// </summary>
+        double GetInfoStatOrderPileOn();
     }
 }

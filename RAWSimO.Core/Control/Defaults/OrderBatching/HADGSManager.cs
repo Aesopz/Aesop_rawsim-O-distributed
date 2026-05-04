@@ -127,7 +127,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// <param name="station">The station to check.</param>
         /// <returns><code>true</code> if there is another open slot and another one reserved for fast-lane, <code>false</code> otherwise.</returns>
         private bool IsAssignableKeepFastLaneSlot(OutputStation station)
-        { return station.Active && station.CapacityReserved + station.CapacityInUse < station.Capacity; }
+        { return station.Active && station.CapacityReserved + station.CapacityInUse < station.Capacity - 1; }
 
         private BestCandidateSelector _bestCandidateSelectNormal;
         private BestCandidateSelector _bestCandidateSelectFastLane;
@@ -686,8 +686,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 int ii = 0;
                 while (hashset.Count > 0 && ii < 10)
                 {
-                    Random rd = new Random();
-                    int i = rd.Next(0, hashset.Count);
+                    int i = Instance.Randomizer.NextInt(hashset.Count);
                     HashSet<Pod> pods = new HashSet<Pod>(hashset[i]);
                     hashset.RemoveAt(i);
                     SolveByMp(SolverType.Gurobi, pods, station, Ra);//用指派模型来求解任务分配问题

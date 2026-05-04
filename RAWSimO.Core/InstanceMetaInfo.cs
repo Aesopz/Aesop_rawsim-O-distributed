@@ -499,6 +499,12 @@ namespace RAWSimO.Core
         /// </summary>
         /// <returns>The number of orders not completed in time.</returns>
         public int GetInfoStatOrdersLate() { return StatOverallOrdersLate; }
+        /// <inheritdoc/>
+        public double GetInfoStatThroughput() { return StatThroughputOrdersPerHour; }
+        /// <inheritdoc/>
+        public double GetInfoStatOrderDistance() { return StatOrderDistanceM; }
+        /// <inheritdoc/>
+        public double GetInfoStatOrderPileOn() { return StatSystemOrderPileOn; }
         /// <summary>
         /// Returns the count of repositioning moves started so far.
         /// </summary>

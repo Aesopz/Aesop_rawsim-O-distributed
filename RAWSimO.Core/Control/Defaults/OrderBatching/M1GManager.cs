@@ -494,8 +494,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             List<Symbol> deVarNameus = variableNames[5];
             List<Symbol> deVarNamedops = variableNames[6];
             double w1 = 1;
-            double w2 = -1;
-            double w3 = 10000;
+            double w2 = -40;
+            double w3 = 1000;
             //double w4 = 2;
             VariableCollection<string> variablesBinary = new VariableCollection<string>(wrapper, VariableType.Binary, 0, 1, (string s) => { return s; });
             VariableCollection<string> variablesInteger2 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 5, (string s) => { return s; });
