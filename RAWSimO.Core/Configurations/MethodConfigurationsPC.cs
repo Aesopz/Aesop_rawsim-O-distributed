@@ -613,6 +613,7 @@ namespace RAWSimO.Core.Configurations
             {
                 case PrefPodForIStationBot.Random: name += "r"; break;
                 case PrefPodForIStationBot.Nearest: name += "n"; break;
+                case PrefPodForIStationBot.Demand: name += "d"; break;
                 case PrefPodForIStationBot.WorkAmount: name += "w"; break;
                 default: throw new ArgumentException("Unexpected argument!");
             }
@@ -621,6 +622,7 @@ namespace RAWSimO.Core.Configurations
                 case PrefPodForOStationBot.Random: name += "r"; break;
                 case PrefPodForOStationBot.Fill: name += "f"; break;
                 case PrefPodForOStationBot.Nearest: name += "n"; break;
+                case PrefPodForOStationBot.Demand: name += "d"; break;
                 case PrefPodForOStationBot.Completeable: name += "c"; break;
                 case PrefPodForOStationBot.WorkAmount: name += "w"; break;
                 default: throw new ArgumentException("Unexpected argument!");

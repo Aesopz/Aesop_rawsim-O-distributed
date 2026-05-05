@@ -191,21 +191,18 @@ namespace RAWSimO.Core.Control
             // Get current content of the pod
             Dictionary<Symbol, int> ziops = new Dictionary<Symbol, int>(Instance.ResourceManager._Ziops[station]);
             int j = 0;
-            foreach (var oo in Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == pod.ID))
+            foreach (var oo in Instance.ResourceManager._Ziops[station].Where(v => v.Key.pod.ID == pod.ID).ToList())
             {
                 int i = 0;
                 foreach (var itemRequest in Instance.ResourceManager.GetExtractRequestsOfStation(station).Where(v => v.Order.ID == oo.Key.order.ID && v.Item.ID == oo.Key.skui.ID))
                 {
                     requestsToHandle.Add(itemRequest);
-                    if (ziops[oo.Key] > 1)
-                        ziops[oo.Key]--;
-                    else
-                        ziops.Remove(oo.Key);
                     i++;
                     j++;
                     if (oo.Value == i)
                         break;
                 }
+                ziops.Remove(oo.Key);
             }
             Instance.ResourceManager._Ziops[station] = ziops;
             // Return the result
@@ -1168,6 +1165,8 @@ namespace RAWSimO.Core.Control
                 {
                     // Get all fitting requests
                     List <ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, oStation, config.FilterForReservation);
+                    if (fittingRequests.Count == 0)
+                        return false;
                     // Log
                     Instance.LogVerbose("PC (extract): Recycling combination (" + fittingRequests.Count + " requests)");
                     // Simply execute the next task with the pod
@@ -1191,6 +1190,8 @@ namespace RAWSimO.Core.Control
                             {
                                 // Get all fitting requests
                                 List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bot.Pod, station, config.FilterForReservation);
+                                if (fittingRequests.Count == 0)
+                                    continue;
                                 // Log
                                 Instance.LogVerbose("PC (extract): Recycling pod only (" + fittingRequests.Count + " requests)");
                                 // Simply execute the next task with the pod
@@ -1230,15 +1231,18 @@ namespace RAWSimO.Core.Control
                     {
                         // Get all fitting requests
                         List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bestPod, oStation, config.FilterForReservation);
-                        // Log
-                        Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
-                        // Simply execute the next task with the pod
-                        EnqueueExtract(
-                            bot, // The bot itself
-                            oStation, // The current station
-                            bestPod, // The new pod
-                            fittingRequests); // The requests to serve
-                        return true;
+                        if (fittingRequests.Count > 0)
+                        {
+                            // Log
+                            Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
+                            // Simply execute the next task with the pod
+                            EnqueueExtract(
+                                bot, // The bot itself
+                                oStation, // The current station
+                                bestPod, // The new pod
+                                fittingRequests); // The requests to serve
+                            return true;
+                        }
                     }
                     else
                     {
@@ -1248,6 +1252,8 @@ namespace RAWSimO.Core.Control
                             {
                                 // Get all fitting requests
                                 List<ExtractRequest> fittingRequests = GetPossibleRequestsofMP(bestPod, station, config.FilterForReservation);
+                                if (fittingRequests.Count == 0)
+                                    continue;
                                 // Log
                                 Instance.LogVerbose("PC (extract): New pod (" + fittingRequests.Count + " requests)");
                                 // Simply execute the next task with the pod
@@ -1260,6 +1266,9 @@ namespace RAWSimO.Core.Control
                             }
                         }
                     }
+                    Instance.ResourceManager.ReleasePod(bestPod);
+                    foreach (var station in bot.Tier.OutputStations)
+                        station.UnregisterInboundPod(bestPod);
                 }
             }
             // Signal no task found

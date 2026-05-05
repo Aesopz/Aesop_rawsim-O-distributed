@@ -89,10 +89,66 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// 决策变量的命名
         /// </summary>
         private Dictionary<int, List<Symbol>> _IsvariableNames = new Dictionary<int, List<Symbol>>();
-        private int _dbgCallCount = 0;
-        private int _dbgOrphanPodSkip = 0;
-        private int _dbgNoSolution = 0;
-        private int _dbgShi7Skip = 0;
+
+        private RAWSimO.Core.Waypoints.Waypoint GetBotReferenceWaypoint(Bot bot)
+        {
+            if (bot == null)
+                return null;
+            if (bot.CurrentWaypoint != null)
+                return bot.CurrentWaypoint;
+            if (Instance != null && Instance.WaypointGraph != null && bot.Tier != null)
+                return Instance.WaypointGraph.GetClosestWaypoint(bot.Tier, bot.X, bot.Y);
+            return null;
+        }
+
+        private RAWSimO.Core.Waypoints.Waypoint GetPodReferenceWaypoint(Pod pod)
+        {
+            if (pod == null)
+                return null;
+            if (pod.Waypoint != null)
+                return pod.Waypoint;
+            if (pod.Bot != null && pod.Bot.CurrentWaypoint != null)
+                return pod.Bot.CurrentWaypoint;
+            if (Instance != null && Instance.WaypointGraph != null && pod.Tier != null)
+                return Instance.WaypointGraph.GetClosestWaypoint(pod.Tier, pod.X, pod.Y);
+            return null;
+        }
+
+        private double EstimateBotPodDistance(Bot bot, Pod pod)
+        {
+            if (bot == null || pod == null)
+                return double.PositiveInfinity;
+
+            var botWaypoint = GetBotReferenceWaypoint(bot);
+            var podWaypoint = GetPodReferenceWaypoint(pod);
+            if (botWaypoint != null && podWaypoint != null)
+                return Distances.CalculateShortestPath(botWaypoint, podWaypoint, Instance);
+
+            double botX = botWaypoint != null ? botWaypoint.X : bot.X;
+            double botY = botWaypoint != null ? botWaypoint.Y : bot.Y;
+            double podX = podWaypoint != null ? podWaypoint.X : pod.X;
+            double podY = podWaypoint != null ? podWaypoint.Y : pod.Y;
+            return Math.Abs(botX - podX) + Math.Abs(botY - podY);
+        }
+
+        private double EstimatePodStationDistance(Pod pod, OutputStation station)
+        {
+            if (pod == null || station == null || station.Waypoint == null)
+                return double.PositiveInfinity;
+
+            var podWaypoint = GetPodReferenceWaypoint(pod);
+            if (podWaypoint != null &&
+                DistanceSet.ContainsKey(station.Waypoint.ID) &&
+                DistanceSet[station.Waypoint.ID].ContainsKey(podWaypoint.ID))
+                return DistanceSet[station.Waypoint.ID][podWaypoint.ID];
+
+            if (podWaypoint != null)
+                return Distances.CalculateShortestPathPodSafe1(podWaypoint, station.Waypoint, Instance);
+
+            double podX = podWaypoint != null ? podWaypoint.X : pod.X;
+            double podY = podWaypoint != null ? podWaypoint.Y : pod.Y;
+            return Math.Abs(podX - station.Waypoint.X) + Math.Abs(podY - station.Waypoint.Y);
+        }
         /// <summary>
         /// Checks whether an item matching the description is contained in this pod. 
         /// </summary>
@@ -165,8 +221,18 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             foreach (var station in Cs.Keys)
             {
                 HashSet<Pod> hspod = new HashSet<Pod>();
-                foreach (var pod in station.InboundPods)
-                    hspod.Add(pod);
+                foreach (var pod in station.InboundPods.ToList())
+                {
+                    if (Instance.ResourceManager._usedPods.ContainsKey(pod) ||
+                        Instance.ResourceManager.BottoPod.ContainsValue(pod))
+                    {
+                        hspod.Add(pod);
+                    }
+                    else
+                    {
+                        station.UnregisterInboundPod(pod);
+                    }
+                }
                 inboundPods.Add(station, hspod);
                 //foreach (var pod in station.InboundPods)
                 //{
@@ -204,7 +270,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 }
             }
             int i = 0;
-            foreach (Order order in pendingOrders.OrderBy(v => v.Timestay).ThenBy(u => u.DueTime)) //先选剩余的截止时间最短的，再选开始时间最早的
+            foreach (Order order in pendingOrders.OrderBy(v => v.Timestay).ThenBy(u => u.DueTime))
             {
                 order.sequence = i;
                 i++;
@@ -397,7 +463,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                     }
                     else
                     {
-                        _dbgOrphanPodSkip++; // pod-bot 連接尚未建立（快照不一致），跳過此 pod
+                        // Snapshot can contain a station inbound pod before its pod-bot ownership is visible.
+                        // Exclude it from the model for this decision.
                     }
                 }
             }
@@ -405,8 +472,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 v.IsAvailabletoOiSKU(ItemofOiSKU) &&
                 !Instance.ResourceManager.BottoPod.ContainsValue(v) &&
                 !Instance.ResourceManager._usedPods.ContainsKey(v) &&
-                v.Waypoint != null &&                   // 必須在儲位（非搬運中）
-                v.Waypoint.PodStorageLocation))         // waypoint 必須是 pod 儲位，排除 output/input station waypoint
+                v.Waypoint != null &&
+                v.Waypoint.PodStorageLocation))
             {
                 allPods.Add(pod);
                 Pa1.Add(pod);
@@ -436,16 +503,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             PiSKU = GeneratePiSKU(allPods);
             pendingOrders = new HashSet<Order>(pendingOrders1.Where(o => o.Positions.All(p => IsAvailabletoPiSKU(p.Key) >= p.Value)));
             Od = GenerateOd(pendingOrders, PiSKU);
-            //Od.Clear();
-            //if (Cs.Sum(v => v.Value) < Od.Count)
-            //    pendingOrders = Od;
-            //else if (Od.Count > 0)
-            //    IsOd = true;
-            if (Od.Count > 0 && Cs.Sum(v => v.Value) < Od.Count)
-            {
-                pendingOrders.Clear();
+            if (Od.Count > Cs.Values.Sum())
                 pendingOrders = new HashSet<Order>(Od);
-            }
             OiSKU = GenerateOiSKU(pendingOrders);
             variableNames = CreatedeVarName(PiSKU, OiSKU, allPods, pendingOrders, Cs, R, Pa1, out Pa);
             return allPods;
@@ -501,12 +560,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             VariableCollection<string> variablesInteger2 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 5, (string s) => { return s; });
             VariableCollection<string> variablesInteger3 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 6, (string s) => { return s; });
             if (Ra.Count() > 0)
-                wrapper.SetObjective((LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null && DistanceSet.ContainsKey(u.outputstation.Waypoint.ID) && DistanceSet[u.outputstation.Waypoint.ID].ContainsKey(u.pod.Waypoint.ID)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.pod.Waypoint.ID]), wrapper)
+                wrapper.SetObjective((LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] * EstimatePodStationDistance(v.pod, v.outputstation)), wrapper)
                     + LinearExpression.Sum(deVarNameyrp.Where(u => Ra.Contains(u.robot) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null).Select(v => variablesBinary[v.name] *
-                    Distances.CalculateManhattan1(v.robot.CurrentWaypoint, v.pod.Waypoint)), wrapper)) * w1 + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
+                    EstimateBotPodDistance(v.robot, v.pod)), wrapper)) * w1 + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
                     + LinearExpression.Sum(deVarNameus.Select(v => variablesInteger3[v.name])) * w3, OptimizationSense.Minimize);
             else
-                wrapper.SetObjective(LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null && DistanceSet.ContainsKey(u.outputstation.Waypoint.ID) && DistanceSet[u.outputstation.Waypoint.ID].ContainsKey(u.pod.Waypoint.ID)).Select(v => variablesBinary[v.name] * DistanceSet[v.outputstation.Waypoint.ID][v.pod.Waypoint.ID]), wrapper) * w1
+                wrapper.SetObjective(LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] * EstimatePodStationDistance(v.pod, v.outputstation)), wrapper) * w1
                     + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
                     + LinearExpression.Sum(deVarNameus.Select(v => variablesInteger3[v.name])) * w3, OptimizationSense.Minimize);
             foreach (var order in pendingOrders)//每个订单最多只能分配给一个工作站
@@ -534,7 +593,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             {
                 foreach (var pod in station.Value)
                 {
-                    if (!Pb.Contains(pod)) { _dbgShi7Skip++; continue; } // pod-bot 連接未建立，已排除出模型
+                    if (!Pb.Contains(pod))
+                        continue;
                     wrapper.AddConstr(variablesBinary["xps" + "_" + pod.ID.ToString() + "_" + station.Key.ID.ToString()] == 1, "shi7");//继承系统中已经分配而未释放的货架
                     wrapper.AddConstr(variablesBinary["yrp" + "_" + PodToBot[pod].ID.ToString() + "_" + pod.ID.ToString()] == 1, "shi11");//继承系统中已经分配的机器人
                 }
@@ -608,6 +668,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                             {
                                 IsdeVarNameyrp.Add(itemName);
                                 Instance.ResourceManager.BottoPod.Add(itemName.robot, itemName.pod);
+                                Instance.ResourceManager.ClaimPod(itemName.pod, itemName.robot, BotTaskType.Extract);
                                 foreach (var xps in IsdeVarNamexps.Where(v => v.pod.ID == itemName.pod.ID))
                                     xps.outputstation.RegisterInboundPod(itemName.pod);
                             }
@@ -647,7 +708,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                                 }
                             }
                         }
-                        List<Pod> dopspods = new List<Pod>();
+                        HashSet<Pod> dopsPodsSelected = new HashSet<Pod>();
+                        HashSet<Pod> dopsPodsUsed = new HashSet<Pod>();
                         // Check all assigned orders
                         foreach (var order in _currentStationorder.Value)
                         {
@@ -655,11 +717,14 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                             Dictionary<ItemDescription, int> itemDemands = new Dictionary<ItemDescription, int>();
                             foreach (var item in order.Positions)
                                 itemDemands.Add(item.Key, item.Value);
-                            //List<Pod> dopspods = new List<Pod>();
+                            HashSet<Pod> orderDopsPods = new HashSet<Pod>();
                             if (IsdeVarNamedops.Where(v => v.order.ID == order.ID).Count() > 0)
                             {
                                 foreach (var item in IsdeVarNamedops.Where(v => v.order.ID == order.ID))
-                                    dopspods.Add(item.pod);
+                                {
+                                    dopsPodsSelected.Add(item.pod);
+                                    orderDopsPods.Add(item.pod);
+                                }
                             }
                             // Check whether sufficient inventory is still available in the pod (also make sure it is was available in the beginning, not all values were updated at the beginning of this function / see above)
                             // Update remaining pod content
@@ -669,10 +734,11 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                                 while (number > 0)
                                 {
                                     Pod pod;
-                                    if (_availableCounts[itemDemand.Key].Keys.Where(v => dopspods.Contains(v)).Count() > 0) //优先检索新分配的货架
+                                    if (_availableCounts[itemDemand.Key].Keys.Where(v => orderDopsPods.Contains(v)).Count() > 0) //优先检索新分配的货架
                                     {
-                                        pod = _availableCounts[itemDemand.Key].Keys.Where(v => dopspods.Contains(v)).First();
-                                        dopspods.Remove(pod);
+                                        pod = _availableCounts[itemDemand.Key].Keys.Where(v => orderDopsPods.Contains(v)).First();
+                                        orderDopsPods.Remove(pod);
+                                        dopsPodsUsed.Add(pod);
                                     }
                                     else
                                         pod = _availableCounts[itemDemand.Key].Keys.First();
@@ -687,11 +753,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                                     };
                                     if (_availableCounts[itemDemand.Key][pod] >= number)
                                     {
-                                        int numpods = _availableCounts[itemDemand.Key].Keys.Where(v => dopspods.Contains(v)).Count();
+                                        int numpods = _availableCounts[itemDemand.Key].Keys.Where(v => orderDopsPods.Contains(v)).Count();
                                         if (numpods > 0 && number > 1)
                                         {
-                                            Pod pod1 = _availableCounts[itemDemand.Key].Keys.Where(v => dopspods.Contains(v)).First();
-                                            dopspods.Remove(pod1);
+                                            Pod pod1 = _availableCounts[itemDemand.Key].Keys.Where(v => orderDopsPods.Contains(v)).First();
+                                            orderDopsPods.Remove(pod1);
+                                            dopsPodsUsed.Add(pod1);
                                             if (_availableCounts[itemDemand.Key][pod] >= _availableCounts[itemDemand.Key][pod1])
                                             {
                                                 _availableCounts[itemDemand.Key][pod] -= number - numpods;
@@ -728,13 +795,15 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
 
                             }
                         }
-                        if (dopspods.Count > 0)
+                        HashSet<Pod> unusedDopsPods = new HashSet<Pod>(dopsPodsSelected.Where(v => !dopsPodsUsed.Contains(v)));
+                        if (unusedDopsPods.Count > 0)
                         {
-                            foreach (var pod in dopspods)
+                            foreach (var pod in unusedDopsPods)
                             {
                                 Symbol name2 = IsdeVarNameyrp.Where(v => v.pod.ID == pod.ID).First();
                                 IsdeVarNameyrp.Remove(name2);
                                 Instance.ResourceManager.BottoPod.Remove(name2.robot);
+                                Instance.ResourceManager.ReleasePod(name2.pod);
                                 foreach (var xps in IsdeVarNamexps.Where(v => v.pod.ID == name2.pod.ID))
                                     xps.outputstation.UnregisterInboundPod(name2.pod);
                                 Symbol name1 = IsdeVarNamexps.Where(v => v.pod.ID == pod.ID).First();
@@ -779,7 +848,6 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             if (R.Count() > 0 && pendingOrders.Count > 0) //运用Gurobi求解
             {
                 Dictionary<Symbol, int> NewZiops = solve(SolverType.Gurobi, PiSKU, OiSKU, allPods, Cs, variableNames, pendingOrders, inboundPods, Ra, Rb, R, Pb, Pa, PodToBot);
-                if (!_IsvariableNames.ContainsKey(1)) _dbgNoSolution++;
                 if (_IsvariableNames.ContainsKey(1) && _IsvariableNames[1].Count() > 0)
                 {
                     // 将相应的order分配给station
@@ -802,9 +870,6 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 }
                 Instance.Observer.TimeOrderBatchingbyMP((DateTime.Now - A).TotalSeconds);
             }
-            _dbgCallCount++;
-            if (_dbgCallCount % 50 == 0)
-                Instance.SettingConfig.LogAction($"[M1G-DBG] calls={_dbgCallCount} orphanSkip={_dbgOrphanPodSkip} noSolution={_dbgNoSolution} shi7Skip={_dbgShi7Skip}");
             //else
             //    Instance.Observer.TimeOrderBatchingbyMP((DateTime.Now - A).TotalSeconds);
         }

@@ -169,8 +169,8 @@ namespace RAWSimO.Core
         public double StatOverallEmptyDistanceM { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEmptyDistanceM); } }
         /// <summary>System throughput [orders/hour] = orders / simulation hours.</summary>
         public double StatThroughputOrdersPerHour => StatTime > 0 ? StatOverallOrdersHandled / (StatTime / 3600.0) : 0.0;
-        /// <summary>Average distance per completed order [m/order] = D_r / orders.</summary>
-        public double StatOrderDistanceM => StatOverallOrdersHandled > 0 ? StatOverallDistanceTraveledRizqi / StatOverallOrdersHandled : 0.0;
+        /// <summary>Average distance per completed order [m/order] = total_distance_m / orders (consistent with CSV kpi_report).</summary>
+        public double StatOrderDistanceM => StatOverallOrdersHandled > 0 ? StatOverallDistanceTraveled / StatOverallOrdersHandled : 0.0;
         /// <summary>System-wide output-side order pile-on [orders/output_station_arrival].</summary>
         public double StatSystemOrderPileOn { get { int arrivals = StatOverallOutputStationArrivals; return arrivals > 0 ? (double)StatOverallOrdersHandled / arrivals : 0.0; } }
         /// <summary>Fleet wait time while loaded [s].</summary>
@@ -1233,7 +1233,8 @@ namespace RAWSimO.Core
 
             double totalEnergyJ   = StatOverallEnergyTotalWithSupportJ;
             double totalMechJ     = StatOverallEnergyTotalJ;
-            double totalDistM     = StatOverallDistanceTraveledRizqi;
+            double kpiDistM       = StatOverallDistanceTraveled;
+            double motionDistM    = StatOverallDistanceTraveledRizqi;
             double totalDistLoad  = StatOverallLoadedDistanceM;
             double totalDistEmpty = StatOverallEmptyDistanceM;
             int    totalOrders    = StatOverallOrdersHandled;
@@ -1263,8 +1264,8 @@ namespace RAWSimO.Core
                 fmt(totalOrders > 0 ? totalEnergyJ / 1000.0 / totalOrders : 0.0), "kJ/order"));
             sw.WriteLine(row("L1", "energy_mech_per_order_kJ", "", "",
                 fmt(totalOrders > 0 ? totalMechJ / 1000.0 / totalOrders : 0.0), "kJ/order"));
-            sw.WriteLine(row("L1", "total_distance_m", "", "", fmt(totalDistM), "m"));
-            sw.WriteLine(row("L1", "order_distance_m", "", "", fmt(totalOrders > 0 ? totalDistM / totalOrders : 0.0), "m/order"));
+            sw.WriteLine(row("L1", "total_distance_m", "", "", fmt(kpiDistM), "m"));
+            sw.WriteLine(row("L1", "order_distance_m", "", "", fmt(totalOrders > 0 ? kpiDistM / totalOrders : 0.0), "m/order"));
             sw.WriteLine(row("L1", "system_order_pile_on", "", "", fmt(StatSystemOrderPileOn), "orders/output_station_arrival"));
             sw.WriteLine(row("L1", "input_station_arrivals", "", "", StatOverallInputStationArrivals, "count"));
             sw.WriteLine(row("L1", "output_station_arrivals", "", "", StatOverallOutputStationArrivals, "count"));
@@ -1272,7 +1273,7 @@ namespace RAWSimO.Core
 
             // Layer 2: trip split
             sw.WriteLine(row("L2", "trip_count", tripsEmpty, tripsLoaded, tripsEmpty + tripsLoaded, "trips"));
-            sw.WriteLine(row("L2", "distance_m", fmt(totalDistEmpty), fmt(totalDistLoad), fmt(totalDistM), "m"));
+            sw.WriteLine(row("L2", "distance_m", fmt(totalDistEmpty), fmt(totalDistLoad), fmt(motionDistM), "m"));
             double timeLoad = moveT_L + turnT_L + waitT_L;
             double timeEmpty = moveT_E + turnT_E + waitT_E;
             sw.WriteLine(row("L2", "total_time_sec", fmt(timeEmpty), fmt(timeLoad), fmt(timeEmpty + timeLoad), "s"));

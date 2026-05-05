@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ControlConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>benchmark_controoler_M1G</Name>
+  <Name>benchmark_controller_hadgs</Name>
   <PathPlanningConfig xsi:type="WHCAnStarPathPlanningConfiguration">
     <Name />
     <AutoSetParameter>false</AutoSetParameter>
@@ -31,15 +31,24 @@
       <OnTheFlyStore>true</OnTheFlyStore>
       <FilterForConsideration>AssignedAndCompleteQueued</FilterForConsideration>
       <FilterForReservation>AssignedAndCompleteQueued</FilterForReservation>
-      <InputExtendedSearchScorer xsi:type="PCScorerIStationForBotWithPodNearest" />
-      <InputExtendedSearchScorerTieBreaker1 xsi:type="PCScorerIStationForBotWithPodRandom" />
-      <InputExtendedSearchScorerTieBreaker2 xsi:type="PCScorerIStationForBotWithPodRandom" />
-      <OutputExtendedSearchScorer xsi:type="PCScorerOStationForBotWithPodNearest" />
-      <OutputExtendedSearchScorerTieBreaker1 xsi:type="PCScorerOStationForBotWithPodRandom" />
-      <OutputExtendedSearchScorerTieBreaker2 xsi:type="PCScorerOStationForBotWithPodRandom" />
-      <InputPodScorer xsi:type="PCScorerPodForIStationBotDemand" />
-      <InputPodScorerTieBreaker1 xsi:type="PCScorerPodForIStationBotRandom" />
-      <InputPodScorerTieBreaker2 xsi:type="PCScorerPodForIStationBotRandom" />
+      <InputExtendedSearchScorer xsi:type="PCScorerIStationForBotWithPodNearest">
+      </InputExtendedSearchScorer>
+      <InputExtendedSearchScorerTieBreaker1 xsi:type="PCScorerIStationForBotWithPodRandom">
+      </InputExtendedSearchScorerTieBreaker1>
+      <InputExtendedSearchScorerTieBreaker2 xsi:type="PCScorerIStationForBotWithPodRandom">
+      </InputExtendedSearchScorerTieBreaker2>
+      <OutputExtendedSearchScorer xsi:type="PCScorerOStationForBotWithPodNearest">
+      </OutputExtendedSearchScorer>
+      <OutputExtendedSearchScorerTieBreaker1 xsi:type="PCScorerOStationForBotWithPodRandom">
+      </OutputExtendedSearchScorerTieBreaker1>
+      <OutputExtendedSearchScorerTieBreaker2 xsi:type="PCScorerOStationForBotWithPodRandom">
+      </OutputExtendedSearchScorerTieBreaker2>
+      <InputPodScorer xsi:type="PCScorerPodForIStationBotDemand">
+      </InputPodScorer>
+      <InputPodScorerTieBreaker1 xsi:type="PCScorerPodForIStationBotRandom">
+      </InputPodScorerTieBreaker1>
+      <InputPodScorerTieBreaker2 xsi:type="PCScorerPodForIStationBotRandom">
+      </InputPodScorerTieBreaker2>
       <OutputPodScorer xsi:type="PCScorerPodForOStationBotDemand" />
       <OutputPodScorerTieBreaker1 xsi:type="PCScorerPodForOStationBotRandom">
         <PreferSameTier>true</PreferSameTier>
@@ -66,16 +75,16 @@
   <RepositioningConfig xsi:type="DummyRepositioningConfiguration">
     <Name />
   </RepositioningConfig>
-  <OrderBatchingConfig xsi:type="M1GConfiguration">
+  <OrderBatchingConfig xsi:type="HADGSConfiguration">
     <Name />
-    <TieBreaker>Random</TieBreaker>
-    <FastLane>false</FastLane>
+    <TieBreaker>EarliestDueTime</TieBreaker>
+    <FastLane>true</FastLane>
     <LateBeforeMatch>false</LateBeforeMatch>
-    <FastLaneTieBreaker>Random</FastLaneTieBreaker>
+    <FastLaneTieBreaker>EarliestDueTime</FastLaneTieBreaker>
   </OrderBatchingConfig>
   <ReplenishmentBatchingConfig xsi:type="SamePodReplenishmentBatchingConfiguration">
     <Name />
-    <FirstStationRule>LeastBusy</FirstStationRule>
+    <FirstStationRule>DistanceEuclid</FirstStationRule>
     <BreakBatches>false</BreakBatches>
     <FCFS>true</FCFS>
     <OnlySameTier>true</OnlySameTier>

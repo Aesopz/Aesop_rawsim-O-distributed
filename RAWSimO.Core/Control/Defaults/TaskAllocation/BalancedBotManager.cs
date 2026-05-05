@@ -238,6 +238,8 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                         }
                     }
                 }
+                if (bestBot == null || receivingStation == null)
+                    break;
                 // Store the switch
                 if (reassignments != null)
                     reassignments.Add(new Tuple<Bot, Circle, Circle>(bestBot, unassignedBot ? null : _botStations[bestBot], receivingStation));
