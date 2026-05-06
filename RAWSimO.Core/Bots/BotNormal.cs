@@ -154,6 +154,8 @@ namespace RAWSimO.Core.Bots
         /// activated (multiple _appendMoveStates may run in same tick before any movement).
         /// </summary>
         private Queue<bool> _pendingTripsLoaded = new Queue<bool>();
+        private Queue<int> _pendingM1GTraceSegments = new Queue<int>();
+        private int _activeM1GTraceSegmentId = 0;
 
         /// <summary>Per-trip recorded metrics (flushed at CloseCurrentTrip).</summary>
         public struct TripRecord
@@ -178,22 +180,44 @@ namespace RAWSimO.Core.Bots
             if (_tripOpen)
             {
                 double dur = currentTime - _tripStartTime;
+                // 零時程（bot 已在目的地）仍需呼叫 CompleteActualSegment：
+                // BeginActualSegment 已從 _pendingByKey 出列該記錄，若不完成會留下 NaN 欄位、
+                // matched_records > completed_records 使統計分母錯誤。
+                double waitRatio = dur > 0.0 ? Math.Min(1.0, _currentTripWaitSec / dur) : 0.0;
+                var rec = new TripRecord
+                {
+                    DurationSec = dur,
+                    DistanceM   = StatDistanceTraveledM - _tripStartDistanceM,
+                    EnergyJ     = StatEnergyTotalJ - _tripStartEnergyJ,
+                    WaitTimeSec = _currentTripWaitSec,
+                    TurnCount   = _currentTripTurnCount,
+                };
                 if (dur > 0.0)
                 {
-                    double waitRatio = Math.Min(1.0, _currentTripWaitSec / dur);
-                    var rec = new TripRecord
-                    {
-                        DurationSec = dur,
-                        DistanceM   = StatDistanceTraveledM - _tripStartDistanceM,
-                        EnergyJ     = StatEnergyTotalJ - _tripStartEnergyJ,
-                        WaitTimeSec = _currentTripWaitSec,
-                        TurnCount   = _currentTripTurnCount,
-                    };
                     if (_activeTripLoaded) { PerTripWaitRatioLoaded.Add(waitRatio); PerTripRecordsLoaded.Add(rec); }
                     else                   { PerTripWaitRatioEmpty.Add(waitRatio);  PerTripRecordsEmpty.Add(rec);  }
                 }
+                Instance.M1GPathTrace.CompleteActualSegment(_activeM1GTraceSegmentId, currentTime, rec);
                 _tripOpen = false;
+                _activeM1GTraceSegmentId = 0;
             }
+        }
+
+        internal void CompleteActiveM1GTraceAtBoundary(double currentTime, Waypoint actualEnd, string actualEndKind)
+        {
+            if (_activeM1GTraceSegmentId == 0 || !_tripOpen)
+                return;
+
+            var rec = new TripRecord
+            {
+                DurationSec = currentTime - _tripStartTime,
+                DistanceM = StatDistanceTraveledM - _tripStartDistanceM,
+                EnergyJ = StatEnergyTotalJ - _tripStartEnergyJ,
+                WaitTimeSec = _currentTripWaitSec,
+                TurnCount = _currentTripTurnCount,
+            };
+            if (Instance.M1GPathTrace.CompleteActualSegmentAtBoundary(_activeM1GTraceSegmentId, currentTime, rec, actualEnd, actualEndKind))
+                _activeM1GTraceSegmentId = 0;
         }
 
         /// <summary>
@@ -210,6 +234,8 @@ namespace RAWSimO.Core.Bots
                 _tripStartDistanceM = StatDistanceTraveledM;
                 _currentTripTurnCount = 0;
                 _tripOpen = true;
+                _activeM1GTraceSegmentId = _pendingM1GTraceSegments.Count > 0 ? _pendingM1GTraceSegments.Dequeue() : 0;
+                Instance.M1GPathTrace.StartActualSegment(_activeM1GTraceSegmentId, currentTime);
             }
         }
 
@@ -645,16 +671,29 @@ namespace RAWSimO.Core.Bots
                     RequestReoptimization = true;
 
                     ExtractTask extractTask = t as ExtractTask;
+                    bool traceM1G = Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration;
                     if (extractTask.ReservedPod != Pod)
                     {
                         var podWaypoint = extractTask.ReservedPod.Waypoint;
-                        _appendMoveStates(CurrentWaypoint, podWaypoint, tripLoaded: false);
+                        int botToPodTrace = traceM1G ?
+                            Instance.M1GPathTrace.BeginActualSegment(this, extractTask.ReservedPod, extractTask.OutputStation,
+                                M1GPathTraceSegmentType.BotToPod, CurrentWaypoint, podWaypoint, Instance.Controller.CurrentTime) :
+                            0;
+                        _appendMoveStates(CurrentWaypoint, podWaypoint, tripLoaded: false, m1gTraceSegmentId: botToPodTrace);
                         StateQueueEnqueue(new BotPickupPod(extractTask.ReservedPod));
-                        _appendMoveStates(podWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true);
+                        int podToStationTrace = traceM1G ?
+                            Instance.M1GPathTrace.BeginActualSegment(this, extractTask.ReservedPod, extractTask.OutputStation,
+                                M1GPathTraceSegmentType.PodToStation, podWaypoint, extractTask.OutputStation.Waypoint, Instance.Controller.CurrentTime) :
+                            0;
+                        _appendMoveStates(podWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true, m1gTraceSegmentId: podToStationTrace);
                     }
                     else
                     {
-                        _appendMoveStates(CurrentWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true);
+                        int podToStationTrace = traceM1G ?
+                            Instance.M1GPathTrace.BeginActualSegment(this, extractTask.ReservedPod, extractTask.OutputStation,
+                                M1GPathTraceSegmentType.PodToStation, CurrentWaypoint, extractTask.OutputStation.Waypoint, Instance.Controller.CurrentTime) :
+                            0;
+                        _appendMoveStates(CurrentWaypoint, extractTask.OutputStation.Waypoint, tripLoaded: true, m1gTraceSegmentId: podToStationTrace);
                     }
                     StateQueueEnqueue(new BotPutItems(extractTask));
 
@@ -680,7 +719,7 @@ namespace RAWSimO.Core.Bots
         /// </summary>
         /// <param name="waypointFrom">The from waypoint.</param>
         /// <param name="waypointTo">The destination waypoint.</param>
-        private void _appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo, bool? tripLoaded = null)
+        private void _appendMoveStates(Waypoint waypointFrom, Waypoint waypointTo, bool? tripLoaded = null, int m1gTraceSegmentId = 0)
         {
             // ── Per-trip tracking: each solver-dispatched path (currentWaypoint → destinationWaypoint)
             // counts as one trip. Loaded/empty passed by caller (task dispatch knows the semantic —
@@ -695,6 +734,7 @@ namespace RAWSimO.Core.Bots
                 if (tripLoaded.Value) StatTripCountLoaded++;
                 else                  StatTripCountEmpty++;
                 _pendingTripsLoaded.Enqueue(tripLoaded.Value);
+                _pendingM1GTraceSegments.Enqueue(m1gTraceSegmentId);
             }
 
             double distance;
@@ -786,6 +826,7 @@ namespace RAWSimO.Core.Bots
                 }
                 double segmentDistance = CurrentWaypoint.GetDistance(NextWaypoint);
                 _driveDuration = Physics.getTimeNeededToMove(0, segmentDistance);
+                Instance.M1GPathTrace.AppendActualWaypoint(_activeM1GTraceSegmentId, NextWaypoint);
 
                 // ── Rest-task gate: no productive metrics recorded during return-to-park ──
                 bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
@@ -1266,6 +1307,7 @@ namespace RAWSimO.Core.Bots
                 if (DestinationWaypoint.OutputStation != null)
                     if (IsInStationQueueZone(DestinationWaypoint.OutputStation))
                     {
+                        CompleteActiveM1GTraceAtBoundary(currentTime, DestinationWaypoint.OutputStation.Waypoint, "StationQueueEntry");
                         Instance.NotifyTripCompleted(this, Statistics.StationTripDatapoint.StationTripType.O, Instance.Controller.CurrentTime - _queueTripStartTime);
                         _queueTripStartTime = double.NaN;
                     }
@@ -1616,7 +1658,6 @@ namespace RAWSimO.Core.Bots
                     bot.RequestReoptimization = true;
                     return;
                 }
-
                 //#RealWorldIntegration.start
                 if (bot.Instance.SettingConfig.RealWorldIntegrationEventDriven)
                 {
@@ -1753,7 +1794,7 @@ namespace RAWSimO.Core.Bots
                 bot._lastExteriorState = Type;
 
                 // Initialize
-                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; (self as BotNormal)?.CloseCurrentTrip(currentTime); }
+                if (!_initialized) { self.StatTotalStateCounts[Type]++; _initialized = true; }
 
                 // Dequeue the state as soon as it is finished
                 if (_executed)
@@ -1765,6 +1806,8 @@ namespace RAWSimO.Core.Bots
                 if (bot.PickupPod(_pod, currentTime))
                 {
                     _executed = true;
+                    // Leg1 結束時間 = 抵達時刻 + lift-up 時間，與估算定義一致。
+                    (bot as BotNormal)?.CloseCurrentTrip(currentTime + bot.PodTransferTime);
                     bot.WaitUntil(bot.BlockedUntil);
                     bot.Instance.WaypointGraph.PodPickup(_pod);
                     bot.Instance.Controller.BotManager.PodPickedUp(bot, _pod, _waypoint);
@@ -1784,7 +1827,8 @@ namespace RAWSimO.Core.Bots
                 }
                 else
                 {
-                    // Failed to pick up pod
+                    // Failed to pick up pod — close trip at arrival time (no transfer)
+                    (bot as BotNormal)?.CloseCurrentTrip(currentTime);
                     bot.StateQueueClear();
                     bot.Instance.Controller.BotManager.TaskAborted(bot, bot.CurrentTask);
                 }

@@ -7,6 +7,7 @@ using RAWSimO.Core.Geometrics;
 using RAWSimO.Core.Helper;
 using RAWSimO.Core.Items;
 using RAWSimO.Core.Management;
+using RAWSimO.Core.Metrics;
 using RAWSimO.Core.Statistics;
 using RAWSimO.Core.Waypoints;
 using System;
@@ -37,6 +38,7 @@ namespace RAWSimO.Core
             ElementMetaInfoTracker = new ElementMetaInfoTracker(this);
             BotCrashHandler = new BotCrashHandler(this);
             SharedControlElements = new SharedControlElementsContainer(this);
+            M1GPathTrace = new M1GPathTrace(this);
         }
 
         #endregion
@@ -103,6 +105,10 @@ namespace RAWSimO.Core
         /// All semaphors of this instance.
         /// </summary>
         public List<QueueSemaphore> Semaphores = new List<QueueSemaphore>();
+        /// <summary>
+        /// Diagnostics for comparing M1G ideal path estimates with executed extract trips.
+        /// </summary>
+        public M1GPathTrace M1GPathTrace { get; private set; }
 
         #endregion
     }

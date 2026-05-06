@@ -442,6 +442,7 @@ namespace RAWSimO.Core
 
             // Reset custom controller info
             StatCustomControllerInfo = new CustomControllerDatapoint();
+            M1GPathTrace?.Reset();
             Controller.MethodManager?.StatReset();
             Controller.StationManager?.StatReset();
             Controller.OrderManager?.StatReset();
@@ -851,6 +852,8 @@ namespace RAWSimO.Core
             // Write 6-Layer KPI report (always, regardless of log level)
             using (StreamWriter sw = new StreamWriter(Path.Combine(SettingConfig.StatisticsDirectory, "kpi_report.csv")))
                 WriteKpiReport(sw);
+
+            M1GPathTrace?.WriteFiles(SettingConfig.StatisticsDirectory);
 
             // Write further statistics
             switch (SettingConfig.LogFileLevel)

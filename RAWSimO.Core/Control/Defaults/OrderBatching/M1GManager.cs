@@ -149,6 +149,31 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             double podY = podWaypoint != null ? podWaypoint.Y : pod.Y;
             return Math.Abs(podX - station.Waypoint.X) + Math.Abs(podY - station.Waypoint.Y);
         }
+
+        private void RecordSelectedPathEstimates(IEnumerable<Symbol> selectedXps, IEnumerable<Symbol> selectedYrp)
+        {
+            foreach (var yrp in selectedYrp)
+            {
+                var xps = selectedXps.FirstOrDefault(v => v.pod.ID == yrp.pod.ID);
+                if (xps == null)
+                    continue;
+
+                var botWaypoint = GetBotReferenceWaypoint(yrp.robot);
+                var podWaypoint = GetPodReferenceWaypoint(yrp.pod);
+                var stationWaypoint = xps.outputstation.Waypoint;
+                Instance.M1GPathTrace.RecordEstimate(
+                    yrp.robot,
+                    yrp.pod,
+                    xps.outputstation,
+                    botWaypoint,
+                    podWaypoint,
+                    stationWaypoint,
+                    EstimateBotPodDistance(yrp.robot, yrp.pod),
+                    EstimatePodStationDistance(yrp.pod, xps.outputstation),
+                    Instance.Controller.CurrentTime);
+            }
+        }
+
         /// <summary>
         /// Checks whether an item matching the description is contained in this pod. 
         /// </summary>
@@ -677,7 +702,9 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                             IsdeVarNamedops.Add(itemName);
                     }
                 }
-                _IsvariableNames.Add(1, IsdeVarNameyaos);
+                _IsvariableNames[1] = IsdeVarNameyaos;
+                // 估算路徑紀錄延後到 unused dops pods 清理之後，避免被解除分配的 (bot,pod,station)
+                // 仍寫入估算 → 永遠不會被 BeginActualSegment 匹配，造成孤兒記錄汙染統計。
                 //模型外求Ziops
                 DateTime A = DateTime.Now;
                 if (_availableStationorder.Count > 0)
@@ -813,6 +840,9 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                         }
                     }
                 }
+                // 在所有 unused dops pods 已從 IsdeVarNameyrp / IsdeVarNamexps 移除後再記錄估算
+                if (_availableStationorder.Count > 0)
+                    RecordSelectedPathEstimates(IsdeVarNamexps, IsdeVarNameyrp);
                 Instance.Observer.TimeOrderBatchingbyziops((DateTime.Now - A).TotalSeconds);
             }
             //else
