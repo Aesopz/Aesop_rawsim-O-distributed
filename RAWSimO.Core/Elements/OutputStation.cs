@@ -224,15 +224,30 @@ namespace RAWSimO.Core.Elements
             //if(_requestsExtract.Count == 0 && _assignedOrders.Count > 0)
             //    Thread.Sleep(1);
             // Keep going through queue until have something to take or done with queue
-            while (_requestsExtract.Count > 0)
+            int requestsToInspect = _requestsExtract.Count;
+            while (requestsToInspect-- > 0 && _requestsExtract.Count > 0)
             {
                 // Fetch necessary stuff
                 Bot bot = _requestsBot.Dequeue();
-                Pod pod = bot.Pod;
                 ExtractRequest request = _requestsExtract.Dequeue();
+                Pod pod = bot != null ? bot.Pod : null;
                 ItemDescription item = request.Item;
 
-                if (pod.IsContained(item) && GetDistance(pod) < GetInfoRadius())
+                if (!CanTakeItemFromBot(bot, pod, item))
+                {
+                    if (bot != null && pod != null && request.State == Management.RequestState.Unfinished && pod.IsContained(item))
+                    {
+                        _requestsBot.Enqueue(bot);
+                        _requestsExtract.Enqueue(request);
+                    }
+                    else
+                    {
+                        request.Abort();
+                    }
+                    continue;
+                }
+
+                if (pod.IsContained(item))
                 {
                     // If order is null, then just choose the first one that fits 
                     if (request.Order == null)
@@ -311,6 +326,20 @@ namespace RAWSimO.Core.Elements
             }
             // Nothing to pick - return unsuccessfully
             return false;
+        }
+
+        private bool CanTakeItemFromBot(Bot bot, Pod pod, ItemDescription item)
+        {
+            if (bot == null || pod == null || item == null)
+                return false;
+            if (!pod.IsContained(item))
+                return false;
+            if (bot.GetSpeed() > 0.0)
+                return false;
+            var normalBot = bot as Bots.BotNormal;
+            if (normalBot != null && normalBot.IsMidSegment())
+                return false;
+            return GetDistance(pod) < GetInfoRadius();
         }
 
         /// <summary>
