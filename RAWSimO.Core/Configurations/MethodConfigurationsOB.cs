@@ -302,14 +302,70 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
         /// <summary>
+        /// Use shortest-time path estimates instead of shortest-distance estimates in the MILP objective.
+        /// </summary>
+        public bool UseShortestTimeObjective = false;
+        /// <summary>
+        /// Conversion factor from distance units to time units. Values less than or equal to zero trigger per-decision median calibration.
+        /// </summary>
+        public double TimePerDistanceScale = 0.0;
+        /// <summary>
+        /// Original paper/code order reward in distance-cost units.
+        /// </summary>
+        public double BaseOrderReward = -40.0;
+        /// <summary>
+        /// Original paper/code unused-capacity penalty in distance-cost units.
+        /// </summary>
+        public double BaseUnusedCapacityPenalty = 1000.0;
+        /// <summary>
         /// Returns a name identifying the method.
         /// </summary>
         /// <returns>The name of the method.</returns>
         public override string GetMethodName()
         {
             if (!string.IsNullOrWhiteSpace(Name)) return Name;
-            string name = "obMP" + (FastLane ? "y" : "n");
+            string name = "obMP" + (UseShortestTimeObjective ? "T" : "D") + (FastLane ? "y" : "n");
             return name;
+        }
+    }
+    /// <summary>
+    /// Testing-only M1G configuration for single-batch top-k counterfactual validation.
+    /// </summary>
+    public class M1GTConfiguration : M1GConfiguration
+    {
+        /// <summary>
+        /// Number of MIP candidates to collect at the validation decision.
+        /// </summary>
+        public int TopK = 5;
+        /// <summary>
+        /// One-based decision id at which top-k counterfactual validation is applied.
+        /// </summary>
+        public int ValidationDecisionId = 1;
+        /// <summary>
+        /// One-based candidate rank to force in this replay run.
+        /// </summary>
+        public int ValidationCandidateRank = 1;
+        /// <summary>
+        /// Stop simulation once all selected assignments of the validation batch reached station queue boundary.
+        /// </summary>
+        public bool StopAfterValidationBatch = true;
+        /// <summary>
+        /// Optional CSV path containing prior oracle decisions as decision_id,candidate_rank.
+        /// </summary>
+        public string ForcedDecisionPolicyPath = "";
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.GM1T; }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "obM1G-t" + (UseShortestTimeObjective ? "T" : "D") + (FastLane ? "y" : "n") + "-d" + ValidationDecisionId + "-r" + ValidationCandidateRank;
         }
     }
     /// <summary>

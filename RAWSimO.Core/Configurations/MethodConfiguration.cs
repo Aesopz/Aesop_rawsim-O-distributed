@@ -278,6 +278,10 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         GM1,
         /// <summary>
+        /// Testing variant of GM1 for single-batch top-k counterfactual validation.
+        /// </summary>
+        GM1T,
+        /// <summary>
         /// Use mathematical programming method to solve POA
         /// </summary>
         GM2,
@@ -719,6 +723,7 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(ForesightOrderBatchingConfiguration))]
     [XmlInclude(typeof(PodMatchingOrderBatchingConfiguration))]
     [XmlInclude(typeof(M1GConfiguration))]
+    [XmlInclude(typeof(M1GTConfiguration))]
     [XmlInclude(typeof(M2GConfiguration))]
     [XmlInclude(typeof(HASConfiguration))]
     [XmlInclude(typeof(HADGSConfiguration))]

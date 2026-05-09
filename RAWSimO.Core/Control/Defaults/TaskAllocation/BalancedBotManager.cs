@@ -205,7 +205,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
             List<Tuple<Bot, Circle, Circle>> reassignments = null;
             Dictionary<Circle, int> previousAssignment = null;
             bool bb = true;
-            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
             { if (_unassignedBots.Count > 0)
                     bb = true;
                 else
@@ -261,7 +261,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
             {
                 Instance._outputstationbots.Add(bot1.Key);
                 _stationBots[bot1.Value].Remove(bot1.Key);
-                if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration)
+                if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration)
                 {
                     bool ifbreak = false;
                     foreach (var symblelist in Instance.ResourceManager._Ziops.Values)
@@ -364,7 +364,7 @@ namespace RAWSimO.Core.Control.Defaults.TaskAllocation
                             // Pod selection rules
                             _config.PodSelectionConfig);
                         }
-                        else if(Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration)//使用Gurobi
+                        else if(Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration)//使用Gurobi
                         {
                             success = DoExtractTaskForStation1(bot, station as OutputStation,
                              // Extended search options

@@ -1,4 +1,5 @@
 using RAWSimO.Core.Bots;
+using RAWSimO.Core.Configurations;
 using RAWSimO.Core.Elements;
 using RAWSimO.Core.Geometrics;
 using RAWSimO.Core.IO;
@@ -35,6 +36,7 @@ namespace RAWSimO.Core.Metrics
             public double EstimatedObjectiveCost;
             public double EstimatedDistance;
             public string EstimatedPathNodes;
+            public bool EstimatedFallback;
             public bool MatchedToExecution;
             public double ActualStartTime = double.NaN;
             public double ActualEndTime = double.NaN;
@@ -48,6 +50,9 @@ namespace RAWSimO.Core.Metrics
             public double ActualEnergy = double.NaN;
             public double ActualWaitTime = double.NaN;
             public int ActualTurnCount;
+            public bool VisualTailCompleted;
+            public int VisualEndWaypointId = -1;
+            public string VisualEndKind = "";
         }
 
         private readonly Instance _instance;
@@ -130,7 +135,8 @@ namespace RAWSimO.Core.Metrics
                     EstimatedTravelTime = double.NaN,
                     EstimatedObjectiveCost = double.NaN,
                     EstimatedDistance = double.NaN,
-                    EstimatedPathNodes = ""
+                    EstimatedPathNodes = "",
+                    EstimatedFallback = true
                 };
                 _records.Add(record);
             }
@@ -225,7 +231,8 @@ namespace RAWSimO.Core.Metrics
             if (actualEnd != null)
             {
                 record.ActualEndWaypointId = actualEnd.ID;
-                AppendActualWaypoint(recordId, actualEnd);
+                if (!record.ActualPathNodes.Contains(actualEnd.ID))
+                    AppendActualWaypoint(recordId, actualEnd);
             }
             record.ActualPreDispatchDistance = CalculatePreDispatchDistance(record);
             record.ActualDistance = trip.DistanceM;
@@ -233,6 +240,32 @@ namespace RAWSimO.Core.Metrics
             record.ActualWaitTime = trip.WaitTimeSec;
             record.ActualTurnCount = trip.TurnCount;
             record.ActualEndKind = actualEndKind ?? "";
+            if (_instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration &&
+                record.SegmentType == M1GPathTraceSegmentType.PodToStation &&
+                string.Equals(record.ActualEndKind, "StationQueueEntry", StringComparison.Ordinal))
+            {
+                _instance.NotifyM1GTLeg2Completed(record.BotId, record.PodId, record.StationId);
+            }
+            return true;
+        }
+
+        public bool CompleteVisualTailAtProcessPoint(int recordId, Waypoint processPoint)
+        {
+            if (recordId == 0)
+                return false;
+            SegmentRecord record = _records.FirstOrDefault(r => r.Id == recordId);
+            if (record == null || record.VisualTailCompleted)
+                return false;
+            if (record.SegmentType != M1GPathTraceSegmentType.PodToStation ||
+                !string.Equals(record.ActualEndKind, "StationQueueEntry", StringComparison.Ordinal))
+                return false;
+
+            AppendActualWaypoint(recordId, processPoint);
+            record.VisualTailCompleted = true;
+            record.VisualEndWaypointId = processPoint != null ? processPoint.ID : -1;
+            record.VisualEndKind = "StationProcessPoint";
+            if (_instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration)
+                _instance.NotifyM1GTLeg2VisualCompleted(record.BotId, record.PodId, record.StationId);
             return true;
         }
 
@@ -243,6 +276,29 @@ namespace RAWSimO.Core.Metrics
             Directory.CreateDirectory(directory);
             WriteSegments(Path.Combine(directory, "m1g_path_estimate_actual_segments.csv"));
             WriteSummary(Path.Combine(directory, "m1g_path_estimate_actual_summary.csv"));
+            WriteWaypoints(Path.Combine(directory, "m1g_waypoints.csv"));
+        }
+
+        private void WriteWaypoints(string path)
+        {
+            using (var writer = new StreamWriter(path, false))
+            {
+                writer.WriteLine("waypoint_id,tier_id,x,y,is_storage,is_queue,is_input_station,is_output_station,is_elevator,paths");
+                foreach (var waypoint in _instance.Waypoints.OrderBy(w => w.ID))
+                {
+                    writer.WriteLine(string.Join(",",
+                        waypoint.ID.ToString(CultureInfo.InvariantCulture),
+                        waypoint.Tier != null ? waypoint.Tier.ID.ToString(CultureInfo.InvariantCulture) : "-1",
+                        waypoint.X.ToString(IOConstants.FORMATTER),
+                        waypoint.Y.ToString(IOConstants.FORMATTER),
+                        waypoint.PodStorageLocation ? "1" : "0",
+                        waypoint.IsQueueWaypoint ? "1" : "0",
+                        waypoint.InputStation != null ? "1" : "0",
+                        waypoint.OutputStation != null ? "1" : "0",
+                        waypoint.Elevator != null ? "1" : "0",
+                        Csv(string.Join("|", waypoint.Paths.Select(p => p.ID.ToString(CultureInfo.InvariantCulture))))));
+                }
+            }
         }
 
         private void AddEstimatedSegmentWithPath(int decisionId, M1GPathTraceSegmentType segmentType, double decisionTime,
@@ -270,7 +326,8 @@ namespace RAWSimO.Core.Metrics
                 EstimatedTravelTime = estimatedTravelTime,
                 EstimatedObjectiveCost = estimatedObjectiveCost,
                 EstimatedDistance = pathNodes.Distance,
-                EstimatedPathNodes = string.Join("|", pathNodes.Nodes.Select(n => n.ID.ToString(CultureInfo.InvariantCulture)))
+                EstimatedPathNodes = string.Join("|", pathNodes.Nodes.Select(n => n.ID.ToString(CultureInfo.InvariantCulture))),
+                EstimatedFallback = pathNodes.Nodes.Count == 0 || (from != to && pathNodes.Nodes.Count < 2)
             };
             _records.Add(record);
 
@@ -310,18 +367,7 @@ namespace RAWSimO.Core.Metrics
             // 下界估算：初始轉向（決策當下 bot 方向→第一段方向）+ 整段路徑以完整連續行駛計算。
             // 刻意忽略中途各轉彎的「停止→轉→加速」懲罰，確保 estimated ≤ actual。
             // 實際 WHCA* 因找到較少轉彎的路徑或受壅塞影響，actual 必然 ≥ 此下界。
-            double initTurn = 0.0;
-            if (!double.IsNaN(startOrientation))
-            {
-                double firstSegOrientation = Circle.GetOrientation(nodes[0].X, nodes[0].Y, nodes[1].X, nodes[1].Y);
-                initTurn = normalBot.Physics.getTimeNeededToTurn(startOrientation, firstSegOrientation);
-            }
-
-            double totalDistance = 0.0;
-            for (int i = 1; i < nodes.Count; i++)
-                totalDistance += nodes[i - 1].GetDistance(nodes[i]);
-
-            return initTurn + normalBot.Physics.getTimeNeededToMove(0, totalDistance);
+            return new M1GPhysicalTravelTimeEstimator(_instance).CalculatePhysicalEta(normalBot, nodes, startOrientation);
         }
 
         private double CalculatePreDispatchDistance(SegmentRecord record)
@@ -403,7 +449,7 @@ namespace RAWSimO.Core.Metrics
         {
             using (var writer = CreateWriter(path))
             {
-                writer.WriteLine("decision_id,segment_id,segment_type,matched_to_milp,decision_time,bot_id,pod_id,station_id,estimated_start_wp,estimated_end_wp,estimated_travel_time,estimated_objective_cost,estimated_distance,estimated_path_nodes,actual_start_time,actual_end_time,actual_duration,actual_distance,actual_pre_dispatch_distance,actual_wait_time,actual_energy,actual_turn_count,actual_start_wp,actual_end_wp,actual_end_kind,actual_path_nodes,time_gap,distance_gap,wait_share");
+                writer.WriteLine("decision_id,segment_id,segment_type,matched_to_milp,decision_time,bot_id,pod_id,station_id,estimated_start_wp,estimated_end_wp,estimated_travel_time,estimated_objective_cost,estimated_distance,estimated_path_nodes,estimated_fallback,actual_start_time,actual_end_time,actual_duration,actual_distance,actual_pre_dispatch_distance,actual_wait_time,actual_energy,actual_turn_count,actual_start_wp,actual_end_wp,actual_end_kind,actual_path_nodes,visual_tail_completed,visual_end_wp,visual_end_kind,time_gap,distance_gap,wait_share");
                 foreach (var record in _records.OrderBy(r => r.Id))
                 {
                     double timeGap = double.IsNaN(record.ActualDuration) || double.IsNaN(record.EstimatedTravelTime) ? double.NaN : record.ActualDuration - record.EstimatedTravelTime;
@@ -424,6 +470,7 @@ namespace RAWSimO.Core.Metrics
                         F(record.EstimatedObjectiveCost),
                         F(record.EstimatedDistance),
                         Csv(record.EstimatedPathNodes),
+                        record.EstimatedFallback ? "1" : "0",
                         F(record.ActualStartTime),
                         F(record.ActualEndTime),
                         F(record.ActualDuration),
@@ -436,6 +483,9 @@ namespace RAWSimO.Core.Metrics
                         record.ActualEndWaypointId.ToString(CultureInfo.InvariantCulture),
                         Csv(record.ActualEndKind),
                         Csv(string.Join("|", record.ActualPathNodes.Select(n => n.ToString(CultureInfo.InvariantCulture)))),
+                        record.VisualTailCompleted ? "1" : "0",
+                        record.VisualEndWaypointId.ToString(CultureInfo.InvariantCulture),
+                        Csv(record.VisualEndKind),
                         F(timeGap),
                         F(distanceGap),
                         F(waitShare)));

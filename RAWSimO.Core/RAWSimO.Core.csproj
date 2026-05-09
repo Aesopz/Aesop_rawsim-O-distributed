@@ -107,6 +107,7 @@
     <Compile Include="Control\Defaults\OrderBatching\LinesInCommonOrderManager.cs" />
     <Compile Include="Control\Defaults\OrderBatching\OrderBatchingCandidateSnapshot.cs" />
     <Compile Include="Control\Defaults\OrderBatching\M1GManager.cs" />
+    <Compile Include="Control\Defaults\OrderBatching\M1GTManager.cs" />
     <Compile Include="Control\Defaults\OrderBatching\NearBestPodOrderManager.cs" />
     <Compile Include="Control\Defaults\OrderBatching\PodMatchingOrderManager.cs" />
     <Compile Include="Control\Defaults\OrderBatching\HADGSManager.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Management\MetaInformationManager.cs" />
     <Compile Include="Management\StockInformation.cs" />
     <Compile Include="Metrics\Distances.cs" />
+    <Compile Include="Metrics\M1GPhysicalTravelTimeEstimator.cs" />
     <Compile Include="Metrics\M1GPathTrace.cs" />
     <Compile Include="Metrics\EnergyConsumption.cs" />
     <Compile Include="Control\Defaults\TaskAllocation\RandomBotManager.cs" />

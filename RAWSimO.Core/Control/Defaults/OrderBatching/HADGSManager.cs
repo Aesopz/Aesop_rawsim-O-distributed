@@ -41,6 +41,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// </summary>
         public int LocalSearch = 3;
         bool IfSimplePOAandPPS = false;
+        private OrderBatchingCandidateSnapshot _candidateSnapshot = null;
         private double EstimateBotPodDistance(Bot bot, Pod pod)
         {
             if (bot == null || pod == null)
@@ -325,6 +326,37 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         {
             return _pendingOrders.Any(o => Instance.ResourceManager.GetExtractRequestsOfOrder(o).Any(r => pod.IsAvailable(r.Item)));
         }
+
+        private IEnumerable<Pod> GetCandidateUnusedPods()
+        {
+            Func<Pod, bool> currentlyFree = pod =>
+                !Instance.ResourceManager.BottoPod.ContainsValue(pod) &&
+                !Instance.ResourceManager._usedPods.ContainsKey(pod);
+
+            if (_candidateSnapshot != null)
+                return _candidateSnapshot.CandidateUnusedPods.Where(currentlyFree);
+
+            return Instance.ResourceManager.UnusedPods.Where(currentlyFree);
+        }
+
+        private IEnumerable<Bot> GetAvailableRobots()
+        {
+            Func<Bot, bool> currentlyFree = bot =>
+                bot.Pod == null &&
+                !Instance.ResourceManager._usedPods.ContainsValue(bot) &&
+                !Instance.ResourceManager.BottoPod.ContainsKey(bot);
+
+            if (_candidateSnapshot != null)
+                return _candidateSnapshot.AvailableRobots.Where(currentlyFree);
+
+            return Instance._outputstationbots.Where(currentlyFree);
+        }
+
+        private IEnumerable<Pod> GetCandidatePodsForStation(OutputStation station)
+        {
+            return GetCandidateUnusedPods().Concat(_inboundPodsPerStation[station]);
+        }
+
         /// <summary>
         /// 产生Od
         /// </summary>
@@ -332,6 +364,9 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// <returns></returns>
         public HashSet<Order> GenerateOd(HashSet<Order> pendingOrders)
         {
+            if (_candidateSnapshot != null)
+                return new HashSet<Order>(_candidateSnapshot.LateOrders.Where(pendingOrders.Contains));
+
             foreach (Order order in pendingOrders)
                 order.Timestay = order.DueTime - (Instance.SettingConfig.StartTime.AddSeconds(Convert.ToInt32(Instance.Controller.CurrentTime)) - order.TimePlaced).TotalSeconds;
             int i = 0;
@@ -512,12 +547,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                         else
                             furtherOptions1 = false;
                     }
-                    HashSet<Bot> Ra = new HashSet<Bot>();
-                    foreach (var bot in Instance._outputstationbots) //产生Ra
-                    {
-                        if (bot.Pod == null && !Instance.ResourceManager._usedPods.ContainsValue(bot) && !Instance.ResourceManager.BottoPod.ContainsKey(bot)) //
-                            Ra.Add(bot);
-                    }
+                    HashSet<Bot> Ra = new HashSet<Bot>(GetAvailableRobots());
                     if (Ra.Count == 0)
                         continue;
                     //进行PPS操作
@@ -527,7 +557,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                         Pod BestPod = null;
                         Bot BestRobot = null;
                         IfSimplePOAandPPS = false;
-                        foreach (var pod in Instance.ResourceManager.UnusedPods.Where(p => AnyRelevantRequests1(p) && !SelectedPod.Contains(p) && !Instance.ResourceManager.BottoPod.ContainsValue(p))) //&& !Instance.ResourceManager.BottoPod.ContainsValue(p)
+                        foreach (var pod in GetCandidateUnusedPods().Where(p => AnyRelevantRequests1(p) && !SelectedPod.Contains(p))) //&& !Instance.ResourceManager.BottoPod.ContainsValue(p)
                         {
                             _inboundPodsPerStation[station].Add(pod);
                             CurrentPodtoBot.Clear();
@@ -586,7 +616,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             foreach (var item in order.Positions)
             {
                 setofitem.Add(item.Key);
-                foreach (var pod in Instance.ResourceManager.UnusedPods.Concat(_inboundPodsPerStation[station]).Where(v => v.IsAvailable(item.Key))) //&& !SelectedPod.Contains(v)
+                foreach (var pod in GetCandidatePodsForStation(station).Where(v => v.IsAvailable(item.Key))) //&& !SelectedPod.Contains(v)
                 {
                     if (piSKU.ContainsKey(item.Key))
                     {
@@ -668,7 +698,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             int cs = Cs[station];
             int LS = 0;
             LocalSearch = 3;
-            HashSet<Order> pendingOrders = new HashSet<Order>(_pendingOrders.Where(o => o.Positions.All(p => Instance.ResourceManager.UnusedPods.Concat(_inboundPodsPerStation[station]).
+            HashSet<Order> pendingOrders = new HashSet<Order>(_pendingOrders.Where(o => o.Positions.All(p => GetCandidatePodsForStation(station).
             Sum(pod => pod.CountAvailable(p.Key)) >= p.Value)));
             if (pendingOrders.Count < LocalSearch)
                 LocalSearch = pendingOrders.Count;
@@ -826,29 +856,11 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 Initialize();
             // Init
             InitPodSelection();
+            _candidateSnapshot = OrderBatchingCandidateSnapshot.Build(Instance, _pendingOrders, DueTimeOrderofMP);
+            Cs = new Dictionary<OutputStation, int>(_candidateSnapshot.Cs);
             _inboundPodsPerStation.Clear();
-            foreach (var oStation in Instance.OutputStations)
-            {
-                _inboundPodsPerStation[oStation] = new HashSet<Pod>(oStation.InboundPods);
-                foreach (var pod in oStation.InboundPods)
-                {
-                    if (Instance.ResourceManager.BottoPod.ContainsValue(pod))
-                        continue;
-                    if (!Instance.ResourceManager._usedPods.ContainsKey(pod))
-                    {
-                        _inboundPodsPerStation[oStation].Remove(pod);
-                        oStation.UnregisterInboundPod(pod);
-                        break;
-                    }
-                    if (Instance.ResourceManager._usedPods[pod].CurrentTask is RestTask)
-                    {
-                        _inboundPodsPerStation[oStation].Remove(pod);
-                        Instance.ResourceManager.ReleasePod(pod);
-                        oStation.UnregisterInboundPod(pod);
-                        break;
-                    }
-                }
-            }
+            foreach (var stationPods in _candidateSnapshot.InboundPodsPerStation)
+                _inboundPodsPerStation[stationPods.Key] = new HashSet<Pod>(stationPods.Value);
             if (_bestPodOStationCandidateSelector == null)
             {
                 _bestPodOStationCandidateSelector = new BestCandidateSelector(false,
@@ -859,6 +871,8 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             Func<OutputStation, bool> validStationNormalAssignment = _config.FastLane ? (Func<OutputStation, bool>)IsAssignableKeepFastLaneSlot : IsAssignable;
             Func<OutputStation, bool> validStationFastLaneAssignment = IsAssignable;
             //Od为快到期order的集合
+            HashSet<Order> basePendingOrders = new HashSet<Order>(_pendingOrders);
+            _pendingOrders = new HashSet<Order>(_candidateSnapshot.StockFeasiblePendingOrders);
             HashSet<Order> Od = GenerateOd(_pendingOrders);
             //用于存储_pendingOrders的临时数据
             _pendingOrders1 = new HashSet<Order>(_pendingOrders);
@@ -873,6 +887,10 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 _pendingOrders.Clear();
                 _pendingOrders = new HashSet<Order>(_pendingOrders1);
             }
+            HashSet<Order> stockFeasibleAfterDecision = new HashSet<Order>(_pendingOrders);
+            _pendingOrders = new HashSet<Order>(basePendingOrders.Where(order =>
+                !_candidateSnapshot.StockFeasiblePendingOrders.Contains(order) ||
+                stockFeasibleAfterDecision.Contains(order)));
             //foreach (var sta in Instance.OutputStations.Where(v => Instance.ResourceManager._Ziops1[v].Count > 0))
             //{
             //    foreach (var podtoziops in Instance.ResourceManager._Ziops1[sta].Where(v => !Instance.ResourceManager.BottoPod.ContainsValue(v.Key) && Instance.ResourceManager._usedPods.ContainsKey(v.Key)))

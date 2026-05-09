@@ -156,6 +156,7 @@ namespace RAWSimO.Core.Bots
         private Queue<bool> _pendingTripsLoaded = new Queue<bool>();
         private Queue<int> _pendingM1GTraceSegments = new Queue<int>();
         private int _activeM1GTraceSegmentId = 0;
+        private int _visualOnlyM1GTraceSegmentId = 0;
 
         /// <summary>Per-trip recorded metrics (flushed at CloseCurrentTrip).</summary>
         public struct TripRecord
@@ -200,6 +201,7 @@ namespace RAWSimO.Core.Bots
                 Instance.M1GPathTrace.CompleteActualSegment(_activeM1GTraceSegmentId, currentTime, rec);
                 _tripOpen = false;
                 _activeM1GTraceSegmentId = 0;
+                _visualOnlyM1GTraceSegmentId = 0;
             }
         }
 
@@ -217,7 +219,19 @@ namespace RAWSimO.Core.Bots
                 TurnCount = _currentTripTurnCount,
             };
             if (Instance.M1GPathTrace.CompleteActualSegmentAtBoundary(_activeM1GTraceSegmentId, currentTime, rec, actualEnd, actualEndKind))
+            {
+                if (string.Equals(actualEndKind, "StationQueueEntry", StringComparison.Ordinal))
+                    _visualOnlyM1GTraceSegmentId = _activeM1GTraceSegmentId;
                 _activeM1GTraceSegmentId = 0;
+            }
+        }
+
+        internal void CompleteM1GVisualTailAtProcessPoint(Waypoint processPoint)
+        {
+            if (_visualOnlyM1GTraceSegmentId == 0)
+                return;
+            Instance.M1GPathTrace.CompleteVisualTailAtProcessPoint(_visualOnlyM1GTraceSegmentId, processPoint);
+            _visualOnlyM1GTraceSegmentId = 0;
         }
 
         /// <summary>
@@ -671,7 +685,8 @@ namespace RAWSimO.Core.Bots
                     RequestReoptimization = true;
 
                     ExtractTask extractTask = t as ExtractTask;
-                    bool traceM1G = Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration;
+                    bool traceM1G = Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration ||
+                                    Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration;
                     if (extractTask.ReservedPod != Pod)
                     {
                         var podWaypoint = extractTask.ReservedPod.Waypoint;
@@ -826,7 +841,8 @@ namespace RAWSimO.Core.Bots
                 }
                 double segmentDistance = CurrentWaypoint.GetDistance(NextWaypoint);
                 _driveDuration = Physics.getTimeNeededToMove(0, segmentDistance);
-                Instance.M1GPathTrace.AppendActualWaypoint(_activeM1GTraceSegmentId, NextWaypoint);
+                int m1gTraceSegmentId = _activeM1GTraceSegmentId != 0 ? _activeM1GTraceSegmentId : _visualOnlyM1GTraceSegmentId;
+                Instance.M1GPathTrace.AppendActualWaypoint(m1gTraceSegmentId, NextWaypoint);
 
                 // ── Rest-task gate: no productive metrics recorded during return-to-park ──
                 bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
@@ -1073,6 +1089,17 @@ namespace RAWSimO.Core.Bots
                 }).ToList());
             return _queueZonesOStations[station].IsContained(Tier, X, Y);
         }
+
+        private bool IsAtStationQueueBoundaryWaypoint(OutputStation station)
+        {
+            if (station == null || station.Queues == null || CurrentWaypoint == null)
+                return false;
+
+            return station.Queues.Any(q =>
+                (q.Key != null && q.Key != station.Waypoint && q.Key == CurrentWaypoint) ||
+                (q.Value != null && q.Value.Any(w => w != null && w != station.Waypoint && w == CurrentWaypoint)));
+        }
+
         /// <summary>
         /// Checks whether the bot is currently within the stations queueing area.
         /// </summary>
@@ -1307,7 +1334,8 @@ namespace RAWSimO.Core.Bots
                 if (DestinationWaypoint.OutputStation != null)
                     if (IsInStationQueueZone(DestinationWaypoint.OutputStation))
                     {
-                        CompleteActiveM1GTraceAtBoundary(currentTime, DestinationWaypoint.OutputStation.Waypoint, "StationQueueEntry");
+                        if (IsAtStationQueueBoundaryWaypoint(DestinationWaypoint.OutputStation))
+                            CompleteActiveM1GTraceAtBoundary(currentTime, CurrentWaypoint, "StationQueueEntry");
                         Instance.NotifyTripCompleted(this, Statistics.StationTripDatapoint.StationTripType.O, Instance.Controller.CurrentTime - _queueTripStartTime);
                         _queueTripStartTime = double.NaN;
                     }
@@ -1319,6 +1347,11 @@ namespace RAWSimO.Core.Bots
                         _queueTripStartTime = double.NaN;
                     }
             }
+
+            if (DestinationWaypoint != null &&
+                DestinationWaypoint.OutputStation != null &&
+                IsAtStationQueueBoundaryWaypoint(DestinationWaypoint.OutputStation))
+                CompleteActiveM1GTraceAtBoundary(currentTime, CurrentWaypoint, "StationQueueEntry");
         }
 
         /// <summary>
@@ -2057,6 +2090,7 @@ namespace RAWSimO.Core.Bots
                 {
                     self.StatTotalStateCounts[Type]++;
                     _initialized = true;
+                    bot.CompleteM1GVisualTailAtProcessPoint(_waypoint);
                     bot.CloseCurrentTrip(currentTime);
                 }
 

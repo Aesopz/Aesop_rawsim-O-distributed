@@ -106,6 +106,7 @@ namespace RAWSimO.Core.Control
                 case OrderBatchingMethodType.Foresight: OrderManager = new ForesightOrderManager(instance); break;
                 case OrderBatchingMethodType.PodMatching: OrderManager = new PodMatchingOrderManager(instance); break;
                 case OrderBatchingMethodType.GM1: OrderManager = new M1GManager(instance);break;
+                case OrderBatchingMethodType.GM1T: OrderManager = new M1GTManager(instance); break;
                 case OrderBatchingMethodType.GM2: OrderManager = new M2GManager(instance); break;
                 case OrderBatchingMethodType.HAS: OrderManager = new HASManager(instance); break;
                 case OrderBatchingMethodType.HADGS: OrderManager = new HADGSManager(instance); break;
@@ -223,7 +224,7 @@ namespace RAWSimO.Core.Control
             double minimumUpdateTime = Instance.SettingConfig.Tolerance / 3.0 / Instance.Bots.Max(b => b.MaxVelocity);
 
             _updateFinishTime = _currentTime + elapsedTime;
-            while (_currentTime < _updateFinishTime)
+            while (_currentTime < _updateFinishTime && !Instance.StopRequested)
             {
                 // --> Get the next event time
                 double nextTime =
@@ -250,6 +251,8 @@ namespace RAWSimO.Core.Control
 
                 // Set new time
                 _currentTime = nextTime;
+                if (Instance.StopRequested)
+                    break;
             }
         }
 

@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using static RAWSimO.Core.Management.ResourceManager;
 using static System.Collections.Specialized.BitVector32;
@@ -23,7 +25,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
     /// <summary>
     /// Pod的比较器
     /// </summary>
-    public class PodComparer : IEqualityComparer<Pod>
+    public class M1GTPodComparer : IEqualityComparer<Pod>
     {
         /// <summary>
         /// equal
@@ -49,21 +51,54 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
     /// <summary>
     /// Implements a manager that uses information of the backlog to exploit similarities in orders when assigning them.
     /// </summary>
-    public class M1GManager : OrderManager
+    public class M1GTManager : OrderManager
     {
         /// <summary>
         /// Creates a new instance of this manager.
         /// </summary>
         /// <param name="instance">The instance this manager belongs to.</param>
-        public M1GManager(Instance instance) : base(instance) { _config = instance.ControllerConfig.OrderBatchingConfig as M1GConfiguration; }
+        public M1GTManager(Instance instance) : base(instance) { _config = instance.ControllerConfig.OrderBatchingConfig as M1GTConfiguration; }
 
         /// <summary>
         /// The config of this controller.
         /// </summary>
-        private M1GConfiguration _config;
+        private M1GTConfiguration _config;
+        private int _m1gtDecisionId = 0;
+        private bool _m1gtValidationBatchArmed = false;
         private M1GPhysicalTravelTimeEstimator _physicalEtaEstimator;
         private Dictionary<string, M1GPhysicalTravelTimeResult> _physicalEtaCache = new Dictionary<string, M1GPhysicalTravelTimeResult>();
         private M1GPhysicalTravelTimeStats _physicalEtaStats = new M1GPhysicalTravelTimeStats();
+        private Dictionary<int, int> _forcedDecisionPolicy = null;
+
+        private sealed class M1GTCandidate
+        {
+            public int DecisionId;
+            public int Rank;
+            public double Objective;
+            public int UnusedCapacitySum;
+            public List<Symbol> Xps = new List<Symbol>();
+            public List<Symbol> Yos = new List<Symbol>();
+            public List<Symbol> Yaos = new List<Symbol>();
+            public List<Symbol> Yrp = new List<Symbol>();
+            public List<Symbol> Dops = new List<Symbol>();
+        }
+
+        private sealed class ObjectiveCalibration
+        {
+            public bool UseShortestTimeObjective;
+            public double TimePerDistanceScale = 1.0;
+            public double TravelWeight = 1.0;
+            public double OrderReward = -40.0;
+            public double UnusedCapacityPenalty = 1000.0;
+            public int RatioSampleCount;
+            public string EstimatorName = "";
+            public int PathSampleCount;
+            public int FallbackCount;
+            public double AveragePhysicalEta = double.NaN;
+            public double MedianPhysicalEta = double.NaN;
+            public double AverageDistanceRatio = double.NaN;
+            public double MedianDistanceRatio = double.NaN;
+        }
 
         /// <summary>
         /// Checks whether another order is assignable to the given station.
@@ -96,21 +131,52 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// </summary>
         private Dictionary<int, List<Symbol>> _IsvariableNames = new Dictionary<int, List<Symbol>>();
 
-        private sealed class ObjectiveCalibration
+        private Dictionary<int, int> ForcedDecisionPolicy
         {
-            public bool UseShortestTimeObjective;
-            public double TimePerDistanceScale = 1.0;
-            public double TravelWeight = 1.0;
-            public double OrderReward = -40.0;
-            public double UnusedCapacityPenalty = 1000.0;
-            public int RatioSampleCount;
-            public string EstimatorName = "";
-            public int PathSampleCount;
-            public int FallbackCount;
-            public double AveragePhysicalEta = double.NaN;
-            public double MedianPhysicalEta = double.NaN;
-            public double AverageDistanceRatio = double.NaN;
-            public double MedianDistanceRatio = double.NaN;
+            get
+            {
+                if (_forcedDecisionPolicy == null)
+                    _forcedDecisionPolicy = LoadForcedDecisionPolicy(_config != null ? _config.ForcedDecisionPolicyPath : "");
+                return _forcedDecisionPolicy;
+            }
+        }
+
+        private static Dictionary<int, int> LoadForcedDecisionPolicy(string path)
+        {
+            var policy = new Dictionary<int, int>();
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return policy;
+
+            foreach (var rawLine in File.ReadAllLines(path))
+            {
+                if (string.IsNullOrWhiteSpace(rawLine))
+                    continue;
+                var line = rawLine.Trim();
+                if (line.StartsWith("#", StringComparison.Ordinal))
+                    continue;
+                var parts = line.Split(',');
+                if (parts.Length < 2)
+                    continue;
+                int decisionId;
+                int rank;
+                if (!int.TryParse(Unquote(parts[0]), NumberStyles.Integer, CultureInfo.InvariantCulture, out decisionId))
+                    continue;
+                if (!int.TryParse(Unquote(parts[1]), NumberStyles.Integer, CultureInfo.InvariantCulture, out rank))
+                    continue;
+                if (decisionId > 0 && rank > 0)
+                    policy[decisionId] = rank;
+            }
+            return policy;
+        }
+
+        private static string Unquote(string value)
+        {
+            if (value == null)
+                return "";
+            value = value.Trim();
+            if (value.Length >= 2 && value[0] == '"' && value[value.Length - 1] == '"')
+                return value.Substring(1, value.Length - 2).Replace("\"\"", "\"");
+            return value;
         }
 
         private RAWSimO.Core.Waypoints.Waypoint GetBotReferenceWaypoint(Bot bot)
@@ -162,46 +228,6 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         private Bot GetRepresentativeBot()
         {
             return Instance.Bots.OrderBy(b => b.MaxVelocity).ThenBy(b => b.TurnSpeed).ThenBy(b => b.ID).FirstOrDefault();
-        }
-
-        private IEnumerable<Waypoint> GetStationQueueBoundaryCandidates(OutputStation station)
-        {
-            if (station == null || station.Queues == null)
-                return Enumerable.Empty<Waypoint>();
-
-            return station.Queues
-                .SelectMany(q => new[] { q.Key }.Concat(q.Value ?? Enumerable.Empty<Waypoint>()))
-                .Where(w => w != null && w != station.Waypoint)
-                .Distinct();
-        }
-
-        private Waypoint GetStationQueueBoundaryWaypoint(Pod pod, OutputStation station)
-        {
-            if (station == null)
-                return null;
-
-            var candidates = GetStationQueueBoundaryCandidates(station).ToList();
-            if (candidates.Count == 0)
-                return station.Waypoint;
-
-            var podWaypoint = GetPodReferenceWaypoint(pod);
-            if (podWaypoint == null)
-                return candidates.OrderBy(w => w.GetDistance(station.Waypoint)).FirstOrDefault();
-
-            return candidates
-                .OrderBy(w => EstimatePodQueueWaypointDistance(podWaypoint, w))
-                .ThenBy(w => w.ID)
-                .FirstOrDefault();
-        }
-
-        private double EstimatePodQueueWaypointDistance(Waypoint podWaypoint, Waypoint queueWaypoint)
-        {
-            if (podWaypoint == null || queueWaypoint == null)
-                return double.PositiveInfinity;
-            if (DistanceSet.ContainsKey(queueWaypoint.ID) &&
-                DistanceSet[queueWaypoint.ID].ContainsKey(podWaypoint.ID))
-                return DistanceSet[queueWaypoint.ID][podWaypoint.ID];
-            return Distances.CalculateShortestPathPodSafe1(podWaypoint, queueWaypoint, Instance);
         }
 
         private M1GPhysicalTravelTimeResult GetBotPodPhysicalEta(Bot bot, Pod pod)
@@ -322,6 +348,46 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             return _config.UseShortestTimeObjective ? EstimatePodStationTime(pod, station) : EstimatePodStationDistance(pod, station);
         }
 
+        private IEnumerable<Waypoint> GetStationQueueBoundaryCandidates(OutputStation station)
+        {
+            if (station == null || station.Queues == null)
+                return Enumerable.Empty<Waypoint>();
+
+            return station.Queues
+                .SelectMany(q => new[] { q.Key }.Concat(q.Value ?? Enumerable.Empty<Waypoint>()))
+                .Where(w => w != null && w != station.Waypoint)
+                .Distinct();
+        }
+
+        private Waypoint GetStationQueueBoundaryWaypoint(Pod pod, OutputStation station)
+        {
+            if (station == null)
+                return null;
+
+            var candidates = GetStationQueueBoundaryCandidates(station).ToList();
+            if (candidates.Count == 0)
+                return station.Waypoint;
+
+            var podWaypoint = GetPodReferenceWaypoint(pod);
+            if (podWaypoint == null)
+                return candidates.OrderBy(w => w.GetDistance(station.Waypoint)).FirstOrDefault();
+
+            return candidates
+                .OrderBy(w => EstimatePodQueueWaypointDistance(podWaypoint, w))
+                .ThenBy(w => w.ID)
+                .FirstOrDefault();
+        }
+
+        private double EstimatePodQueueWaypointDistance(Waypoint podWaypoint, Waypoint queueWaypoint)
+        {
+            if (podWaypoint == null || queueWaypoint == null)
+                return double.PositiveInfinity;
+            if (DistanceSet.ContainsKey(queueWaypoint.ID) &&
+                DistanceSet[queueWaypoint.ID].ContainsKey(podWaypoint.ID))
+                return DistanceSet[queueWaypoint.ID][podWaypoint.ID];
+            return Distances.CalculateShortestPathPodSafe1(podWaypoint, queueWaypoint, Instance);
+        }
+
         private ObjectiveCalibration BuildObjectiveCalibration(IEnumerable<Symbol> deVarNamexps, IEnumerable<Symbol> deVarNameyrp,
             Dictionary<OutputStation, int> Cs, HashSet<Bot> Ra)
         {
@@ -357,7 +423,10 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             if (scale <= 0.0)
             {
                 ratios.Sort();
-                scale = ratios.Count > 0 ? ratios[ratios.Count / 2] : 1.0;
+                if (ratios.Count > 0)
+                    scale = ratios[ratios.Count / 2];
+                else
+                    scale = 1.0;
             }
 
             calibration.TimePerDistanceScale = scale;
@@ -382,90 +451,10 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             ratios.Add(time / distance);
         }
 
-        private void WriteObjectiveCalibration(ObjectiveCalibration calibration)
+        private bool CandidateUsedFallback(IEnumerable<Symbol> xpsList, IEnumerable<Symbol> yrpList)
         {
-            string directory = Instance.SettingConfig.StatisticsDirectory;
-            if (string.IsNullOrWhiteSpace(directory))
-                directory = "Results";
-            Directory.CreateDirectory(directory);
-            string path = Path.Combine(directory, "m1g_objective_calibration.csv");
-            bool writeHeader = !File.Exists(path);
-            using (var writer = new StreamWriter(path, true))
-            {
-                if (writeHeader)
-                    writer.WriteLine("decision_time,use_shortest_time_objective,time_per_distance_scale,ratio_sample_count,travel_weight,order_reward,unused_capacity_penalty,estimator_name,path_sample_count,fallback_count,avg_physical_eta,median_physical_eta,avg_distance_ratio,median_distance_ratio");
-                writer.WriteLine(string.Join(",",
-                    Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
-                    calibration.UseShortestTimeObjective ? "1" : "0",
-                    calibration.TimePerDistanceScale.ToString(IOConstants.FORMATTER),
-                    calibration.RatioSampleCount.ToString(CultureInfo.InvariantCulture),
-                    calibration.TravelWeight.ToString(IOConstants.FORMATTER),
-                    calibration.OrderReward.ToString(IOConstants.FORMATTER),
-                    calibration.UnusedCapacityPenalty.ToString(IOConstants.FORMATTER),
-                    calibration.EstimatorName,
-                    calibration.PathSampleCount.ToString(CultureInfo.InvariantCulture),
-                    calibration.FallbackCount.ToString(CultureInfo.InvariantCulture),
-                    FormatDouble(calibration.AveragePhysicalEta),
-                    FormatDouble(calibration.MedianPhysicalEta),
-                    FormatDouble(calibration.AverageDistanceRatio),
-                    FormatDouble(calibration.MedianDistanceRatio)));
-            }
-        }
-
-        private void WriteObjectiveDecisionTrace(ObjectiveCalibration calibration, IEnumerable<Symbol> selectedXps,
-            IEnumerable<Symbol> selectedYrp, IEnumerable<Symbol> selectedYos, IEnumerable<Symbol> selectedYaos, IEnumerable<Symbol> deVarNameus,
-            VariableCollection<string> variablesInteger3)
-        {
-            var finalXps = selectedXps.ToList();
-            var finalYrp = selectedYrp.ToList();
-            var finalYos = selectedYos.ToList();
-            var finalYaos = selectedYaos.ToList();
-            int unusedCapacitySum = deVarNameus.Sum(v => (int)Math.Round(variablesInteger3[v.name].GetValue()));
-            double estimatedTravelSum = finalXps.Sum(v => EstimatePodStationObjectiveCost(v.pod, v.outputstation)) +
-                finalYrp.Sum(v => EstimateBotPodObjectiveCost(v.robot, v.pod));
-            double travelTerm = estimatedTravelSum * calibration.TravelWeight;
-            double orderTerm = finalYos.Count * calibration.OrderReward;
-            double capacityTerm = unusedCapacitySum * calibration.UnusedCapacityPenalty;
-
-            string directory = Instance.SettingConfig.StatisticsDirectory;
-            if (string.IsNullOrWhiteSpace(directory))
-                directory = "Results";
-            Directory.CreateDirectory(directory);
-            string path = Path.Combine(directory, "m1g_objective_decision_trace.csv");
-            bool writeHeader = !File.Exists(path);
-            using (var writer = new StreamWriter(path, true))
-            {
-                if (writeHeader)
-                    writer.WriteLine("decision_time,use_shortest_time_objective,time_per_distance_scale,lambda_order,lambda_capacity,selected_yos_count,selected_yaos_count,selected_xps_count,selected_yrp_count,unused_capacity_sum,estimated_eta_sum,objective_travel_term,objective_order_term,objective_capacity_term,objective_total,fallback_count");
-                writer.WriteLine(string.Join(",",
-                    Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
-                    calibration.UseShortestTimeObjective ? "1" : "0",
-                    calibration.TimePerDistanceScale.ToString(IOConstants.FORMATTER),
-                    (-calibration.OrderReward).ToString(IOConstants.FORMATTER),
-                    calibration.UnusedCapacityPenalty.ToString(IOConstants.FORMATTER),
-                    finalYos.Count.ToString(CultureInfo.InvariantCulture),
-                    finalYaos.Count.ToString(CultureInfo.InvariantCulture),
-                    finalXps.Count.ToString(CultureInfo.InvariantCulture),
-                    finalYrp.Count.ToString(CultureInfo.InvariantCulture),
-                    unusedCapacitySum.ToString(CultureInfo.InvariantCulture),
-                    FormatDouble(estimatedTravelSum),
-                    FormatDouble(travelTerm),
-                    FormatDouble(orderTerm),
-                    FormatDouble(capacityTerm),
-                    FormatDouble(travelTerm + orderTerm + capacityTerm),
-                    calibration.FallbackCount.ToString(CultureInfo.InvariantCulture)));
-            }
-        }
-
-        private static string FormatDouble(double value)
-        {
-            if (double.IsNaN(value))
-                return "";
-            if (double.IsPositiveInfinity(value))
-                return "Infinity";
-            if (double.IsNegativeInfinity(value))
-                return "-Infinity";
-            return value.ToString(IOConstants.FORMATTER);
+            return yrpList.Any(v => GetBotPodPhysicalEta(v.robot, v.pod).UsedFallback) ||
+                xpsList.Any(v => GetPodStationPhysicalEta(v.pod, v.outputstation).UsedFallback);
         }
 
         private void RecordSelectedPathEstimates(IEnumerable<Symbol> selectedXps, IEnumerable<Symbol> selectedYrp)
@@ -490,6 +479,437 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                     EstimatePodStationObjectiveCost(yrp.pod, xps.outputstation),
                     Instance.Controller.CurrentTime);
             }
+        }
+
+        private M1GTCandidate ExtractCandidate(int decisionId, int rank, double objective,
+            Dictionary<int, List<Symbol>> variableNames, VariableCollection<string> variablesBinary,
+            VariableCollection<string> variablesInteger3)
+        {
+            var candidate = new M1GTCandidate { DecisionId = decisionId, Rank = rank, Objective = objective };
+            for (int i = 1; i < variableNames.Count + 1; i++)
+            {
+                foreach (var itemName in variableNames[i])
+                {
+                    if (i == 5)
+                    {
+                        candidate.UnusedCapacitySum += (int)Math.Round(variablesInteger3[itemName.name].GetValue());
+                        continue;
+                    }
+                    if (Math.Round(variablesBinary[itemName.name].GetValue()) == 0)
+                        continue;
+
+                    if (i == 1)
+                        candidate.Xps.Add(itemName);
+                    else if (i == 2)
+                        candidate.Yos.Add(itemName);
+                    else if (i == 3)
+                        candidate.Yaos.Add(itemName);
+                    else if (i == 4)
+                        candidate.Yrp.Add(itemName);
+                    else if (i == 6)
+                        candidate.Dops.Add(itemName);
+                }
+            }
+            return candidate;
+        }
+
+        private bool AddNoGoodConstraint(LinearModel wrapper, VariableCollection<string> variablesBinary, M1GTCandidate candidate)
+        {
+            var coreNames = candidate.Xps.Concat(candidate.Yrp)
+                .Select(s => s.name)
+                .Distinct()
+                .ToList();
+            if (coreNames.Count == 0)
+                return false;
+
+            wrapper.AddConstr(LinearExpression.Sum(coreNames.Select(name => variablesBinary[name]), wrapper) <= coreNames.Count - 1,
+                "m1gt_nogood_" + candidate.DecisionId.ToString(CultureInfo.InvariantCulture) + "_" + candidate.Rank.ToString(CultureInfo.InvariantCulture));
+            wrapper.Update();
+            return true;
+        }
+
+        private List<M1GTCandidate> CollectCandidates(LinearModel wrapper, VariableCollection<string> variablesBinary,
+            VariableCollection<string> variablesInteger3, Dictionary<int, List<Symbol>> variableNames, int decisionId, int topK)
+        {
+            var candidates = new List<M1GTCandidate>();
+            int limit = Math.Max(1, topK);
+            for (int rank = 1; rank <= limit; rank++)
+            {
+                wrapper.Optimize();
+                if (!wrapper.HasSolution())
+                    break;
+
+                var candidate = ExtractCandidate(decisionId, rank, wrapper.GetObjectiveValue(), variableNames, variablesBinary, variablesInteger3);
+                candidates.Add(candidate);
+                if (rank == limit || !AddNoGoodConstraint(wrapper, variablesBinary, candidate))
+                    break;
+            }
+            return candidates;
+        }
+
+        // Collect all MILP-optimal candidates (same best objective) up to maxSearch re-solves.
+        private List<M1GTCandidate> CollectAllOptimalCandidates(LinearModel wrapper,
+            VariableCollection<string> variablesBinary,
+            VariableCollection<string> variablesInteger3,
+            Dictionary<int, List<Symbol>> variableNames, int decisionId, int maxSearch = 20)
+        {
+            var candidates = new List<M1GTCandidate>();
+            double bestObjective = double.MaxValue;
+            for (int rank = 1; rank <= maxSearch; rank++)
+            {
+                wrapper.Optimize();
+                if (!wrapper.HasSolution())
+                    break;
+                double obj = wrapper.GetObjectiveValue();
+                if (rank == 1)
+                    bestObjective = obj;
+                else if (obj > bestObjective + 1e-6)
+                    break;
+                var candidate = ExtractCandidate(decisionId, rank, obj, variableNames, variablesBinary, variablesInteger3);
+                candidates.Add(candidate);
+                if (!AddNoGoodConstraint(wrapper, variablesBinary, candidate))
+                    break;
+            }
+            return candidates;
+        }
+
+        // Dry-run of the unusedDopsPods logic: returns number of executable transports
+        // without modifying any ResourceManager state.
+        private int SimulateExecutableTransports(M1GTCandidate candidate, HashSet<Bot> ra)
+        {
+            var activeYrp = candidate.Yrp.Where(v => ra.Contains(v.robot)).ToList();
+            var activePods = new HashSet<Pod>(activeYrp.Select(v => v.pod));
+
+            var stationOrders = new Dictionary<OutputStation, List<Order>>();
+            foreach (var yaos in candidate.Yaos)
+            {
+                if (!stationOrders.ContainsKey(yaos.outputstation))
+                    stationOrders[yaos.outputstation] = new List<Order>();
+                stationOrders[yaos.outputstation].Add(yaos.order);
+            }
+
+            var allUnusedPods = new HashSet<Pod>();
+            foreach (var stationEntry in stationOrders)
+            {
+                var availableCounts = new Dictionary<ItemDescription, Dictionary<Pod, int>>();
+                foreach (var xps in candidate.Xps.Where(v => v.outputstation.ID == stationEntry.Key.ID && activePods.Contains(v.pod)))
+                {
+                    foreach (var item in xps.pod.ItemDescriptionsContained.Where(v => xps.pod.CountAvailable(v) > 0))
+                    {
+                        if (!availableCounts.ContainsKey(item))
+                            availableCounts[item] = new Dictionary<Pod, int>();
+                        if (availableCounts[item].ContainsKey(xps.pod))
+                            availableCounts[item][xps.pod] += xps.pod.CountAvailable(item);
+                        else
+                            availableCounts[item][xps.pod] = xps.pod.CountAvailable(item);
+                    }
+                }
+
+                var dopsPodsSelected = new HashSet<Pod>();
+                var dopsPodsUsed = new HashSet<Pod>();
+                foreach (var order in stationEntry.Value)
+                {
+                    var itemDemands = order.Positions.ToDictionary(p => p.Key, p => p.Value);
+                    var orderDopsPods = new HashSet<Pod>();
+                    foreach (var dops in candidate.Dops.Where(v => v.order.ID == order.ID && activePods.Contains(v.pod)))
+                    {
+                        dopsPodsSelected.Add(dops.pod);
+                        orderDopsPods.Add(dops.pod);
+                    }
+                    foreach (var itemDemand in itemDemands)
+                    {
+                        int number = itemDemand.Value;
+                        while (number > 0)
+                        {
+                            if (!availableCounts.ContainsKey(itemDemand.Key) || availableCounts[itemDemand.Key].Count == 0)
+                                break;
+                            Pod pod;
+                            if (availableCounts[itemDemand.Key].Keys.Any(v => orderDopsPods.Contains(v)))
+                            {
+                                pod = availableCounts[itemDemand.Key].Keys.First(v => orderDopsPods.Contains(v));
+                                orderDopsPods.Remove(pod);
+                                dopsPodsUsed.Add(pod);
+                            }
+                            else
+                                pod = availableCounts[itemDemand.Key].Keys.First();
+                            int numpods = availableCounts[itemDemand.Key].Keys.Count(v => orderDopsPods.Contains(v));
+                            if (availableCounts[itemDemand.Key][pod] >= number)
+                            {
+                                if (numpods > 0 && number > 1)
+                                {
+                                    Pod pod1 = availableCounts[itemDemand.Key].Keys.First(v => orderDopsPods.Contains(v));
+                                    orderDopsPods.Remove(pod1);
+                                    dopsPodsUsed.Add(pod1);
+                                    if (availableCounts[itemDemand.Key][pod] >= availableCounts[itemDemand.Key][pod1])
+                                    {
+                                        availableCounts[itemDemand.Key][pod] -= number - numpods;
+                                        number = numpods;
+                                    }
+                                    else
+                                    {
+                                        availableCounts[itemDemand.Key][pod] -= 1;
+                                        number = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    availableCounts[itemDemand.Key][pod] -= number;
+                                    number = 0;
+                                }
+                                if (availableCounts[itemDemand.Key][pod] == 0)
+                                    availableCounts[itemDemand.Key].Remove(pod);
+                            }
+                            else
+                            {
+                                number -= availableCounts[itemDemand.Key][pod];
+                                availableCounts[itemDemand.Key].Remove(pod);
+                            }
+                        }
+                    }
+                }
+                foreach (var pod in dopsPodsSelected.Where(v => !dopsPodsUsed.Contains(v)))
+                    allUnusedPods.Add(pod);
+            }
+            return activeYrp.Count - allUnusedPods.Count;
+        }
+
+        private void WriteDecisionSnapshotFingerprint(int decisionId, HashSet<Order> pendingOrders, HashSet<Bot> ra, HashSet<Bot> rb,
+            HashSet<Pod> pa, HashSet<Pod> pb, Dictionary<Pod, Bot> podToBot, Dictionary<OutputStation, int> cs)
+        {
+            if (decisionId != _config.ValidationDecisionId)
+                return;
+
+            var parts = new List<string>();
+            parts.Add("time=" + Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER));
+            parts.Add("bots=" + string.Join(";", Instance.Bots.OrderBy(b => b.ID).Select(b =>
+                b.ID.ToString(CultureInfo.InvariantCulture) + ":" +
+                (b.CurrentWaypoint != null ? b.CurrentWaypoint.ID.ToString(CultureInfo.InvariantCulture) : "-1") + ":" +
+                b.X.ToString(IOConstants.FORMATTER) + ":" +
+                b.Y.ToString(IOConstants.FORMATTER) + ":" +
+                (b.Pod != null ? b.Pod.ID.ToString(CultureInfo.InvariantCulture) : "-1") + ":" +
+                (b.CurrentTask != null ? b.CurrentTask.Type.ToString() : "null"))));
+            parts.Add("pods=" + string.Join(";", Instance.Pods.OrderBy(p => p.ID).Select(p =>
+                p.ID.ToString(CultureInfo.InvariantCulture) + ":" +
+                (p.Waypoint != null ? p.Waypoint.ID.ToString(CultureInfo.InvariantCulture) : "-1") + ":" +
+                (p.Bot != null ? p.Bot.ID.ToString(CultureInfo.InvariantCulture) : "-1") + ":" +
+                p.X.ToString(IOConstants.FORMATTER) + ":" +
+                p.Y.ToString(IOConstants.FORMATTER))));
+            parts.Add("pendingOrders=" + string.Join(";", pendingOrders.OrderBy(o => o.ID).Select(o =>
+                o.ID.ToString(CultureInfo.InvariantCulture) + ":" +
+                string.Join("|", o.Positions.OrderBy(p => p.Key.ID).Select(p =>
+                    p.Key.ID.ToString(CultureInfo.InvariantCulture) + "=" + p.Value.ToString(CultureInfo.InvariantCulture))))));
+            parts.Add("ra=" + string.Join("|", ra.OrderBy(b => b.ID).Select(b => b.ID.ToString(CultureInfo.InvariantCulture))));
+            parts.Add("rb=" + string.Join("|", rb.OrderBy(b => b.ID).Select(b => b.ID.ToString(CultureInfo.InvariantCulture))));
+            parts.Add("pa=" + string.Join("|", pa.OrderBy(p => p.ID).Select(p => p.ID.ToString(CultureInfo.InvariantCulture))));
+            parts.Add("pb=" + string.Join("|", pb.OrderBy(p => p.ID).Select(p => p.ID.ToString(CultureInfo.InvariantCulture))));
+            parts.Add("podToBot=" + string.Join("|", podToBot.OrderBy(v => v.Key.ID).Select(v =>
+                v.Key.ID.ToString(CultureInfo.InvariantCulture) + "=" + v.Value.ID.ToString(CultureInfo.InvariantCulture))));
+            parts.Add("cs=" + string.Join("|", cs.OrderBy(v => v.Key.ID).Select(v =>
+                v.Key.ID.ToString(CultureInfo.InvariantCulture) + "=" + v.Value.ToString(CultureInfo.InvariantCulture))));
+
+            string payload = string.Join("\n", parts);
+            string hash;
+            using (var sha = SHA256.Create())
+                hash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(payload))).Replace("-", "");
+
+            string directory = Instance.SettingConfig.StatisticsDirectory;
+            if (string.IsNullOrWhiteSpace(directory))
+                directory = "Results";
+            Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory, "m1gt_decision_snapshot_fingerprint.csv");
+            bool writeHeader = !File.Exists(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (writeHeader)
+                    writer.WriteLine("decision_id,decision_time,snapshot_sha256,payload");
+                writer.WriteLine(string.Join(",",
+                    decisionId.ToString(CultureInfo.InvariantCulture),
+                    Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
+                    hash,
+                    Csv(payload)));
+            }
+        }
+
+        private void WriteCandidateManifest(IEnumerable<M1GTCandidate> candidates, ObjectiveCalibration calibration)
+        {
+            string directory = Instance.SettingConfig.StatisticsDirectory;
+            if (string.IsNullOrWhiteSpace(directory))
+                directory = "Results";
+            Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory, "m1gt_top5_candidates.csv");
+            bool writeHeader = !File.Exists(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (writeHeader)
+                    writer.WriteLine("decision_id,decision_time,candidate_rank,milp_objective,estimated_leg1_objective,estimated_leg2_objective,estimated_travel_objective,selected_yos_count,selected_yaos_count,unused_capacity_sum,objective_order_term,objective_capacity_term,objective_total,estimated_leg1_distance,estimated_leg2_distance,estimated_leg1_time,estimated_leg2_time,estimated_fallback,selected_xps,selected_yrp,selected_yaos,selected_dops");
+                foreach (var candidate in candidates)
+                {
+                    double leg1 = candidate.Yrp.Sum(v => EstimateBotPodObjectiveCost(v.robot, v.pod));
+                    double leg2 = candidate.Xps.Sum(v => EstimatePodStationObjectiveCost(v.pod, v.outputstation));
+                    double orderTerm = candidate.Yos.Count * calibration.OrderReward;
+                    double capacityTerm = candidate.UnusedCapacitySum * calibration.UnusedCapacityPenalty;
+                    double objectiveTotal = leg1 + leg2 + orderTerm + capacityTerm;
+                    double leg1Distance = candidate.Yrp.Sum(v => EstimateBotPodDistance(v.robot, v.pod));
+                    double leg2Distance = candidate.Xps.Sum(v => EstimatePodStationDistance(v.pod, v.outputstation));
+                    double leg1Time = candidate.Yrp.Sum(v => EstimateBotPodTime(v.robot, v.pod));
+                    double leg2Time = candidate.Xps.Sum(v => EstimatePodStationTime(v.pod, v.outputstation));
+                    bool estimatedFallback = CandidateUsedFallback(candidate.Xps, candidate.Yrp);
+                    writer.WriteLine(string.Join(",",
+                        candidate.DecisionId.ToString(CultureInfo.InvariantCulture),
+                        Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
+                        candidate.Rank.ToString(CultureInfo.InvariantCulture),
+                        candidate.Objective.ToString(IOConstants.FORMATTER),
+                        leg1.ToString(IOConstants.FORMATTER),
+                        leg2.ToString(IOConstants.FORMATTER),
+                        (leg1 + leg2).ToString(IOConstants.FORMATTER),
+                        candidate.Yos.Count.ToString(CultureInfo.InvariantCulture),
+                        candidate.Yaos.Count.ToString(CultureInfo.InvariantCulture),
+                        candidate.UnusedCapacitySum.ToString(CultureInfo.InvariantCulture),
+                        orderTerm.ToString(IOConstants.FORMATTER),
+                        capacityTerm.ToString(IOConstants.FORMATTER),
+                        objectiveTotal.ToString(IOConstants.FORMATTER),
+                        leg1Distance.ToString(IOConstants.FORMATTER),
+                        leg2Distance.ToString(IOConstants.FORMATTER),
+                        leg1Time.ToString(IOConstants.FORMATTER),
+                        leg2Time.ToString(IOConstants.FORMATTER),
+                        estimatedFallback ? "1" : "0",
+                        Csv(SymbolList(candidate.Xps)),
+                        Csv(SymbolList(candidate.Yrp)),
+                        Csv(SymbolList(candidate.Yaos)),
+                        Csv(SymbolList(candidate.Dops))));
+                }
+            }
+        }
+
+        private void WriteObjectiveCalibration(int decisionId, ObjectiveCalibration calibration)
+        {
+            string directory = Instance.SettingConfig.StatisticsDirectory;
+            if (string.IsNullOrWhiteSpace(directory))
+                directory = "Results";
+            Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory, "m1gt_objective_calibration.csv");
+            bool writeHeader = !File.Exists(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (writeHeader)
+                    writer.WriteLine("decision_id,decision_time,use_shortest_time_objective,time_per_distance_scale,ratio_sample_count,travel_weight,order_reward,unused_capacity_penalty,estimator_name,path_sample_count,fallback_count,avg_physical_eta,median_physical_eta,avg_distance_ratio,median_distance_ratio");
+                writer.WriteLine(string.Join(",",
+                    decisionId.ToString(CultureInfo.InvariantCulture),
+                    Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
+                    calibration.UseShortestTimeObjective ? "1" : "0",
+                    calibration.TimePerDistanceScale.ToString(IOConstants.FORMATTER),
+                    calibration.RatioSampleCount.ToString(CultureInfo.InvariantCulture),
+                    calibration.TravelWeight.ToString(IOConstants.FORMATTER),
+                    calibration.OrderReward.ToString(IOConstants.FORMATTER),
+                    calibration.UnusedCapacityPenalty.ToString(IOConstants.FORMATTER),
+                    calibration.EstimatorName,
+                    calibration.PathSampleCount.ToString(CultureInfo.InvariantCulture),
+                    calibration.FallbackCount.ToString(CultureInfo.InvariantCulture),
+                    FormatDouble(calibration.AveragePhysicalEta),
+                    FormatDouble(calibration.MedianPhysicalEta),
+                    FormatDouble(calibration.AverageDistanceRatio),
+                    FormatDouble(calibration.MedianDistanceRatio)));
+            }
+        }
+
+        private static string FormatDouble(double value)
+        {
+            if (double.IsNaN(value))
+                return "";
+            if (double.IsPositiveInfinity(value))
+                return "Infinity";
+            if (double.IsNegativeInfinity(value))
+                return "-Infinity";
+            return value.ToString(IOConstants.FORMATTER);
+        }
+
+        private void WriteSelectedExecutableCandidate(M1GTCandidate candidate, IEnumerable<Symbol> executableXps, IEnumerable<Symbol> executableYrp, ObjectiveCalibration calibration)
+        {
+            if (candidate == null || candidate.DecisionId != _config.ValidationDecisionId)
+                return;
+
+            var xpsList = executableXps.ToList();
+            var yrpList = executableYrp.ToList();
+            string directory = Instance.SettingConfig.StatisticsDirectory;
+            if (string.IsNullOrWhiteSpace(directory))
+                directory = "Results";
+            Directory.CreateDirectory(directory);
+            string path = Path.Combine(directory, "m1gt_selected_executable_candidate.csv");
+            bool writeHeader = !File.Exists(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (writeHeader)
+                    writer.WriteLine("decision_id,decision_time,candidate_rank,milp_objective,original_xps_count,original_yrp_count,executable_xps_count,executable_yrp_count,selected_yos_count,selected_yaos_count,unused_capacity_sum,objective_order_term,objective_capacity_term,executable_estimated_objective,executable_estimated_leg1_objective,executable_estimated_leg2_objective,executable_estimated_leg1_distance,executable_estimated_leg2_distance,executable_estimated_leg1_time,executable_estimated_leg2_time,executable_estimated_fallback,executable_xps,executable_yrp");
+
+                double leg1 = yrpList.Sum(v => EstimateBotPodObjectiveCost(v.robot, v.pod));
+                double leg2 = xpsList.Sum(v => EstimatePodStationObjectiveCost(v.pod, v.outputstation));
+                double orderTerm = candidate.Yos.Count * calibration.OrderReward;
+                double capacityTerm = candidate.UnusedCapacitySum * calibration.UnusedCapacityPenalty;
+                double executableObjective = leg1 + leg2 + orderTerm + capacityTerm;
+                double leg1Distance = yrpList.Sum(v => EstimateBotPodDistance(v.robot, v.pod));
+                double leg2Distance = xpsList.Sum(v => EstimatePodStationDistance(v.pod, v.outputstation));
+                double leg1Time = yrpList.Sum(v => EstimateBotPodTime(v.robot, v.pod));
+                double leg2Time = xpsList.Sum(v => EstimatePodStationTime(v.pod, v.outputstation));
+                bool estimatedFallback = CandidateUsedFallback(xpsList, yrpList);
+                writer.WriteLine(string.Join(",",
+                    candidate.DecisionId.ToString(CultureInfo.InvariantCulture),
+                    Instance.Controller.CurrentTime.ToString(IOConstants.FORMATTER),
+                    candidate.Rank.ToString(CultureInfo.InvariantCulture),
+                    candidate.Objective.ToString(IOConstants.FORMATTER),
+                    candidate.Xps.Count.ToString(CultureInfo.InvariantCulture),
+                    candidate.Yrp.Count.ToString(CultureInfo.InvariantCulture),
+                    xpsList.Count.ToString(CultureInfo.InvariantCulture),
+                    yrpList.Count.ToString(CultureInfo.InvariantCulture),
+                    candidate.Yos.Count.ToString(CultureInfo.InvariantCulture),
+                    candidate.Yaos.Count.ToString(CultureInfo.InvariantCulture),
+                    candidate.UnusedCapacitySum.ToString(CultureInfo.InvariantCulture),
+                    orderTerm.ToString(IOConstants.FORMATTER),
+                    capacityTerm.ToString(IOConstants.FORMATTER),
+                    executableObjective.ToString(IOConstants.FORMATTER),
+                    leg1.ToString(IOConstants.FORMATTER),
+                    leg2.ToString(IOConstants.FORMATTER),
+                    leg1Distance.ToString(IOConstants.FORMATTER),
+                    leg2Distance.ToString(IOConstants.FORMATTER),
+                    leg1Time.ToString(IOConstants.FORMATTER),
+                    leg2Time.ToString(IOConstants.FORMATTER),
+                    estimatedFallback ? "1" : "0",
+                    Csv(SymbolList(xpsList)),
+                    Csv(SymbolList(yrpList))));
+            }
+        }
+
+        private void ArmValidationStopForSelection(int decisionId, IEnumerable<Symbol> selectedXps, IEnumerable<Symbol> selectedYrp)
+        {
+            if (!_config.StopAfterValidationBatch || decisionId != _config.ValidationDecisionId)
+                return;
+
+            var leg2Keys = new List<string>();
+            var xpsList = selectedXps.ToList();
+            foreach (var yrp in selectedYrp)
+            {
+                var xps = xpsList.FirstOrDefault(v => v.pod.ID == yrp.pod.ID);
+                if (xps == null)
+                    continue;
+                leg2Keys.Add(yrp.robot.ID.ToString(CultureInfo.InvariantCulture) + "|" +
+                    yrp.pod.ID.ToString(CultureInfo.InvariantCulture) + "|" +
+                    xps.outputstation.ID.ToString(CultureInfo.InvariantCulture));
+            }
+            _m1gtValidationBatchArmed = true;
+            Instance.ArmM1GTValidationBatch(leg2Keys, true);
+        }
+
+        private static string SymbolList(IEnumerable<Symbol> symbols)
+        {
+            return string.Join("|", symbols.Select(s => s.name));
+        }
+
+        private static string Csv(string value)
+        {
+            if (value == null)
+                return "";
+            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
+                return "\"" + value.Replace("\"", "\"\"") + "\"";
+            return value;
         }
 
         /// <summary>
@@ -897,7 +1317,6 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             List<Symbol> deVarNamedops = variableNames[6];
             ResetPhysicalEtaDecisionCache();
             ObjectiveCalibration objectiveCalibration = BuildObjectiveCalibration(deVarNamexps, deVarNameyrp, Cs, Ra);
-            WriteObjectiveCalibration(objectiveCalibration);
             double w1 = objectiveCalibration.TravelWeight;
             double w2 = objectiveCalibration.OrderReward;
             double w3 = objectiveCalibration.UnusedCapacityPenalty;
@@ -973,54 +1392,58 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                         <= LinearExpression.Sum(deVarNamedops.Where(v => v.pod.ID == pod.ID && v.outputstation.ID == station.ID).Select(v => variablesBinary[v.name])), "shi13");
             }
             wrapper.Update();
-            wrapper.Optimize();
-            if (wrapper.HasSolution())
+            int m1gtDecisionId = ++_m1gtDecisionId;
+            WriteObjectiveCalibration(m1gtDecisionId, objectiveCalibration);
+            bool validationDecision = m1gtDecisionId == _config.ValidationDecisionId;
+            int forcedRank = 0;
+            bool forcedPolicyDecision = ForcedDecisionPolicy.TryGetValue(m1gtDecisionId, out forcedRank);
+            if (validationDecision)
+                WriteDecisionSnapshotFingerprint(m1gtDecisionId, pendingOrders, Ra, Rb, Pa, Pb, PodToBot, Cs);
+            List<M1GTCandidate> candidates;
+            M1GTCandidate selectedCandidate;
+            if (validationDecision || forcedPolicyDecision)
+            {
+                candidates = CollectCandidates(wrapper, variablesBinary, variablesInteger3, variableNames, m1gtDecisionId, _config.TopK);
+                WriteCandidateManifest(candidates, objectiveCalibration);
+                int candidateRank = validationDecision ? Math.Max(1, _config.ValidationCandidateRank) : Math.Max(1, forcedRank);
+                selectedCandidate = candidates.FirstOrDefault(c => c.Rank == candidateRank) ?? candidates.FirstOrDefault();
+            }
+            else
+            {
+                candidates = CollectAllOptimalCandidates(wrapper, variablesBinary, variablesInteger3, variableNames, m1gtDecisionId);
+                selectedCandidate = candidates.Count <= 1
+                    ? candidates.FirstOrDefault()
+                    : candidates.OrderBy(c => SimulateExecutableTransports(c, Ra)).ThenBy(c => c.Rank).First();
+            }
+            if (selectedCandidate != null)
             {
                 Dictionary<OutputStation, List<Order>> _availableStationorder = new Dictionary<OutputStation, List<Order>>();
-                List<Symbol> IsdeVarNamexps = new List<Symbol>();
-                List<Symbol> IsdeVarNameyaos = new List<Symbol>();
-                List<Symbol> IsdeVarNameyos = new List<Symbol>();
+                List<Symbol> IsdeVarNamexps = new List<Symbol>(selectedCandidate.Xps);
+                List<Symbol> IsdeVarNameyaos = new List<Symbol>(selectedCandidate.Yaos);
+                List<Symbol> IsdeVarNameyos = new List<Symbol>(selectedCandidate.Yos);
                 List<Symbol> IsdeVarNameyrp = new List<Symbol>();
-                List<Symbol> IsdeVarNamedops = new List<Symbol>();
-                for (int i = 1; i < variableNames.Count + 1; i++)
+                List<Symbol> IsdeVarNamedops = new List<Symbol>(selectedCandidate.Dops);
+
+                foreach (var itemName in IsdeVarNameyaos)
                 {
-                    List<Symbol> variableName = variableNames[i];
-                    foreach (var itemName in variableName)
+                    if (_availableStationorder.ContainsKey(itemName.outputstation))
+                        _availableStationorder[itemName.outputstation].Add(itemName.order);
+                    else
                     {
-                        if (i < 4 && Math.Round(variablesBinary[itemName.name].GetValue()) != 0)
-                        {
-                            if (i == 1)
-                                IsdeVarNamexps.Add(itemName);
-                            else if (i == 2)
-                                IsdeVarNameyos.Add(itemName);
-                            else if (i == 3)
-                            {
-                                IsdeVarNameyaos.Add(itemName);
-                                if (_availableStationorder.ContainsKey(itemName.outputstation))
-                                    _availableStationorder[itemName.outputstation].Add(itemName.order);
-                                else
-                                {
-                                    List<Order> listorder = new List<Order>
-                                    {
-                                        itemName.order
-                                    };
-                                    _availableStationorder.Add(itemName.outputstation, listorder);
-                                }
-                            }
-                        }
-                        else if (i == 4 && Math.Round(variablesBinary[itemName.name].GetValue()) != 0)
-                        {
-                            if (Ra.Contains(itemName.robot))
-                            {
-                                IsdeVarNameyrp.Add(itemName);
-                                Instance.ResourceManager.BottoPod.Add(itemName.robot, itemName.pod);
-                                Instance.ResourceManager.ClaimPod(itemName.pod, itemName.robot, BotTaskType.Extract);
-                                foreach (var xps in IsdeVarNamexps.Where(v => v.pod.ID == itemName.pod.ID))
-                                    xps.outputstation.RegisterInboundPod(itemName.pod);
-                            }
-                        }
-                        else if (i == 6 && Math.Round(variablesBinary[itemName.name].GetValue()) != 0)
-                            IsdeVarNamedops.Add(itemName);
+                        List<Order> listorder = new List<Order> { itemName.order };
+                        _availableStationorder.Add(itemName.outputstation, listorder);
+                    }
+                }
+
+                foreach (var itemName in selectedCandidate.Yrp)
+                {
+                    if (Ra.Contains(itemName.robot))
+                    {
+                        IsdeVarNameyrp.Add(itemName);
+                        Instance.ResourceManager.BottoPod.Add(itemName.robot, itemName.pod);
+                        Instance.ResourceManager.ClaimPod(itemName.pod, itemName.robot, BotTaskType.Extract);
+                        foreach (var xps in IsdeVarNamexps.Where(v => v.pod.ID == itemName.pod.ID))
+                            xps.outputstation.RegisterInboundPod(itemName.pod);
                     }
                 }
                 _IsvariableNames[1] = IsdeVarNameyaos;
@@ -1162,10 +1585,10 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                     }
                 }
                 // 在所有 unused dops pods 已從 IsdeVarNameyrp / IsdeVarNamexps 移除後再記錄估算
+                WriteSelectedExecutableCandidate(selectedCandidate, IsdeVarNamexps, IsdeVarNameyrp, objectiveCalibration);
+                ArmValidationStopForSelection(selectedCandidate.DecisionId, IsdeVarNamexps, IsdeVarNameyrp);
                 if (_availableStationorder.Count > 0)
                     RecordSelectedPathEstimates(IsdeVarNamexps, IsdeVarNameyrp);
-                WriteObjectiveDecisionTrace(objectiveCalibration, IsdeVarNamexps, IsdeVarNameyrp, IsdeVarNameyos, IsdeVarNameyaos,
-                    deVarNameus, variablesInteger3);
                 Instance.Observer.TimeOrderBatchingbyziops((DateTime.Now - A).TotalSeconds);
             }
             //else
@@ -1179,6 +1602,9 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// </summary>
         protected override void DecideAboutPendingOrders()
         {
+            if (_m1gtValidationBatchArmed && _config.StopAfterValidationBatch)
+                return;
+
             DateTime A = DateTime.Now;
             Dictionary<ItemDescription, List<Pod>> PiSKU;
             Dictionary<ItemDescription, List<Order>> OiSKU;
@@ -1270,3 +1696,4 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
     }
 
 }
+

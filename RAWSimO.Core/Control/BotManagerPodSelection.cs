@@ -1632,7 +1632,7 @@ namespace RAWSimO.Core.Control
                         if (b.CurrentTask is ExtractTask)
                         {
                             ExtractTask extractTask = b.CurrentTask as ExtractTask;
-                            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+                            if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
                             {
                                                             return 
                                 !_onTheFlyExtractSituationInvestigated &&  b.Pod != null && 
@@ -1698,7 +1698,7 @@ namespace RAWSimO.Core.Control
                     {
                         ExtractTask extractTask = bot.CurrentTask as ExtractTask;
                         List<ExtractRequest> itemsToHandle = new List<ExtractRequest>();
-                        if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
+                        if (Instance.ControllerConfig.OrderBatchingConfig is M1GConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M1GTConfiguration || Instance.ControllerConfig.OrderBatchingConfig is M2GConfiguration)
                         {
                             //QueueOrder(extractTask.OutputStation, bot, extractTask.OutputStation.Capacity - extractTask.OutputStation.CapacityInUse);
                             itemsToHandle = GetPossibleRequestsofMP(bot.Pod, extractTask.OutputStation, config.FilterForReservation);

@@ -109,6 +109,50 @@ namespace RAWSimO.Core
         /// Diagnostics for comparing M1G ideal path estimates with executed extract trips.
         /// </summary>
         public M1GPathTrace M1GPathTrace { get; private set; }
+        /// <summary>
+        /// True when a testing controller wants the current simulation run to stop early.
+        /// </summary>
+        public bool StopRequested { get; private set; }
+        private HashSet<string> _m1gtPendingLeg2Keys = new HashSet<string>();
+        private HashSet<string> _m1gtPendingLeg2VisualKeys = new HashSet<string>();
+        private bool _m1gtStopAfterBatch = false;
+        /// <summary>
+        /// Arms M1G-t validation stop condition for a single selected batch.
+        /// </summary>
+        public void ArmM1GTValidationBatch(IEnumerable<string> leg2Keys, bool stopAfterBatch)
+        {
+            _m1gtPendingLeg2Keys = new HashSet<string>(leg2Keys ?? Enumerable.Empty<string>());
+            _m1gtPendingLeg2VisualKeys = new HashSet<string>(_m1gtPendingLeg2Keys);
+            _m1gtStopAfterBatch = stopAfterBatch;
+            if (_m1gtStopAfterBatch && _m1gtPendingLeg2Keys.Count == 0)
+                RequestStop();
+        }
+        /// <summary>
+        /// Marks one M1G-t leg2 segment complete and stops when all selected assignments are complete.
+        /// </summary>
+        public void NotifyM1GTLeg2Completed(int botId, int podId, int stationId)
+        {
+            if (!_m1gtStopAfterBatch || _m1gtPendingLeg2Keys.Count == 0)
+                return;
+            _m1gtPendingLeg2Keys.Remove(botId + "|" + podId + "|" + stationId);
+            if (_m1gtPendingLeg2Keys.Count == 0 && _m1gtPendingLeg2VisualKeys.Count == 0)
+                RequestStop();
+        }
+        /// <summary>
+        /// Marks the visual station-queue tail complete and stops once all selected assignments reached process point.
+        /// </summary>
+        public void NotifyM1GTLeg2VisualCompleted(int botId, int podId, int stationId)
+        {
+            if (!_m1gtStopAfterBatch || _m1gtPendingLeg2VisualKeys.Count == 0)
+                return;
+            _m1gtPendingLeg2VisualKeys.Remove(botId + "|" + podId + "|" + stationId);
+            if (_m1gtPendingLeg2Keys.Count == 0 && _m1gtPendingLeg2VisualKeys.Count == 0)
+                RequestStop();
+        }
+        /// <summary>
+        /// Requests early termination of the current simulation run.
+        /// </summary>
+        public void RequestStop() { StopRequested = true; }
 
         #endregion
     }
