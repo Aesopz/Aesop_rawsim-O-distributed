@@ -69,6 +69,46 @@ function D($value) {
     return [double]::Parse([string]$value, [System.Globalization.CultureInfo]::InvariantCulture)
 }
 
+function Get-DecisionSnapshotHashCount([string]$decisionRoot) {
+    $snapshotHashes = @(Get-ChildItem -LiteralPath $decisionRoot -Recurse -Filter m1gt_decision_snapshot_fingerprint.csv |
+        ForEach-Object { Import-Csv -LiteralPath $_.FullName } |
+        Select-Object -ExpandProperty snapshot_sha256 -Unique)
+    return $snapshotHashes.Count
+}
+
+function New-TraceRow([int]$decision, [string]$decisionRoot) {
+    $decisionCsv = Join-Path $decisionRoot "decision_objective_comparison.csv"
+    if (!(Test-Path -LiteralPath $decisionCsv)) {
+        throw "Cannot reconstruct decision $decision; missing $decisionCsv"
+    }
+
+    $comparison = @(Import-Csv -LiteralPath $decisionCsv)
+    $rank1 = $comparison | Where-Object { [int]$_.candidate_rank -eq 1 } | Select-Object -First 1
+    $best = $comparison | Sort-Object {[double]$_.actual_objective_executable_direct}, {[int]$_.candidate_rank} | Select-Object -First 1
+    if ($null -eq $rank1 -or $null -eq $best) { throw "Missing comparison rows for decision $decision" }
+
+    $snapshotHashCount = Get-DecisionSnapshotHashCount $decisionRoot
+    if ($snapshotHashCount -ne 1) {
+        throw "Decision $decision has $snapshotHashCount distinct snapshot hashes; refusing to extend oracle policy."
+    }
+
+    $regret = (D $rank1.actual_objective_executable_direct) - (D $best.actual_objective_executable_direct)
+    $travelGain = (D $rank1.actual_travel_objective) - (D $best.actual_travel_objective)
+    return [pscustomobject]@{
+        decision_id = $decision
+        decision_time = $best.decision_time
+        chosen_rank = [int]$best.candidate_rank
+        rank1_actual_objective = (D $rank1.actual_objective_executable_direct).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        best_actual_objective = (D $best.actual_objective_executable_direct).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        rank1_regret = $regret.ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        rank1_actual_travel = (D $rank1.actual_travel_objective).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        best_actual_travel = (D $best.actual_travel_objective).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        rank1_actual_travel_gain = $travelGain.ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
+        snapshot_hash_count = $snapshotHashCount
+        decision_root = $decisionRoot
+    }
+}
+
 function Set-ContentWithRetry([string]$path, $lines) {
     $dir = Split-Path -Parent $path
     if (![string]::IsNullOrWhiteSpace($dir)) {
@@ -174,6 +214,33 @@ if (Test-Path -LiteralPath $tracePath) {
         $trace.Add($row) | Out-Null
     }
 }
+if ($policy.Count -gt $trace.Count) {
+    $traceByDecision = @{}
+    foreach ($row in $trace) {
+        $traceByDecision[[int]$row.decision_id] = $row
+    }
+
+    $rebuiltTrace = New-Object System.Collections.Generic.List[object]
+    foreach ($row in $policy | Sort-Object {[int]$_.decision_id}) {
+        $decisionId = [int]$row.decision_id
+        if ($traceByDecision.ContainsKey($decisionId)) {
+            $rebuiltTrace.Add($traceByDecision[$decisionId]) | Out-Null
+            continue
+        }
+
+        $decisionRoot = Join-Path $outputRootAbs ("decision{0}" -f $decisionId)
+        $rebuilt = New-TraceRow $decisionId $decisionRoot
+        if ([int]$rebuilt.chosen_rank -ne [int]$row.candidate_rank) {
+            throw "Policy/trace mismatch for decision $decisionId; policy rank=$($row.candidate_rank), reconstructed best rank=$($rebuilt.chosen_rank)"
+        }
+        $rebuiltTrace.Add($rebuilt) | Out-Null
+    }
+
+    $trace = $rebuiltTrace
+    $trace | Export-Csv -NoTypeInformation -Path $tracePath
+    Write-Conclusion $trace $conclusionPath $outputRootAbs
+    Write-Host "Reconstructed rolling oracle trace to $($trace.Count) rows from existing decision comparisons."
+}
 if ($startDecision -gt 1) {
     Write-Host "Resuming rolling oracle from decision $startDecision with $($policy.Count) forced policy rows."
 }
@@ -214,41 +281,16 @@ for ($decision = $startDecision; $decision -le $MaxDecisions; $decision++) {
     & powershell -ExecutionPolicy Bypass -File $summaryScript -Root $Root -OutputRoot $decisionRoot -OutCsv $decisionCsv -OutMd $decisionMd
     if ($LASTEXITCODE -ne 0) { throw "Decision summary failed for decision $decision" }
 
-    $comparison = @(Import-Csv -LiteralPath $decisionCsv)
-    $rank1 = $comparison | Where-Object { [int]$_.candidate_rank -eq 1 } | Select-Object -First 1
-    $best = $comparison | Sort-Object {[double]$_.actual_objective_executable_direct}, {[int]$_.candidate_rank} | Select-Object -First 1
-    if ($null -eq $rank1 -or $null -eq $best) { throw "Missing comparison rows for decision $decision" }
-
-    $snapshotHashes = @(Get-ChildItem -LiteralPath $decisionRoot -Recurse -Filter m1gt_decision_snapshot_fingerprint.csv |
-        ForEach-Object { Import-Csv -LiteralPath $_.FullName } |
-        Select-Object -ExpandProperty snapshot_sha256 -Unique)
-    if ($snapshotHashes.Count -ne 1) {
-        throw "Decision $decision has $($snapshotHashes.Count) distinct snapshot hashes; refusing to extend oracle policy."
-    }
-
-    $chosenRank = [int]$best.candidate_rank
+    $traceRow = New-TraceRow $decision $decisionRoot
+    $chosenRank = [int]$traceRow.chosen_rank
     $policy.Add([pscustomobject]@{ decision_id = $decision; candidate_rank = $chosenRank }) | Out-Null
     Write-PolicyCsv $policy $policyPath
 
-    $regret = (D $rank1.actual_objective_executable_direct) - (D $best.actual_objective_executable_direct)
-    $travelGain = (D $rank1.actual_travel_objective) - (D $best.actual_travel_objective)
-    $trace.Add([pscustomobject]@{
-        decision_id = $decision
-        decision_time = $best.decision_time
-        chosen_rank = $chosenRank
-        rank1_actual_objective = (D $rank1.actual_objective_executable_direct).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        best_actual_objective = (D $best.actual_objective_executable_direct).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        rank1_regret = $regret.ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        rank1_actual_travel = (D $rank1.actual_travel_objective).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        best_actual_travel = (D $best.actual_travel_objective).ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        rank1_actual_travel_gain = $travelGain.ToString("F6", [System.Globalization.CultureInfo]::InvariantCulture)
-        snapshot_hash_count = $snapshotHashes.Count
-        decision_root = $decisionRoot
-    }) | Out-Null
+    $trace.Add($traceRow) | Out-Null
 
     $trace | Export-Csv -NoTypeInformation -Path $tracePath
     Write-Conclusion $trace $conclusionPath $outputRootAbs
-    Write-Host "Decision $decision chose rank $chosenRank; regret=$($regret.ToString('F3', [System.Globalization.CultureInfo]::InvariantCulture))"
+    Write-Host "Decision $decision chose rank $chosenRank; regret=$((D $traceRow.rank1_regret).ToString('F3', [System.Globalization.CultureInfo]::InvariantCulture))"
 }
 
 if ($RunFinalReplay -and $policy.Count -gt 0) {
