@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ControlConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>m1g-time-cong</Name>
+  <Name>m1g-time</Name>
   <PathPlanningConfig xsi:type="WHCAnStarPathPlanningConfiguration">
     <Name />
     <AutoSetParameter>false</AutoSetParameter>
@@ -106,11 +106,6 @@
     <FastLane>false</FastLane>
     <LateBeforeMatch>false</LateBeforeMatch>
     <FastLaneTieBreaker>EarliestDueTime</FastLaneTieBreaker>
-    <UseCongestionAwareCost>true</UseCongestionAwareCost>
-    <CongestionTablePath>C:\Users\Aesop\Desktop\EE-RAWSim-O_PP\Material\Instances\CoreBenchmark\congestion_cost_model.csv</CongestionTablePath>
-    <W1>1.0</W1>
-    <W2>-50.16</W2>
-    <W3>1254.16</W3>
     <UseShortestTimeObjective>true</UseShortestTimeObjective>
     <TimePerDistanceScale>0</TimePerDistanceScale>
     <BaseOrderReward>-40</BaseOrderReward>

@@ -312,6 +312,12 @@ namespace RAWSimO.Core.Configurations
         /// directory, and the app base directory in that order.
         /// </summary>
         public string CongestionTablePath = "";
+        /// <summary>Objective weight for the routing-cost term (xps + yrp coefficients).</summary>
+        public double W1 = 1.0;
+        /// <summary>Objective weight for the orders-served term (Σ yos). Negative = reward.</summary>
+        public double W2 = -40.0;
+        /// <summary>Objective weight for the unused-capacity penalty (Σ us).</summary>
+        public double W3 = 1000.0;
         /// <summary>
         /// Returns a name identifying the method.
         /// </summary>
