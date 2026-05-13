@@ -114,6 +114,16 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             return null;
         }
 
+        // Phase C: lazily created congestion-aware estimator. Null when flag is off.
+        private CongestionAwareCostEstimator _congEstimator;
+        private CongestionAwareCostEstimator GetOrCreateCongestionEstimator()
+        {
+            if (_congEstimator == null && _config != null && _config.UseCongestionAwareCost)
+                _congEstimator = new CongestionAwareCostEstimator(Instance,
+                    string.IsNullOrEmpty(_config.CongestionTablePath) ? null : _config.CongestionTablePath);
+            return _congEstimator;
+        }
+
         private double EstimateBotPodDistance(Bot bot, Pod pod)
         {
             if (bot == null || pod == null)
@@ -121,6 +131,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
 
             var botWaypoint = GetBotReferenceWaypoint(bot);
             var podWaypoint = GetPodReferenceWaypoint(pod);
+
+            // Phase C cost-aware swap: replaces the body when the flag is on.
+            var cong = GetOrCreateCongestionEstimator();
+            if (cong != null && botWaypoint != null && podWaypoint != null)
+                return cong.EstimateLegTime(botWaypoint, podWaypoint, carrying: false);
+
             if (botWaypoint != null && podWaypoint != null)
                 return Distances.CalculateShortestPath(botWaypoint, podWaypoint, Instance);
 
@@ -137,6 +153,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 return double.PositiveInfinity;
 
             var podWaypoint = GetPodReferenceWaypoint(pod);
+
+            // Phase C cost-aware swap.
+            var cong = GetOrCreateCongestionEstimator();
+            if (cong != null && podWaypoint != null)
+                return cong.EstimateLegTime(podWaypoint, station.Waypoint, carrying: true);
+
             if (podWaypoint != null &&
                 DistanceSet.ContainsKey(station.Waypoint.ID) &&
                 DistanceSet[station.Waypoint.ID].ContainsKey(podWaypoint.ID))

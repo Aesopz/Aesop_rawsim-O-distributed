@@ -302,6 +302,17 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
         /// <summary>
+        /// When true the M1G routing-cost coefficients are computed with the Phase C
+        /// congestion-aware time estimator instead of static graph distance.
+        /// </summary>
+        public bool UseCongestionAwareCost = false;
+        /// <summary>
+        /// Optional path to the congestion cost model CSV (see analysis/export_for_csharp.py).
+        /// When empty the estimator searches Material/Instances/CoreBenchmark/, the working
+        /// directory, and the app base directory in that order.
+        /// </summary>
+        public string CongestionTablePath = "";
+        /// <summary>
         /// Returns a name identifying the method.
         /// </summary>
         /// <returns>The name of the method.</returns>
