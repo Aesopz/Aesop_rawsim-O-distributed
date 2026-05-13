@@ -247,6 +247,10 @@ namespace RAWSimO.Core.IO
             /// The file for storing the individual consolidated performance result for the async order manager, if present.
             /// </summary>
             IndividualPerformanceFileOrderManagerAsyncConsolidated,
+            /// <summary>
+            /// Per-segment edge-traversal log (Stage A of congestion-aware cost estimator).
+            /// </summary>
+            TraversalLog,
         }
         /// <summary>
         /// Contains all names to use for the statistic files defined.
@@ -281,6 +285,7 @@ namespace RAWSimO.Core.IO
             { StatFile.HeatStorageLocationPolling, "storagelocationinfopolled.heat" },
             { StatFile.IndividualPerformanceFileOrderManagerAsyncSeparate, "ordermanagerasyncseparate.csv" },
             { StatFile.IndividualPerformanceFileOrderManagerAsyncConsolidated, "ordermanagerasyncconsolidated.csv" },
+            { StatFile.TraversalLog, "traversal_log.csv" },
         };
 
         #endregion

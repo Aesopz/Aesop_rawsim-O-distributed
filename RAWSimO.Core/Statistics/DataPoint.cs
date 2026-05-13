@@ -3106,6 +3106,64 @@ namespace RAWSimO.Core.Statistics
     }
 
     /// <summary>
+    /// One edge traversal completed by a bot. Stage A of the congestion-aware cost estimator
+    /// (see design_note.md §9.1). One row per node-to-node segment.
+    /// </summary>
+    public class TraversalDatapoint
+    {
+        /// <summary>The simulation time at which the segment finished (arrival time).</summary>
+        public double TimeStamp;
+        /// <summary>Bot identifier.</summary>
+        public int BotId;
+        /// <summary>Waypoint id the segment started from.</summary>
+        public int FromNode;
+        /// <summary>Waypoint id the segment ended at.</summary>
+        public int ToNode;
+        /// <summary>Simulation time the controller committed to this segment (segment start).</summary>
+        public double ReadyTime;
+        /// <summary>Simulation time the bot started physically moving (after wait + turn).</summary>
+        public double LeaveTime;
+        /// <summary>Simulation time the bot reached <see cref="ToNode"/>.</summary>
+        public double ArriveTime;
+        /// <summary>Pure congestion / queue wait before any motion (LeaveTime − ReadyTime − TurnTime).</summary>
+        public double WaitBeforeEdge;
+        /// <summary>Rotation duration applied before driving.</summary>
+        public double TurnTime;
+        /// <summary>Drive duration (ArriveTime − LeaveTime).</summary>
+        public double MoveTime;
+        /// <summary>Total segment time (ArriveTime − ReadyTime).</summary>
+        public double SegmentTime;
+        /// <summary>Edge length in metres.</summary>
+        public double DistanceM;
+        /// <summary>1 if the bot is carrying a pod at segment start, 0 otherwise.</summary>
+        public int CarryingPod;
+        /// <summary>Pod id at segment start (-1 if empty).</summary>
+        public int PodId;
+        /// <summary>Coarse classification of the leg (e.g. ExtractRobotToPod, ExtractPodToStation).</summary>
+        public string LegType;
+        /// <summary>Output / input station id when the segment's task targets a station (-1 otherwise).</summary>
+        public int StationId;
+        /// <summary>Default constructor.</summary>
+        public TraversalDatapoint() { }
+        /// <summary>Reconstruct from a serialised line.</summary>
+        public TraversalDatapoint(string line)
+        {
+            string[] values = line.Split(IOConstants.DELIMITER_VALUE);
+            ReflectionTools.ParseStringToFields(this, typeof(TraversalDatapoint), values, IOConstants.FORMATTER);
+        }
+        /// <summary>Serialises this row.</summary>
+        public string GetLine()
+        {
+            return string.Join(IOConstants.DELIMITER_VALUE.ToString(), ReflectionTools.ConvertFields(this, typeof(TraversalDatapoint), IOConstants.FORMATTER, IOConstants.EXPORT_FORMAT_SHORTEST_BY_ROUNDING).ToArray());
+        }
+        /// <summary>Returns the CSV header for the row format.</summary>
+        public static string GetHeader()
+        {
+            return string.Join(IOConstants.DELIMITER_VALUE.ToString(), ReflectionTools.ConvertFieldsToDescriptions(typeof(TraversalDatapoint)));
+        }
+    }
+
+    /// <summary>
     /// Constitutes one data-point storing an inventory level snapshot.
     /// </summary>
     public class InventoryLevelDatapoint

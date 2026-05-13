@@ -233,6 +233,20 @@ namespace RAWSimO.Core.Bots
         /// </summary>
         private bool _eventReachedNextWaypoint = false;
 
+        // ── Traversal logger: per-segment "in progress" snapshot. Filled at setNextWaypoint
+        //    success, emitted at arrival in _updateMove. -1 in _segLogFromNode means none pending.
+        private int _segLogFromNode = -1;
+        private int _segLogToNode = -1;
+        private double _segLogReadyTime;
+        private double _segLogLeaveTime;
+        private double _segLogTurnTime;
+        private double _segLogMoveTime;
+        private double _segLogDistance;
+        private int _segLogCarryingPod;
+        private int _segLogPodId;
+        private string _segLogLegType;
+        private int _segLogStationId;
+
         /// <summary>
         /// Indicates whether the first position info was received from the remote server.
         /// </summary>
@@ -858,6 +872,29 @@ namespace RAWSimO.Core.Bots
                     if (_rotateDuration > 0) _currentTripTurnCount++;
                 }
 
+                // ── Traversal logger: capture segment-start snapshot. Finalised at arrival in
+                //    _updateMove. We deliberately use planned times because the simulator
+                //    teleports to NextWaypoint exactly at _waitUntil + _rotateDuration + _driveDuration.
+                _segLogFromNode = CurrentWaypoint.ID;
+                _segLogToNode = NextWaypoint.ID;
+                _segLogReadyTime = currentTime;
+                _segLogLeaveTime = _waitUntil + _rotateDuration;
+                _segLogTurnTime = _rotateDuration;
+                _segLogMoveTime = _driveDuration;
+                _segLogDistance = segmentDistance;
+                _segLogCarryingPod = Pod != null ? 1 : 0;
+                _segLogPodId = Pod != null ? Pod.ID : -1;
+                var taskType = CurrentTask?.Type ?? BotTaskType.None;
+                if (taskType == BotTaskType.Extract)
+                    _segLogLegType = Pod != null ? "ExtractPodToStation" : "ExtractRobotToPod";
+                else if (taskType == BotTaskType.Insert)
+                    _segLogLegType = Pod != null ? "InsertPodToStation" : "InsertRobotToPod";
+                else
+                    _segLogLegType = taskType.ToString();
+                _segLogStationId = (DestinationWaypoint?.OutputStation?.ID)
+                                 ?? (DestinationWaypoint?.InputStation?.ID)
+                                 ?? -1;
+
                 return true;
 
             }
@@ -1245,6 +1282,33 @@ namespace RAWSimO.Core.Bots
                 NextWaypoint = null;
                 // Tick-coherence guard: signal that this bot just completed a segment.
                 _arrivedAtWaypointThisTick = true;
+
+                // ── Traversal logger: finalise the segment-start snapshot captured in setNextWaypoint.
+                if (_segLogFromNode >= 0 && _segLogFromNode != _segLogToNode)
+                {
+                    double arriveTime = _segLogReadyTime + (_segLogLeaveTime - _segLogReadyTime) + _segLogMoveTime;
+                    double wait = Math.Max(0.0, _segLogLeaveTime - _segLogReadyTime - _segLogTurnTime);
+                    Instance._statTraversalRecords.Add(new Statistics.TraversalDatapoint
+                    {
+                        TimeStamp = arriveTime,
+                        BotId = this.ID,
+                        FromNode = _segLogFromNode,
+                        ToNode = _segLogToNode,
+                        ReadyTime = _segLogReadyTime,
+                        LeaveTime = _segLogLeaveTime,
+                        ArriveTime = arriveTime,
+                        WaitBeforeEdge = wait,
+                        TurnTime = _segLogTurnTime,
+                        MoveTime = _segLogMoveTime,
+                        SegmentTime = arriveTime - _segLogReadyTime,
+                        DistanceM = _segLogDistance,
+                        CarryingPod = _segLogCarryingPod,
+                        PodId = _segLogPodId,
+                        LegType = _segLogLegType,
+                        StationId = _segLogStationId,
+                    });
+                }
+                _segLogFromNode = -1;
             }
 
             // Try to make move. If can't ask move due to a collision, then stop
