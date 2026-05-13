@@ -425,6 +425,25 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             {
                 Pa.Add(pod);
             }
+            // Phase D: qrps[r, p, s] dense product. Stored under key 7 in variableNames.
+            // Linking constraints qrps ≤ yrp, qrps ≤ xps, qrps ≥ yrp+xps-1 force qrps = yrp AND xps.
+            // The objective replaces the two separable routing terms with a single Σ qrps · T_total(r,p,s)
+            // when M1GConfiguration.UseJointRPSCost is true.
+            List<Symbol> deVarNameqrps = new List<Symbol>();
+            if (_config != null && _config.UseJointRPSCost)
+            {
+                foreach (var robot in R)
+                    foreach (var pod in allPods)
+                        foreach (var station in Cs.Keys)
+                            deVarNameqrps.Add(new Symbol
+                            {
+                                robot = robot,
+                                pod = pod,
+                                outputstation = station,
+                                name = "qrps" + "_" + robot.ID.ToString() + "_" + pod.ID.ToString() + "_" + station.ID.ToString()
+                            });
+            }
+            variableNames.Add(7, deVarNameqrps);
             return variableNames;
         }
         /// <summary>
@@ -574,14 +593,46 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             List<Symbol> deVarNameyrp = variableNames[4];
             List<Symbol> deVarNameus = variableNames[5];
             List<Symbol> deVarNamedops = variableNames[6];
+            List<Symbol> deVarNameqrps = variableNames.ContainsKey(7) ? variableNames[7] : new List<Symbol>();
             double w1 = _config != null ? _config.W1 : 1.0;
             double w2 = _config != null ? _config.W2 : -40.0;
             double w3 = _config != null ? _config.W3 : 1000.0;
-            //double w4 = 2;
+            bool jointMode = _config != null && _config.UseJointRPSCost && deVarNameqrps.Count > 0;
             VariableCollection<string> variablesBinary = new VariableCollection<string>(wrapper, VariableType.Binary, 0, 1, (string s) => { return s; });
             VariableCollection<string> variablesInteger2 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 5, (string s) => { return s; });
             VariableCollection<string> variablesInteger3 = new VariableCollection<string>(wrapper, VariableType.Integer, 0, 6, (string s) => { return s; });
-            if (Ra.Count() > 0)
+
+            // Phase D: precompute T_total(r,p,s) once per epoch.
+            Dictionary<string, double> qrpsCost = null;
+            if (jointMode)
+            {
+                var cong = GetOrCreateCongestionEstimator();
+                qrpsCost = new Dictionary<string, double>(deVarNameqrps.Count);
+                double tNow = Instance.Controller != null ? Instance.Controller.CurrentTime : 0.0;
+                double tLift = _config.BaseLiftTime;
+                foreach (var q in deVarNameqrps)
+                {
+                    var botWp = GetBotReferenceWaypoint(q.robot);
+                    var podWp = GetPodReferenceWaypoint(q.pod);
+                    var stationWp = q.outputstation != null ? q.outputstation.Waypoint : null;
+                    double c = double.PositiveInfinity;
+                    if (cong != null && botWp != null && podWp != null && stationWp != null)
+                        c = cong.EstimateThreeTupleTime(botWp, podWp, stationWp, tNow, tLift);
+                    if (double.IsInfinity(c) || double.IsNaN(c)) c = 1.0e9;  // push solver away
+                    qrpsCost[q.name] = c;
+                }
+            }
+
+            if (jointMode)
+            {
+                // Joint routing term: Σ qrps · T_total(r,p,s) replaces both xps and yrp routing terms.
+                wrapper.SetObjective(
+                    LinearExpression.Sum(deVarNameqrps.Select(q => variablesBinary[q.name] * qrpsCost[q.name]), wrapper) * w1
+                    + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
+                    + LinearExpression.Sum(deVarNameus.Select(v => variablesInteger3[v.name])) * w3,
+                    OptimizationSense.Minimize);
+            }
+            else if (Ra.Count() > 0)
                 wrapper.SetObjective((LinearExpression.Sum(deVarNamexps.Where(u => Cs.Keys.Contains(u.outputstation) && Instance.ResourceManager.UnusedPods.Contains(u.pod)).Select(v => variablesBinary[v.name] * EstimatePodStationDistance(v.pod, v.outputstation)), wrapper)
                     + LinearExpression.Sum(deVarNameyrp.Where(u => Ra.Contains(u.robot) && Instance.ResourceManager.UnusedPods.Contains(u.pod) && u.pod.Waypoint != null).Select(v => variablesBinary[v.name] *
                     EstimateBotPodDistance(v.robot, v.pod)), wrapper)) * w1 + LinearExpression.Sum(deVarNameyos.Select(v => variablesBinary[v.name])) * w2
@@ -647,6 +698,18 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                 foreach (var station in Cs.Keys)
                     wrapper.AddConstr(variablesBinary["xps" + "_" + pod.ID.ToString() + "_" + station.ID.ToString()]
                         <= LinearExpression.Sum(deVarNamedops.Where(v => v.pod.ID == pod.ID && v.outputstation.ID == station.ID).Select(v => variablesBinary[v.name])), "shi13");
+            }
+            // Phase D: linking qrps = yrp ∧ xps. Forces qrps[r,p,s] = 1 iff both yrp[r,p] = 1 and xps[p,s] = 1.
+            if (jointMode)
+            {
+                foreach (var q in deVarNameqrps)
+                {
+                    string yrpName = "yrp" + "_" + q.robot.ID.ToString() + "_" + q.pod.ID.ToString();
+                    string xpsName = "xps" + "_" + q.pod.ID.ToString() + "_" + q.outputstation.ID.ToString();
+                    wrapper.AddConstr(variablesBinary[q.name] <= variablesBinary[yrpName], "q_yrp");
+                    wrapper.AddConstr(variablesBinary[q.name] <= variablesBinary[xpsName], "q_xps");
+                    wrapper.AddConstr(variablesBinary[q.name] >= variablesBinary[yrpName] + variablesBinary[xpsName] - 1, "q_and");
+                }
             }
             wrapper.Update();
             wrapper.Optimize();

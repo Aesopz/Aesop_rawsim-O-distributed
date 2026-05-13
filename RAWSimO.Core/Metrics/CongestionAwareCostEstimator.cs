@@ -52,10 +52,24 @@ namespace RAWSimO.Core.Metrics
 
         /// <summary>
         /// Estimate the time (seconds) for a bot to travel <paramref name="from"/> → <paramref name="to"/>
-        /// while empty (carrying = 0) or loaded (carrying = 1).
+        /// while empty (carrying = 0) or loaded (carrying = 1). Density per edge is evaluated at the
+        /// simulator's current time. For Phase D's joint (r,p,s) cost use <see cref="EstimateLegTimeFrom"/>
+        /// instead, which lets you specify the segment's start time.
         /// Returns +∞ if the path is unreachable.
         /// </summary>
         public double EstimateLegTime(Waypoint from, Waypoint to, bool carrying)
+        {
+            double tStart = _instance.Controller != null ? _instance.Controller.CurrentTime : 0.0;
+            return EstimateLegTimeFrom(from, to, carrying, tStart);
+        }
+
+        /// <summary>
+        /// Time-aware leg estimate: each edge is evaluated at the projected arrival time
+        /// <paramref name="tStart"/> + Σ previous-edge times. Density at an edge's from-waypoint is
+        /// computed by projecting every other bot's position to that projected arrival time using
+        /// its remaining Path and the same kinematic model used in training.
+        /// </summary>
+        public double EstimateLegTimeFrom(Waypoint from, Waypoint to, bool carrying, double tStart)
         {
             if (from == null || to == null) return double.PositiveInfinity;
             if (from == to) return 0.0;
@@ -66,16 +80,36 @@ namespace RAWSimO.Core.Metrics
 
             int c = carrying ? 1 : 0;
             double total = 0.0;
+            double tCursor = tStart;
             for (int i = 0; i < path.Count - 1; i++)
             {
                 var u = path[i];
                 var v = path[i + 1];
-                double dist = u[v];               // edge length in metres
-                int dband = ComputeDensityBand(u);
+                double dist = u[v];
+                int dband = ComputeDensityBandAt(u, tCursor);
                 double residual = LookupResidual(u.ID, v.ID, c, dband);
-                total += _a + _b * dist + residual;
+                double dt = _a + _b * dist + residual;
+                total += dt;
+                tCursor += dt;
             }
             return total;
+        }
+
+        /// <summary>
+        /// Phase D joint (r,p,s) cost: time for bot to reach <paramref name="podWp"/>, lift the pod,
+        /// then transport it to <paramref name="stationWp"/>. Leg 2's density is evaluated forward in
+        /// time starting from the projected pickup moment.
+        /// </summary>
+        public double EstimateThreeTupleTime(Waypoint botWp, Waypoint podWp, Waypoint stationWp,
+                                              double tNow, double tLift)
+        {
+            if (botWp == null || podWp == null || stationWp == null) return double.PositiveInfinity;
+            double leg1 = EstimateLegTimeFrom(botWp, podWp, carrying: false, tStart: tNow);
+            if (double.IsInfinity(leg1)) return double.PositiveInfinity;
+            double tPickup = tNow + leg1 + tLift;
+            double leg2 = EstimateLegTimeFrom(podWp, stationWp, carrying: true, tStart: tPickup);
+            if (double.IsInfinity(leg2)) return double.PositiveInfinity;
+            return leg1 + tLift + leg2;
         }
 
         // ── Loading ─────────────────────────────────────────────────────────────────────────
@@ -229,18 +263,72 @@ namespace RAWSimO.Core.Metrics
 
         // ── Density ─────────────────────────────────────────────────────────────────────────
 
-        private int ComputeDensityBand(Waypoint wp)
+        private int ComputeDensityBandAt(Waypoint wp, double tTarget)
         {
+            double tNow = _instance.Controller != null ? _instance.Controller.CurrentTime : 0.0;
             int count = 0;
             foreach (var b in _instance.Bots)
             {
                 if (b.Tier != wp.Tier) continue;
-                double dx = b.X - wp.X;
-                double dy = b.Y - wp.Y;
+                double bx, by;
+                ProjectBotPosition(b, tTarget - tNow, out bx, out by);
+                double dx = bx - wp.X;
+                double dy = by - wp.Y;
                 if (Math.Abs(dx) + Math.Abs(dy) < LocalDensityRadiusM)
                     count++;
             }
             return count > MaxDensityBand ? MaxDensityBand : count;
+        }
+
+        /// <summary>
+        /// Project bot position <paramref name="dt"/> seconds into the future. Walks the bot's
+        /// remaining <see cref="MultiAgentPathFinding.Elements.Path"/> at the kinematic baseline
+        /// (a + b·dist per edge) and reports the waypoint the bot is approximately at when the
+        /// budgeted time runs out. Falls back to the bot's current (X,Y) when no path is available.
+        /// </summary>
+        private void ProjectBotPosition(Bot b, double dt, out double x, out double y)
+        {
+            x = b.X; y = b.Y;
+            if (dt <= 0.0 || b == null) return;
+            // Quick path: bot is idle (no NextWaypoint and no Path) → stays put.
+            var bn = b as Bots.BotNormal;
+            if (bn == null) return;
+            var nextWp = bn.NextWaypoint;
+            var curWp = bn.CurrentWaypoint;
+            if (nextWp == null && (bn.Path == null || bn.Path.Count == 0)) return;
+
+            double remaining = dt;
+            Waypoint cursor = nextWp ?? curWp;
+            // Cost of finishing the in-progress segment, if any.
+            if (nextWp != null && curWp != null)
+            {
+                double segDist = curWp.GetDistance(nextWp);
+                double segDt = _a + _b * segDist;
+                if (remaining < segDt) return; // still mid-segment → current X,Y is fine
+                remaining -= segDt;
+                x = nextWp.X; y = nextWp.Y;
+            }
+            // Walk the remaining Path actions.
+            if (bn.Path == null || bn.Path.Count == 0) return;
+            var pm = _instance.Controller != null ? _instance.Controller.PathManager : null;
+            if (pm == null) return;
+            foreach (var action in bn.Path.Actions)
+            {
+                Waypoint next = pm.GetWaypointByNodeId(action.Node);
+                if (next == null || next == cursor) continue;
+                double segDist = cursor.GetDistance(next);
+                double segDt = _a + _b * segDist;
+                if (remaining < segDt)
+                {
+                    // Bot still mid-edge → approximate at the from-waypoint of the edge.
+                    x = cursor.X; y = cursor.Y;
+                    return;
+                }
+                remaining -= segDt;
+                cursor = next;
+                x = cursor.X; y = cursor.Y;
+                if (remaining <= 0.0) return;
+            }
         }
 
         // ── Dijkstra ────────────────────────────────────────────────────────────────────────

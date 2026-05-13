@@ -312,12 +312,18 @@ namespace RAWSimO.Core.Configurations
         /// directory, and the app base directory in that order.
         /// </summary>
         public string CongestionTablePath = "";
-        /// <summary>Objective weight for the routing-cost term (xps + yrp coefficients).</summary>
+        /// <summary>Objective weight for the routing-cost term (xps + yrp coefficients, or qrps when joint mode is on).</summary>
         public double W1 = 1.0;
         /// <summary>Objective weight for the orders-served term (Σ yos). Negative = reward.</summary>
         public double W2 = -40.0;
         /// <summary>Objective weight for the unused-capacity penalty (Σ us).</summary>
         public double W3 = 1000.0;
+        /// <summary>Phase D: when true, replace the two separable routing terms with a single
+        /// joint Σ qrps · T_total(r,p,s) term. Requires UseCongestionAwareCost = true.</summary>
+        public bool UseJointRPSCost = false;
+        /// <summary>Lift-up time used when chaining leg-1 → t_pickup → leg-2 inside the joint
+        /// (r,p,s) cost estimator. Default 2.2 s matches Material/.../benchmark_ss_layout PodTransferTime.</summary>
+        public double BaseLiftTime = 2.2;
         /// <summary>
         /// Returns a name identifying the method.
         /// </summary>
