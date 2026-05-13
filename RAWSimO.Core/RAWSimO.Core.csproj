@@ -260,6 +260,7 @@
     <Compile Include="Randomization\RandomizerHelper.cs" />
     <Compile Include="Randomization\RandomizerSimple.cs" />
     <Compile Include="Remote\RemoteControlAdapter.cs" />
+    <Compile Include="Statistics\CongestionFeatureLogger.cs" />
     <Compile Include="Statistics\DataPoint.cs" />
     <Compile Include="Statistics\FrequencyTracker.cs" />
     <Compile Include="Statistics\ElementMetaInfoTracker.cs" />

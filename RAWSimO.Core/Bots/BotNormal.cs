@@ -895,6 +895,10 @@ namespace RAWSimO.Core.Bots
                                  ?? (DestinationWaypoint?.InputStation?.ID)
                                  ?? -1;
 
+                // ── Stage A.2: sample read-only congestion features for the segment about to begin.
+                Instance._statCongestionFeatures.Add(
+                    Statistics.CongestionFeatureLogger.Sample(Instance, this, CurrentWaypoint, NextWaypoint, currentTime));
+
                 return true;
 
             }

@@ -256,6 +256,10 @@ namespace RAWSimO.Core
         /// </summary>
         internal List<TraversalDatapoint> _statTraversalRecords = new List<TraversalDatapoint>();
         /// <summary>
+        /// Per-segment congestion-feature snapshots taken at ReadyTime (Stage A.2).
+        /// </summary>
+        internal List<CongestionFeatureDatapoint> _statCongestionFeatures = new List<CongestionFeatureDatapoint>();
+        /// <summary>
         /// The number of collisions that happened in this instance. This value may count a collision of two robots twice, hence it should only be used as an indicator.
         /// </summary>
         public int StatOverallCollisions { get; private set; }
@@ -769,6 +773,31 @@ namespace RAWSimO.Core
         }
 
         /// <summary>
+        /// Flushes the per-segment congestion-feature snapshots.
+        /// </summary>
+        public void StatFlushCongestionFeatures()
+        {
+            StatInitDirectory();
+            switch (SettingConfig.LogFileLevel)
+            {
+                case Configurations.LogFileLevel.All:
+                    bool alreadyExists = File.Exists(Path.Combine(SettingConfig.StatisticsDirectory, IOConstants.StatFileNames[IOConstants.StatFile.CongestionFeatureLog]));
+                    using (StreamWriter sw = new StreamWriter(Path.Combine(SettingConfig.StatisticsDirectory, IOConstants.StatFileNames[IOConstants.StatFile.CongestionFeatureLog]), true))
+                    {
+                        if (!alreadyExists)
+                            sw.WriteLine(IOConstants.COMMENT_LINE + CongestionFeatureDatapoint.GetHeader());
+                        foreach (var d in _statCongestionFeatures)
+                            sw.WriteLine(d.GetLine());
+                    }
+                    break;
+                case Configurations.LogFileLevel.FootprintOnly:
+                    break;
+                default: throw new ArgumentException("Unknown log level: " + SettingConfig.LogFileLevel);
+            }
+            _statCongestionFeatures.Clear();
+        }
+
+        /// <summary>
         /// Flushes statistics about the trips of the robots.
         /// </summary>
         public void StatFlushTripStatistics()
@@ -922,6 +951,7 @@ namespace RAWSimO.Core
             StatFlushCollisions();
             StatFlushTripsCompleted();
             StatFlushTraversalLog();
+            StatFlushCongestionFeatures();
             StatFlushPathFinding();
 
             // Flush observer data

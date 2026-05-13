@@ -251,6 +251,10 @@ namespace RAWSimO.Core.IO
             /// Per-segment edge-traversal log (Stage A of congestion-aware cost estimator).
             /// </summary>
             TraversalLog,
+            /// <summary>
+            /// Per-segment congestion-feature snapshot at ReadyTime (Stage A.2).
+            /// </summary>
+            CongestionFeatureLog,
         }
         /// <summary>
         /// Contains all names to use for the statistic files defined.
@@ -286,6 +290,7 @@ namespace RAWSimO.Core.IO
             { StatFile.IndividualPerformanceFileOrderManagerAsyncSeparate, "ordermanagerasyncseparate.csv" },
             { StatFile.IndividualPerformanceFileOrderManagerAsyncConsolidated, "ordermanagerasyncconsolidated.csv" },
             { StatFile.TraversalLog, "traversal_log.csv" },
+            { StatFile.CongestionFeatureLog, "congestion_features.csv" },
         };
 
         #endregion
