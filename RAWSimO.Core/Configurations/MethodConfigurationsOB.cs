@@ -324,6 +324,15 @@ namespace RAWSimO.Core.Configurations
         /// <summary>Lift-up time used when chaining leg-1 → t_pickup → leg-2 inside the joint
         /// (r,p,s) cost estimator. Default 2.2 s matches Material/.../benchmark_ss_layout PodTransferTime.</summary>
         public double BaseLiftTime = 2.2;
+        /// <summary>Step F: replace the deterministic per-edge density count with a Poisson-binomial
+        /// expectation. Each other bot becomes a Bernoulli p_j based on projected position +
+        /// kinematic uncertainty derived from the residual-table std column; the expected residual
+        /// is Σ_d PMF[d] · ρ[e, c, d]. Requires UseCongestionAwareCost = true.</summary>
+        public bool UseProbabilisticDensity = false;
+        /// <summary>Step F: width of the Gaussian kernel (in meters) used to soften the radius
+        /// check when computing each bot's Bernoulli p_j. Larger values smear projection error
+        /// further; 0 collapses to a hard radius indicator (deterministic).</summary>
+        public double DensityKernelSigma = 1.5;
         /// <summary>
         /// Returns a name identifying the method.
         /// </summary>

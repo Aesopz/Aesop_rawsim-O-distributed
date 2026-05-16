@@ -247,7 +247,9 @@ namespace RAWSimO.Core
                     break;
                 case PathPlanningMethodType.Dummy:
                 case PathPlanningMethodType.WHCAvStar:
+                case PathPlanningMethodType.WHCAvStarPriority:
                 case PathPlanningMethodType.WHCAnStar:
+                case PathPlanningMethodType.WHCAnStarPriority:
                 case PathPlanningMethodType.FAR:
                 case PathPlanningMethodType.BCP:
                 case PathPlanningMethodType.OD_ID:

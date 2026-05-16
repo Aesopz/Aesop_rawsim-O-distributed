@@ -12,10 +12,16 @@ Header (key=value comment lines):
     # built_at = 2026-05-13T...
 
 Body rows (semicolon-separated):
-    KIND;FROM;TO;EDGE_TYPE;CARRYING;DENSITY;RESIDUAL;COUNT
+    KIND;FROM;TO;EDGE_TYPE;CARRYING;DENSITY;RESIDUAL;COUNT;STD;P90
 
 KIND ∈ {EDGE, TYPE, GLOBAL}. FROM/TO are integers (-1 for non-EDGE rows).
 EDGE_TYPE is the categorical label (empty for GLOBAL rows).
+RESIDUAL is the (shrunk for EDGE rows, raw for TYPE/GLOBAL) mean residual.
+STD is the empirical sample std of (SegmentTime - kinematic_baseline) in that cell
+(NaN-safe: 0.0 when only one sample).
+P90 is the 90th percentile of the same.
+Step E (distributional estimator): C# side can use (mean, std) for risk-aware
+cost (mean + α·std) and (mean, p90) for tail-aware planning.
 """
 from __future__ import annotations
 import argparse
@@ -56,23 +62,26 @@ def main():
         f.write(f"# built_at = {datetime.datetime.utcnow().isoformat()}Z\n")
         f.write(f"# train_rows = {len(df)}\n")
         f.write(f"# seeds = {','.join(str(s) for s in sorted(df['Seed'].unique()))}\n")
-        f.write("KIND;FROM;TO;EDGE_TYPE;CARRYING;DENSITY;RESIDUAL;COUNT\n")
+        f.write("KIND;FROM;TO;EDGE_TYPE;CARRYING;DENSITY;RESIDUAL;COUNT;STD;P90\n")
 
         # EDGE rows
         for _, r in edge_table.iterrows():
             f.write(f"EDGE;{int(r['FromNode'])};{int(r['ToNode'])};{r['EdgeType']};"
                     f"{int(r['CarryingPod'])};{int(r['DensityBand'])};"
-                    f"{float(r['residual_shrunk']):.6f};{int(r['count'])}\n")
+                    f"{float(r['residual_shrunk']):.6f};{int(r['count'])};"
+                    f"{float(r['std']):.6f};{float(r['p90']):.6f}\n")
 
         # TYPE rows
         for _, r in type_prior.iterrows():
             f.write(f"TYPE;-1;-1;{r['EdgeType']};{int(r['CarryingPod'])};"
-                    f"{int(r['DensityBand'])};{float(r['type_residual']):.6f};{int(r['count'])}\n")
+                    f"{int(r['DensityBand'])};{float(r['type_residual']):.6f};{int(r['count'])};"
+                    f"{float(r['type_std']):.6f};{float(r['type_p90']):.6f}\n")
 
         # GLOBAL rows
         for _, r in global_prior.iterrows():
             f.write(f"GLOBAL;-1;-1;;{int(r['CarryingPod'])};{int(r['DensityBand'])};"
-                    f"{float(r['global_residual']):.6f};{int(r['count'])}\n")
+                    f"{float(r['global_residual']):.6f};{int(r['count'])};"
+                    f"{float(r['global_std']):.6f};{float(r['global_p90']):.6f}\n")
 
     rows_edge = len(edge_table); rows_type = len(type_prior); rows_global = len(global_prior)
     print(f"wrote {args.out}")

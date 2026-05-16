@@ -21,6 +21,14 @@ from load_data import load_seeds
 from build_table import density_band
 
 
+# Option B re-train: prefer the Gaussian SoftBotDensity column when the logger emitted it.
+# Falls back to the integer LocalBotDensity for older Stage A captures.
+def _pick_density_column(df: pd.DataFrame) -> pd.Series:
+    if "SoftBotDensity" in df.columns:
+        return df["SoftBotDensity"].astype(float)
+    return df["LocalBotDensity"].astype(int)
+
+
 def fit_baseline(df_train: pd.DataFrame) -> tuple[float, float]:
     """Linear fit: SegmentTime = a + b * DistanceM."""
     x = df_train["DistanceM"].astype(float).values
@@ -38,24 +46,30 @@ def fit_congestion_table(df_train: pd.DataFrame, k: int = 5):
     keeps both per-edge specificity and stability for low-count cells.
     """
     df_train = df_train.copy()
-    df_train["DensityBand"] = density_band(df_train["LocalBotDensity"])
+    df_train["DensityBand"] = density_band(_pick_density_column(df_train))
     a, b = fit_baseline(df_train)
     df_train["Residual"] = df_train["SegmentTime"].astype(float) - (a + b * df_train["DistanceM"].astype(float))
 
+    def _p90(x):
+        import numpy as _np
+        return float(_np.percentile(x, 90)) if len(x) > 0 else 0.0
     edge_table = (
         df_train.groupby(["FromNode", "ToNode", "CarryingPod", "DensityBand"])["Residual"]
-        .agg(count="count", mean="mean").reset_index()
+        .agg(count="count", mean="mean", std="std", p90=_p90).reset_index()
     )
+    edge_table["std"] = edge_table["std"].fillna(0.0)
     type_prior = (
         df_train.groupby(["EdgeType", "CarryingPod", "DensityBand"])["Residual"]
-        .agg(count="count", mean="mean").reset_index()
-        .rename(columns={"mean": "type_residual"})
+        .agg(count="count", mean="mean", std="std", p90=_p90).reset_index()
+        .rename(columns={"mean": "type_residual", "std": "type_std", "p90": "type_p90"})
     )
+    type_prior["type_std"] = type_prior["type_std"].fillna(0.0)
     global_prior = (
         df_train.groupby(["CarryingPod", "DensityBand"])["Residual"]
-        .agg(count="count", mean="mean").reset_index()
-        .rename(columns={"mean": "global_residual"})
+        .agg(count="count", mean="mean", std="std", p90=_p90).reset_index()
+        .rename(columns={"mean": "global_residual", "std": "global_std", "p90": "global_p90"})
     )
+    global_prior["global_std"] = global_prior["global_std"].fillna(0.0)
     edge_to_type = (
         df_train.groupby(["FromNode", "ToNode"])["EdgeType"]
         .agg(lambda s: s.mode().iat[0]).reset_index()
@@ -76,7 +90,7 @@ def fit_congestion_table(df_train: pd.DataFrame, k: int = 5):
 def predict_congestion(model_pieces, df_test: pd.DataFrame) -> np.ndarray:
     (a, b), edge_table, type_prior, global_prior = model_pieces
     df_test = df_test.copy()
-    df_test["DensityBand"] = density_band(df_test["LocalBotDensity"])
+    df_test["DensityBand"] = density_band(_pick_density_column(df_test))
     et = edge_table[["FromNode", "ToNode", "CarryingPod", "DensityBand", "residual_shrunk"]]
     out = df_test.merge(et, on=["FromNode", "ToNode", "CarryingPod", "DensityBand"], how="left")
     out = out.merge(type_prior[["EdgeType", "CarryingPod", "DensityBand", "type_residual"]],
@@ -138,7 +152,7 @@ def loso_cv(df: pd.DataFrame, k: int = 20) -> tuple[pd.DataFrame, pd.DataFrame, 
         seedwise.append({"held": held, "base_MAE": m_base["MAE"], "cong_MAE": m_cong["MAE"],
                          "improve_%": 100 * (m_base["MAE"] - m_cong["MAE"]) / m_base["MAE"]})
 
-        d = density_band(test["LocalBotDensity"]).values
+        d = density_band(_pick_density_column(test)).values
         for stat in per_density_mae(y, y_base, d):
             stat.update({"estimator": "baseline_linear", "held_seed": held}); rows_dens.append(stat)
         for stat in per_density_mae(y, y_cong, d):

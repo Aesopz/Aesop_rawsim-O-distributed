@@ -31,11 +31,13 @@ namespace RAWSimO.Core.Control
                 case PathPlanningMethodType.Simple: PathManager = null; break;
                 case PathPlanningMethodType.Dummy: PathManager = new DummyPathManager(instance); break;
                 case PathPlanningMethodType.WHCAvStar: PathManager = new WHCAvStarPathManager(instance); break;
+                case PathPlanningMethodType.WHCAvStarPriority: PathManager = new WHCAvStarPathManager(instance); break;
                 case PathPlanningMethodType.FAR: PathManager = new FARPathManager(instance); break;
                 case PathPlanningMethodType.BCP: PathManager = new BCPPathManager(instance); break;
                 case PathPlanningMethodType.CBS: PathManager = new CBSPathManager(instance); break;
                 case PathPlanningMethodType.OD_ID: PathManager = new ODIDPathManager(instance); break;
                 case PathPlanningMethodType.WHCAnStar: PathManager = new WHCAnStarPathManager(instance); break;
+                case PathPlanningMethodType.WHCAnStarPriority: PathManager = new WHCAnStarPathManager(instance); break;
                 case PathPlanningMethodType.PAS: PathManager = new PASPathManager(instance); break;
                 default: throw new ArgumentException("Unknown path planning engine: " + instance.ControllerConfig.PathPlanningConfig.GetMethodType());
             }

@@ -39,9 +39,19 @@ namespace RAWSimO.Core.Configurations
         WHCAvStar,
 
         /// <summary>
+        /// Silver 06 - Cooperative pathfinding with rule-based priority.
+        /// </summary>
+        WHCAvStarPriority,
+
+        /// <summary>
         /// Silver 06 - Cooperative pathfinding
         /// </summary>
         WHCAnStar,
+
+        /// <summary>
+        /// Silver 06 - Cooperative pathfinding with rule-based priority.
+        /// </summary>
+        WHCAnStarPriority,
 
         /* Heavy Approach with many drawbacks for continues time slots 
          * Missing: Distinguish between pod holding and non-pod holding bots
@@ -505,7 +515,9 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(SimplePathPlanningConfiguration))]
     [XmlInclude(typeof(DummyPathPlanningConfiguration))]
     [XmlInclude(typeof(WHCAvStarPathPlanningConfiguration))]
+    [XmlInclude(typeof(WHCAvStarPriorityPathPlanningConfiguration))]
     [XmlInclude(typeof(WHCAnStarPathPlanningConfiguration))]
+    [XmlInclude(typeof(WHCAnStarPriorityPathPlanningConfiguration))]
     [XmlInclude(typeof(FARPathPlanningConfiguration))]
     [XmlInclude(typeof(ODIDPathPlanningConfiguration))]
     [XmlInclude(typeof(BCPPathPlanningConfiguration))]

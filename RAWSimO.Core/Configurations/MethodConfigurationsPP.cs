@@ -143,6 +143,22 @@ namespace RAWSimO.Core.Configurations
         }
     }
     /// <summary>
+    /// WHCAv* with rule-based planning priority.
+    /// </summary>
+    public class WHCAvStarPriorityPathPlanningConfiguration : WHCAvStarPathPlanningConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.WHCAvStarPriority; }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName() { if (!string.IsNullOrWhiteSpace(Name)) return Name; return "ppWCHAv-P" + LengthOfAWindow.ToString(IOConstants.EXPORT_FORMAT_SHORTER, IOConstants.FORMATTER) + (AbortAtFirstConflict ? "t" : "f") + (UseDeadlockHandler ? "t" : "f"); }
+    }
+    /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
     public class WHCAnStarPathPlanningConfiguration : PathPlanningConfiguration
@@ -200,6 +216,22 @@ namespace RAWSimO.Core.Configurations
             return true;
 
         }
+    }
+    /// <summary>
+    /// WHCAn* with rule-based planning priority.
+    /// </summary>
+    public class WHCAnStarPriorityPathPlanningConfiguration : WHCAnStarPathPlanningConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override PathPlanningMethodType GetMethodType() { return PathPlanningMethodType.WHCAnStarPriority; }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName() { if (!string.IsNullOrWhiteSpace(Name)) return Name; return "ppWCHAn-P" + LengthOfAWindow.ToString(IOConstants.EXPORT_FORMAT_SHORTER, IOConstants.FORMATTER) + (UseBias ? "t" : "f") + (UseDeadlockHandler ? "t" : "f"); }
     }
     /// <summary>
     /// The configuration for the corresponding method.

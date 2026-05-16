@@ -21,14 +21,26 @@ from load_data import load_seeds
 
 
 def density_band(d: pd.Series) -> pd.Series:
-    """Bucket LocalBotDensity into three bands: 0, 1, >=2."""
+    """Bucket density into three bands: 0, 1, >=2.
+
+    Accepts either the hard integer LocalBotDensity (Phase A/B/C/D) or the Gaussian
+    SoftBotDensity (Option B re-train). For floats we round-to-nearest then clip; this maps
+    soft values < 0.5 to band 0, [0.5, 1.5) to band 1, and >= 1.5 to band 2 — the same
+    semantic as Poisson-binomial deployment bucketing the integer count distribution.
+    """
+    if pd.api.types.is_float_dtype(d):
+        return d.round().clip(0, 2).astype(int)
     return d.clip(0, 2)
 
 
 def build_tables(df: pd.DataFrame, output_dir: str, k: int = 20) -> None:
     os.makedirs(output_dir, exist_ok=True)
     df = df.copy()
-    df["DensityBand"] = density_band(df["LocalBotDensity"])
+    # Option B re-train: prefer SoftBotDensity (Gaussian kernel matching the estimator) when
+    # present. Falls back to the original integer count for older captures.
+    density_src = df["SoftBotDensity"].astype(float) if "SoftBotDensity" in df.columns \
+        else df["LocalBotDensity"]
+    df["DensityBand"] = density_band(density_src)
     df["SegmentTime"] = df["SegmentTime"].astype(float)
 
     edge_keys = ["FromNode", "ToNode", "CarryingPod", "DensityBand"]

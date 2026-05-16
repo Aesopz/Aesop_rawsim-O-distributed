@@ -33,9 +33,19 @@ namespace RAWSimO.Core.Metrics
         private bool _loadFailed;
         private double _a = DefaultKinematicA;
         private double _b = DefaultKinematicB;
+        // Step E: residual values now keyed but also carry (mean, std, p90). Mean lookups go through
+        // the legacy dictionaries; the distributional table lets Step F integrate over density bands.
         private readonly Dictionary<long, double> _edgeResidual = new Dictionary<long, double>();
         private readonly Dictionary<long, double> _typeResidual = new Dictionary<long, double>();
         private readonly Dictionary<int, double> _globalResidual = new Dictionary<int, double>();
+        // Per-(from,to,carrying) lookup: residual indexed by density band (size MaxDensityBand+1).
+        // Allows Step F's Σ_d PMF[d] · ρ[e, c, d] without re-hashing on every band.
+        private readonly Dictionary<long, double[]> _edgeResidualByBand = new Dictionary<long, double[]>();
+        private readonly Dictionary<long, double[]> _typeResidualByBand = new Dictionary<long, double[]>();
+        private readonly Dictionary<int, double[]> _globalResidualByBand = new Dictionary<int, double[]>();
+        // Step F controls (set by M1GManager from config before first use).
+        private bool _useProbabilisticDensity;
+        private double _densityKernelSigma = 1.5;
         // Stable string-id → small int for EdgeType to share keys with edge/type maps.
         private readonly Dictionary<string, int> _edgeTypeIds = new Dictionary<string, int>();
         // EdgeType per directed (from, to) pair, computed once from waypoint flags.
@@ -46,6 +56,16 @@ namespace RAWSimO.Core.Metrics
         {
             _instance = instance;
             _explicitPath = explicitPath;
+        }
+
+        /// <summary>
+        /// Step F toggle. Enables Poisson-binomial expectation over density bands when querying the
+        /// residual at each edge; the deterministic count path is used when false.
+        /// </summary>
+        public void ConfigureProbabilisticDensity(bool enabled, double kernelSigma)
+        {
+            _useProbabilisticDensity = enabled;
+            _densityKernelSigma = kernelSigma > 0.0 ? kernelSigma : 1.5;
         }
 
         // ── Public API ──────────────────────────────────────────────────────────────────────
@@ -86,8 +106,19 @@ namespace RAWSimO.Core.Metrics
                 var u = path[i];
                 var v = path[i + 1];
                 double dist = u[v];
-                int dband = ComputeDensityBandAt(u, tCursor);
-                double residual = LookupResidual(u.ID, v.ID, c, dband);
+                double residual;
+                if (_useProbabilisticDensity)
+                {
+                    // Step F: Σ_d PMF[d] · ρ[edge, c, d] where PMF is Poisson-binomial over per-bot
+                    // Bernoulli "near wp at tCursor" probabilities.
+                    var pmf = ComputeDensityPMFAt(u, tCursor);
+                    residual = ExpectedResidual(u.ID, v.ID, c, pmf);
+                }
+                else
+                {
+                    int dband = ComputeDensityBandAt(u, tCursor);
+                    residual = LookupResidual(u.ID, v.ID, c, dband);
+                }
                 double dt = _a + _b * dist + residual;
                 total += dt;
                 tCursor += dt;
@@ -184,20 +215,26 @@ namespace RAWSimO.Core.Metrics
                 int carrying = int.Parse(parts[4], inv);
                 int density = int.Parse(parts[5], inv);
                 double residual = double.Parse(parts[6], inv);
+                // STD/P90 columns are written by Step E's export_for_csharp.py; older CSV
+                // files without them remain readable.
 
                 int etId = GetOrCreateEdgeTypeId(edgeType);
+                int clampedBand = density < 0 ? 0 : (density > MaxDensityBand ? MaxDensityBand : density);
                 switch (kind)
                 {
                     case "EDGE":
                         _edgeResidual[EncodeEdgeKey(from, to, carrying, density)] = residual;
+                        StoreByBand(_edgeResidualByBand, EncodePairCarry(from, to, carrying), clampedBand, residual);
                         // Remember the type associated with this directed pair (for fallback lookup).
                         _edgeTypeByPair[EncodePair(from, to)] = etId;
                         break;
                     case "TYPE":
                         _typeResidual[EncodeTypeKey(etId, carrying, density)] = residual;
+                        StoreByBand(_typeResidualByBand, EncodeTypeCarryKey(etId, carrying), clampedBand, residual);
                         break;
                     case "GLOBAL":
                         _globalResidual[EncodeGlobalKey(carrying, density)] = residual;
+                        StoreByBand(_globalResidualByBand, carrying, clampedBand, residual);
                         break;
                 }
             }
@@ -261,7 +298,114 @@ namespace RAWSimO.Core.Metrics
             return _edgeTypeIds.TryGetValue(label, out var id) ? id : -1;
         }
 
+        private static void StoreByBand(Dictionary<long, double[]> table, long key, int band, double value)
+        {
+            double[] arr;
+            if (!table.TryGetValue(key, out arr))
+            {
+                arr = new double[MaxDensityBand + 1];
+                table[key] = arr;
+            }
+            arr[band] = value;
+        }
+
+        private static void StoreByBand(Dictionary<int, double[]> table, int key, int band, double value)
+        {
+            double[] arr;
+            if (!table.TryGetValue(key, out arr))
+            {
+                arr = new double[MaxDensityBand + 1];
+                table[key] = arr;
+            }
+            arr[band] = value;
+        }
+
+        // Step F: Σ_d PMF[d] · ρ[edge, c, d]. Falls back EDGE → TYPE → GLOBAL using by-band tables.
+        private double ExpectedResidual(int from, int to, int carrying, double[] pmf)
+        {
+            if (_loadFailed || pmf == null) return 0.0;
+            double[] band;
+            if (_edgeResidualByBand.TryGetValue(EncodePairCarry(from, to, carrying), out band))
+                return DotPMF(pmf, band);
+            int etId;
+            if (_edgeTypeByPair.TryGetValue(EncodePair(from, to), out etId)
+                && _typeResidualByBand.TryGetValue(EncodeTypeCarryKey(etId, carrying), out band))
+                return DotPMF(pmf, band);
+            etId = ClassifyEdgeOnDemand(from, to);
+            if (etId >= 0 && _typeResidualByBand.TryGetValue(EncodeTypeCarryKey(etId, carrying), out band))
+                return DotPMF(pmf, band);
+            if (_globalResidualByBand.TryGetValue(carrying, out band))
+                return DotPMF(pmf, band);
+            return 0.0;
+        }
+
+        private static double DotPMF(double[] pmf, double[] residualByBand)
+        {
+            double acc = 0.0;
+            int n = Math.Min(pmf.Length, residualByBand.Length);
+            for (int i = 0; i < n; i++) acc += pmf[i] * residualByBand[i];
+            return acc;
+        }
+
         // ── Density ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Step F: compute the Poisson-binomial PMF over density bands {0, 1, ≥2} at waypoint
+        /// <paramref name="wp"/> at projected time <paramref name="tTarget"/>. Each other bot
+        /// contributes a Bernoulli p_j based on its kinematically projected position softened by a
+        /// Gaussian kernel of width <see cref="_densityKernelSigma"/> (in meters). Aggregation is
+        /// done via O(N) DP on the Poisson-binomial recurrence; the tail (d ≥ 2) collapses to a
+        /// single bucket so the residual table's 3 bands suffice.
+        /// </summary>
+        private double[] ComputeDensityPMFAt(Waypoint wp, double tTarget)
+        {
+            double tNow = _instance.Controller != null ? _instance.Controller.CurrentTime : 0.0;
+            // Three-bucket PMF: index 0 = "0 bots within radius", index 1 = "exactly 1",
+            // index 2 = "2 or more". After processing every bot the buckets sum to 1.
+            var pmf = new double[MaxDensityBand + 1];
+            pmf[0] = 1.0;
+            double sigma = _densityKernelSigma;
+            double invSigma2 = sigma > 0.0 ? 1.0 / (2.0 * sigma * sigma) : 0.0;
+            foreach (var b in _instance.Bots)
+            {
+                if (b.Tier != wp.Tier) continue;
+                double bx, by;
+                ProjectBotPosition(b, tTarget - tNow, out bx, out by);
+                double dx = bx - wp.X;
+                double dy = by - wp.Y;
+                double r2 = dx * dx + dy * dy;
+                double p;
+                if (sigma <= 0.0)
+                {
+                    p = Math.Abs(dx) + Math.Abs(dy) < LocalDensityRadiusM ? 1.0 : 0.0;
+                }
+                else
+                {
+                    // Soft membership: Gaussian-kernel weight centred on wp. Captures projection
+                    // uncertainty without needing a per-bot std estimate (which would require
+                    // walking each bot's path against the std column).
+                    p = Math.Exp(-r2 * invSigma2);
+                    if (p < 1e-6) continue; // negligible — keep DP cheap
+                    if (p > 1.0) p = 1.0;
+                }
+                // Poisson-binomial DP with absorbing tail at index = MaxDensityBand:
+                //   new_pmf[0]   = pmf[0] * (1-p)
+                //   new_pmf[k]   = pmf[k-1] * p + pmf[k] * (1-p)        for 0 < k < tail
+                //   new_pmf[tail]= pmf[tail-1] * p + pmf[tail] * 1      (anything that lands in
+                //                                                       the tail stays there)
+                int tail = MaxDensityBand;
+                double prev = pmf[0];
+                pmf[0] = prev * (1.0 - p);
+                for (int k = 1; k < tail; k++)
+                {
+                    double cur = pmf[k];
+                    pmf[k] = prev * p + cur * (1.0 - p);
+                    prev = cur;
+                }
+                pmf[tail] = prev * p + pmf[tail]; // tail absorbs all "≥ tail" mass
+            }
+            return pmf;
+        }
 
         private int ComputeDensityBandAt(Waypoint wp, double tTarget)
         {
@@ -397,5 +541,11 @@ namespace RAWSimO.Core.Metrics
 
         private static long EncodePair(int from, int to)
             => ((long)from << 32) | (uint)to;
+
+        private static long EncodePairCarry(int from, int to, int carrying)
+            => ((long)from << 33) | ((long)(uint)to << 1) | (long)(carrying & 1);
+
+        private static long EncodeTypeCarryKey(int etId, int carrying)
+            => ((long)etId << 1) | (long)(carrying & 1);
     }
 }

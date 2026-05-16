@@ -49,6 +49,7 @@ namespace RAWSimO.Core.Control.Defaults.PathPlanning
             method.LengthOfAWindow = config.LengthOfAWindow;
             method.AbortAtFirstConflict = config.AbortAtFirstConflict;
             method.UseDeadlockHandler = config.UseDeadlockHandler;
+            method.UseRulePriority = config is WHCAvStarPriorityPathPlanningConfiguration;
 
             if (config.AutoSetParameter)
             {

@@ -72,6 +72,11 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
         }
 
         /// <summary>
+        /// Optional caller-provided abort condition for long-running searches.
+        /// </summary>
+        public Func<bool> ShouldAbort = null;
+
+        /// <summary>
         /// Executes the search.
         /// </summary>
         /// <returns>found node</returns>
@@ -86,6 +91,9 @@ namespace RAWSimO.MultiAgentPathFinding.Algorithms.AStar
             //open is not empty
             while (Open.Count > 0)
             {
+                if (ShouldAbort != null && ShouldAbort())
+                    return false;
+
                 //get n with lowest value
                 int n = Q.Dequeue().Value;
 

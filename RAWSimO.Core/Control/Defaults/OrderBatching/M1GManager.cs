@@ -119,8 +119,12 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         private CongestionAwareCostEstimator GetOrCreateCongestionEstimator()
         {
             if (_congEstimator == null && _config != null && _config.UseCongestionAwareCost)
+            {
                 _congEstimator = new CongestionAwareCostEstimator(Instance,
                     string.IsNullOrEmpty(_config.CongestionTablePath) ? null : _config.CongestionTablePath);
+                // Step F: forward the probabilistic-density flag once at construction time.
+                _congEstimator.ConfigureProbabilisticDensity(_config.UseProbabilisticDensity, _config.DensityKernelSigma);
+            }
             return _congEstimator;
         }
 

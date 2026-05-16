@@ -32,6 +32,13 @@ namespace RAWSimO.Core.Statistics
         public int StationQueueLength;
         /// <summary>Number of OTHER bots whose Manhattan distance to <see cref="FromNode"/> is &lt; <see cref="LocalDensityRadiusM"/> m.</summary>
         public int LocalBotDensity;
+        /// <summary>
+        /// Option B re-train: Gaussian-kernel "soft count" of OTHER bots near FromNode, computed as
+        /// Σ exp(-r²/(2σ²)) over same-tier bots, with r in metres and σ = <see cref="SoftDensitySigmaM"/>.
+        /// Matches the kernel used in CongestionAwareCostEstimator.ComputeDensityPMFAt so train and
+        /// deploy features share the same statistic.
+        /// </summary>
+        public double SoftBotDensity;
         /// <summary>1 if ToNode is a station entry waypoint OR a queue waypoint.</summary>
         public int IsStationEntrance;
         /// <summary>1 if FromNode has in-degree &gt;= 2 in the static waypoint graph.</summary>
@@ -69,6 +76,12 @@ namespace RAWSimO.Core.Statistics
     {
         /// <summary>Radius (metres) used for LocalBotDensity counting.</summary>
         public const double LocalDensityRadiusM = 3.0;
+        /// <summary>
+        /// Gaussian kernel width (metres) used for <see cref="CongestionFeatureDatapoint.SoftBotDensity"/>.
+        /// Must match the estimator-side default to keep train/test density semantics aligned (see
+        /// <see cref="RAWSimO.Core.Metrics.CongestionAwareCostEstimator"/>).
+        /// </summary>
+        public const double SoftDensitySigmaM = 1.5;
 
         // Topology caches, initialised lazily once per Instance.
         private static Instance _cachedInstance;
@@ -142,6 +155,8 @@ namespace RAWSimO.Core.Statistics
             int mergePressure = 0;
             int downstreamOccupied = 0;
             int localDensity = 0;
+            double softDensity = 0.0;
+            double invTwoSigma2 = 1.0 / (2.0 * SoftDensitySigmaM * SoftDensitySigmaM);
             HashSet<Waypoint> queueWaypoints = null;
             if (_queueByQueueWaypointId.TryGetValue(to.ID, out var ql))
                 queueWaypoints = new HashSet<Waypoint>(ql);
@@ -167,6 +182,8 @@ namespace RAWSimO.Core.Statistics
                 double dy = b.Y - from.Y;
                 if (Math.Abs(dx) + Math.Abs(dy) < LocalDensityRadiusM)
                     localDensity++;
+                double r2 = dx * dx + dy * dy;
+                softDensity += Math.Exp(-r2 * invTwoSigma2);
             }
 
             bool isStationEntrance = to.OutputStation != null || to.InputStation != null || to.IsQueueWaypoint;
@@ -194,6 +211,7 @@ namespace RAWSimO.Core.Statistics
                 MergePressure = mergePressure,
                 StationQueueLength = stationQueueLen,
                 LocalBotDensity = localDensity,
+                SoftBotDensity = softDensity,
                 IsStationEntrance = isStationEntrance ? 1 : 0,
                 IsMergeEdge = isMerge ? 1 : 0,
                 IsBottleneckEdge = isBottleneck ? 1 : 0,
