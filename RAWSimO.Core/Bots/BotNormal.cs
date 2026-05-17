@@ -398,6 +398,19 @@ namespace RAWSimO.Core.Bots
         public double StatEWaitLoadedJ;
         /// <summary>Congestion-wait energy while not carrying a pod (empty) [J].</summary>
         public double StatEWaitEmptyJ;
+        /// <summary>
+        /// Premature-arrival queueing time [s] — accumulated while the bot is inside a
+        /// station queue zone but NOT yet in active GetItems/PutItems service. Captures
+        /// the gap "bot arrived at queue → bot starts processing", i.e. wasted wait
+        /// caused by mismatched dispatch timing vs station processing rhythm.
+        /// Used to evaluate starvation-aware OB+PS optimizations.
+        /// </summary>
+        public double StatQueueingAtStationTimeSec;
+        /// <summary>
+        /// Premature-arrival queueing energy [J] = P_SUPPORT × StatQueueingAtStationTimeSec.
+        /// Quantifies support-power waste from arriving at the station before it can serve.
+        /// </summary>
+        public double StatEQueueingAtStationJ;
         /// <summary>Idle time: seconds with no task assigned (BotTaskType.None).</summary>
         public double StatTimeIdleSec => StatTotalTaskTimes.TryGetValue(BotTaskType.None, out var t) ? t : 0.0;
         // ── Pref calibration: event-level 8-accumulator model ─────────────────────
@@ -445,6 +458,8 @@ namespace RAWSimO.Core.Bots
             StatEWaitJ = 0.0;
             StatEWaitLoadedJ = 0.0;
             StatEWaitEmptyJ = 0.0;
+            StatQueueingAtStationTimeSec = 0.0;
+            StatEQueueingAtStationJ = 0.0;
             StatTurningCount = 0;
             StatOrdersCompleted = 0;
             StatDistanceTraveledM = 0.0;
@@ -663,7 +678,7 @@ namespace RAWSimO.Core.Bots
                     var restTask = t as RestTask;
                     // Only append move task to get to resting location, if we are not at it yet
                     if ((restTask.RestingLocation != null) && (CurrentWaypoint != restTask.RestingLocation || Moving))
-                        _appendMoveStates(CurrentWaypoint, restTask.RestingLocation);
+                        _appendMoveStates(CurrentWaypoint, restTask.RestingLocation, tripLoaded: false);
                     StateQueueEnqueue(new BotRest(restTask.RestingLocation, BotRest.DEFAULT_REST_TIME)); // TODO set paramterized wait time and adhere to it
                     break;
                 default:
@@ -786,11 +801,6 @@ namespace RAWSimO.Core.Bots
                 }
                 double segmentDistance = CurrentWaypoint.GetDistance(NextWaypoint);
                 _driveDuration = Physics.getTimeNeededToMove(0, segmentDistance);
-
-                // ── Rest-task gate: no productive metrics recorded during return-to-park ──
-                bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
-                if (isRestTask)
-                    return true;
 
                 // ── Energy Hook: E1 + E2 + E3 (segment drive) + E4 (rotation) ──
                 double mTotal = EnergyConsumption.GetTotalMass(Pod);
@@ -1310,11 +1320,13 @@ namespace RAWSimO.Core.Bots
 
             // Rest-task gate: return-to-park is a non-productive trip — no energy / wait / station metrics
             bool isRestTask = (CurrentTask != null && CurrentTask.Type == BotTaskType.Rest);
-            // Active-task gate: bot must have a real task assigned to record support energy and wait.
+            // Active-task gate: bot must have a real non-rest task assigned to record productive wait.
             // No-task (None) = standby → P_SUPPORT = 0 (not accumulating background power).
             bool hasActiveTask = CurrentTask != null &&
                                  CurrentTask.Type != BotTaskType.None &&
                                  !isRestTask;
+            bool hasSupportTask = CurrentTask != null &&
+                                  CurrentTask.Type != BotTaskType.None;
 
             // Wait = congestion/CBS-hold: stationary with an active task, no mechanical action.
             // Excludes: rotation (_isRotatingThisTick), lift/setdown (inPickupOrSetdown), no-task standby.
@@ -1329,9 +1341,9 @@ namespace RAWSimO.Core.Bots
                 else             StatWaitTimeEmptySec  += delta;
             }
 
-            // E_support = P_SUPPORT × active-task time (background overhead;
-            //             includes moving, rotating, waiting; excludes standby/rest).
-            if (hasActiveTask)
+            // E_support = P_SUPPORT × assigned-task time (background overhead;
+            //             includes moving, rotating, waiting, and RestTask standby; excludes no-task standby).
+            if (hasSupportTask)
                 StatESupportJ += EnergyConsumption.P_SUPPORT * delta;
 
             // E_wait = P_SUPPORT × congestion-wait subset (task active AND stationary
@@ -1343,6 +1355,18 @@ namespace RAWSimO.Core.Bots
                     StatEWaitLoadedJ += EnergyConsumption.P_SUPPORT * delta;
                 else
                     StatEWaitEmptyJ += EnergyConsumption.P_SUPPORT * delta;
+            }
+
+            // Premature-arrival queueing energy [J] — bot is physically inside a station
+            // queue zone but has NOT yet entered GetItems/PutItems service. This captures
+            // the "arrived too early, waiting for station processing rhythm" waste that
+            // starvation-aware OB+PS optimizations aim to reduce. Strict subset of E_support.
+            bool inActiveStationService = StateQueueCount > 0 &&
+                (StateQueuePeek().Type == BotStateType.GetItems || StateQueuePeek().Type == BotStateType.PutItems);
+            if (hasSupportTask && inStationQueue && !inActiveStationService)
+            {
+                StatQueueingAtStationTimeSec += delta;
+                StatEQueueingAtStationJ      += EnergyConsumption.P_SUPPORT * delta;
             }
 
             // Station arrival (edge-triggered): start of GetItems/PutItems station processing.

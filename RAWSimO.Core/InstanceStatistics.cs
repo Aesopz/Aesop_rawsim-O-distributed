@@ -150,6 +150,10 @@ namespace RAWSimO.Core
         public double StatOverallEWaitLoadedJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEWaitLoadedJ); } }
         /// <summary>Fleet E_wait while empty [J].</summary>
         public double StatOverallEWaitEmptyJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEWaitEmptyJ); } }
+        /// <summary>Fleet premature-arrival queue time [s] — bot inside station queue zone, not yet in GetItems/PutItems service. KPI for starvation-aware OB+PS evaluation.</summary>
+        public double StatOverallQueueingAtStationTimeSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatQueueingAtStationTimeSec); } }
+        /// <summary>Fleet premature-arrival queueing energy [J] = P_SUPPORT × StatOverallQueueingAtStationTimeSec. Strict subset of E_support.</summary>
+        public double StatOverallEQueueingAtStationJ { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatEQueueingAtStationJ); } }
         /// <summary>Fleet idle time (no task assigned) [s].</summary>
         public double StatOverallTimeIdleSec { get { return Bots.OfType<Bots.BotNormal>().Sum(b => b.StatTimeIdleSec); } }
         // ── Pref calibration: event-level 8-accumulator aggregation ───────────────
@@ -1208,6 +1212,13 @@ namespace RAWSimO.Core
             sb.AppendLine("StatEWaitLoadedKJ: " + (StatOverallEWaitLoadedJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEWaitEmptyKJ: " + (StatOverallEWaitEmptyJ / 1000.0).ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatEWaitPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEWaitJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            // E_queueing_at_station = premature-arrival waste (bot in station queue zone, not yet picking)
+            sb.AppendLine("StatQueueingAtStationTimeSec: " + StatOverallQueueingAtStationTimeSec.ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEQueueingAtStationKJ: " + (StatOverallEQueueingAtStationJ / 1000.0).ToString(IOConstants.FORMATTER));
+            sb.AppendLine("StatEQueueingAtStationPerOrderKJ: " + (StatOverallOrdersHandled > 0 ? (StatOverallEQueueingAtStationJ / 1000.0 / StatOverallOrdersHandled).ToString(IOConstants.FORMATTER) : "0"));
+            double queueingShareOfSupport = StatOverallESupportJ > 0
+                ? StatOverallEQueueingAtStationJ / StatOverallESupportJ : double.NaN;
+            sb.AppendLine("StatEQueueingShareOfSupport: " + (double.IsNaN(queueingShareOfSupport) ? "NaN" : queueingShareOfSupport.ToString(IOConstants.FORMATTER)));
             sb.AppendLine("StatTimeIdleSec: " + StatOverallTimeIdleSec.ToString(IOConstants.FORMATTER));
             sb.AppendLine("StatRobotUtilization: " + (double.IsNaN(utilization) ? "NaN" : utilization.ToString(IOConstants.FORMATTER)));
             double eWaitToMechRatio = StatOverallEnergyTotalJ > 0

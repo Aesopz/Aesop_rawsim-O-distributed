@@ -57,6 +57,22 @@ namespace RAWSimO.Core.Control
         protected BiDictionary<Waypoint, int> _waypointIds;
 
         /// <summary>
+        /// Read-only lookup of the internal Waypoint &lt;-&gt; graph-node-id mapping.
+        /// Returns true if the waypoint has been registered with this PathManager.
+        /// Used by cost estimators (e.g. BAED) that need graph node ids to query the reservation table.
+        /// </summary>
+        public bool TryGetGraphNodeId(Waypoint waypoint, out int nodeId)
+        {
+            if (waypoint == null || _waypointIds == null || !_waypointIds.ValuesFirst.Contains(waypoint))
+            {
+                nodeId = -1;
+                return false;
+            }
+            nodeId = _waypointIds[waypoint];
+            return true;
+        }
+
+        /// <summary>
         /// ids of the elevators
         /// </summary>
         protected Dictionary<int, Elevator> _elevatorIds;

@@ -313,6 +313,31 @@ namespace RAWSimO.Core.Configurations
         }
     }
     /// <summary>
+    /// M1G variant that can reserve a next pod for bots that are nearly done returning their current pod.
+    /// </summary>
+    public class M1GReturnPendingConfiguration : M1GConfiguration
+    {
+        /// <summary>
+        /// Returns the type of the corresponding method this configuration belongs to.
+        /// </summary>
+        /// <returns>The type of the method.</returns>
+        public override OrderBatchingMethodType GetMethodType() { return OrderBatchingMethodType.GM1ReturnPending; }
+        /// <summary>
+        /// Maximum shortest-path distance from the return storage location for a park-pod bot to be considered reusable.
+        /// A bot whose next waypoint is the storage location is considered eligible regardless of this value.
+        /// </summary>
+        public double ReturnPendingDistanceThreshold = 1.0;
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "M1G-RP";
+        }
+    }
+    /// <summary>
     /// The configuration for the corresponding method.
     /// </summary>
     public class M2GConfiguration : OrderBatchingConfiguration
@@ -413,14 +438,58 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         public FastLaneTieBreaker FastLaneTieBreaker = FastLaneTieBreaker.EarliestDueTime;
         /// <summary>
+        /// Enables BAED (Blocking-Aware Effective Distance) cost augmentation in HADGS scoring.
+        /// When true, EstimateBotPodDistance / EstimatePodStationDistance return
+        /// physDistance + BAEDReferenceSpeed * sum(EntryDelay along path) computed from the live WCHA* reservation table.
+        /// Default off → standard static-distance behaviour, identical to baseline HADGS.
+        /// </summary>
+        public bool UseBAED = false;
+        /// <summary>
+        /// Reference speed (m/s) used to convert entry-delay seconds into distance-equivalent metres when UseBAED is on.
+        /// Default 1.5 m/s matches the layouts' MaxVelocity.
+        /// </summary>
+        public double BAEDReferenceSpeed = 1.5;
+        /// <summary>
+        /// Includes bots that are nearly done returning a pod as available candidates for HADGS pod-to-bot assignment.
+        /// Default off keeps baseline HADGS behavior.
+        /// </summary>
+        public bool UseReturnPendingBots = false;
+        /// <summary>
+        /// Maximum shortest-path distance from the return storage location for a park-pod bot to be considered reusable.
+        /// A bot whose next waypoint is the storage location is considered eligible regardless of this value.
+        /// </summary>
+        public double ReturnPendingDistanceThreshold = 1.0;
+        /// <summary>
         /// Returns a name identifying the method.
         /// </summary>
         /// <returns>The name of the method.</returns>
         public override string GetMethodName()
         {
             if (!string.IsNullOrWhiteSpace(Name)) return Name;
-            string name = "obMP" + (FastLane ? "y" : "n");
+            string name = "obMP" + (FastLane ? "y" : "n") + (UseBAED ? "-baed" : "") + (UseReturnPendingBots ? "-rp" : "");
             return name;
+        }
+    }
+    /// <summary>
+    /// HADGS variant that can reserve a next pod for bots that are nearly done returning their current pod.
+    /// </summary>
+    public class HADGSReturnPendingConfiguration : HADGSConfiguration
+    {
+        /// <summary>
+        /// Creates a new return-pending HADGS configuration.
+        /// </summary>
+        public HADGSReturnPendingConfiguration()
+        {
+            UseReturnPendingBots = true;
+        }
+        /// <summary>
+        /// Returns a name identifying the method.
+        /// </summary>
+        /// <returns>The name of the method.</returns>
+        public override string GetMethodName()
+        {
+            if (!string.IsNullOrWhiteSpace(Name)) return Name;
+            return "HADGS-RP";
         }
     }
     /// <summary>

@@ -90,7 +90,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         /// </summary>
         private Dictionary<int, List<Symbol>> _IsvariableNames = new Dictionary<int, List<Symbol>>();
 
-        private RAWSimO.Core.Waypoints.Waypoint GetBotReferenceWaypoint(Bot bot)
+        protected virtual RAWSimO.Core.Waypoints.Waypoint GetBotReferenceWaypoint(Bot bot)
         {
             if (bot == null)
                 return null;
@@ -101,7 +101,7 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             return null;
         }
 
-        private RAWSimO.Core.Waypoints.Waypoint GetPodReferenceWaypoint(Pod pod)
+        protected RAWSimO.Core.Waypoints.Waypoint GetPodReferenceWaypoint(Pod pod)
         {
             if (pod == null)
                 return null;
@@ -149,6 +149,11 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
             double podY = podWaypoint != null ? podWaypoint.Y : pod.Y;
             return Math.Abs(podX - station.Waypoint.X) + Math.Abs(podY - station.Waypoint.Y);
         }
+        /// <summary>
+        /// Indicates whether a currently unavailable bot should still be included as a near-future available bot.
+        /// Base M1G keeps the original behavior and never includes such bots.
+        /// </summary>
+        protected virtual bool CanUseReturnPendingBot(Bot bot) { return false; }
         /// <summary>
         /// Checks whether an item matching the description is contained in this pod. 
         /// </summary>
@@ -493,6 +498,11 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
                     Ra.Add(bot);
                 }
                 else if (bot.Pod == null && !Instance.ResourceManager.BottoPod.ContainsKey(bot) && !Rb.Contains(bot) && bot.CurrentTask is RestTask && bot.GetInfoDestinationWaypoint() == null)
+                {
+                    R.Add(bot);
+                    Ra.Add(bot);
+                }
+                else if (CanUseReturnPendingBot(bot))
                 {
                     R.Add(bot);
                     Ra.Add(bot);
@@ -914,6 +924,62 @@ namespace RAWSimO.Core.Control.Defaults.OrderBatching
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// M1G copy variant that treats bots near completion of a park-pod task as available for the next M1G decision.
+    /// </summary>
+    public class M1GReturnPendingManager : M1GManager
+    {
+        private readonly M1GReturnPendingConfiguration _returnPendingConfig;
+
+        public M1GReturnPendingManager(Instance instance) : base(instance)
+        {
+            _returnPendingConfig = instance.ControllerConfig.OrderBatchingConfig as M1GReturnPendingConfiguration;
+        }
+
+        protected override RAWSimO.Core.Waypoints.Waypoint GetBotReferenceWaypoint(Bot bot)
+        {
+            if (IsReturnPendingBot(bot, out ParkPodTask parkTask))
+                return parkTask.StorageLocation;
+            return base.GetBotReferenceWaypoint(bot);
+        }
+
+        protected override bool CanUseReturnPendingBot(Bot bot)
+        {
+            if (!IsReturnPendingBot(bot, out ParkPodTask parkTask))
+                return false;
+            if (Instance.ResourceManager.BottoPod.ContainsKey(bot))
+                return false;
+            return IsNearReturnLocation(bot, parkTask.StorageLocation);
+        }
+
+        private bool IsReturnPendingBot(Bot bot, out ParkPodTask parkTask)
+        {
+            parkTask = bot?.CurrentTask as ParkPodTask;
+            return parkTask != null &&
+                bot.Pod != null &&
+                parkTask.Pod == bot.Pod &&
+                parkTask.StorageLocation != null;
+        }
+
+        private bool IsNearReturnLocation(Bot bot, RAWSimO.Core.Waypoints.Waypoint storageLocation)
+        {
+            if (storageLocation == null)
+                return false;
+            if (bot.CurrentWaypoint == storageLocation)
+                return true;
+            if (bot.GetInfoDestinationWaypoint() == storageLocation)
+                return true;
+
+            var botWaypoint = base.GetBotReferenceWaypoint(bot);
+            if (botWaypoint == null)
+                return false;
+            double threshold = _returnPendingConfig != null ? _returnPendingConfig.ReturnPendingDistanceThreshold : 1.0;
+            if (threshold < 0)
+                return false;
+            return Distances.CalculateShortestPath(botWaypoint, storageLocation, Instance) <= threshold;
+        }
     }
 
 }

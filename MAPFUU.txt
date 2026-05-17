@@ -1,0 +1,715 @@
+Multi-Robot Planning Under Uncertainty with
+             Congestion-Aware Models
+
+                        Charlie Street                                                                       Bruno Lacerda
+
+          Oxford Robotics Institute, University of Oxford                                     Oxford Robotics Institute, University of Oxford
+                                Oxford, UK                                                                           Oxford, UK
+
+                        cstreet@robots.ox.ac.uk                                                              bruno@robots.ox.ac.uk
+
+                       Manuel Mühlig                                                                          Nick Hawes
+
+              Honda Research Institute Europe GmbH                                            Oxford Robotics Institute, University of Oxford
+                          Offenbach, Germany                                                                        Oxford, UK
+
+                    manuel.muehlig@honda-ri.de                                                               nickh@robots.ox.ac.uk
+
+ABSTRACT                                                                                  Figure 1: A warehouse environment with a topological map
+                                                                                          overlaid. The blue circle shows the size of a robot in the map.
+When planning for multi-robot navigation tasks under uncertainty,
+plans should prevent robots from colliding while still reaching their                     refer to the effect of the presence of other robots on the execution
+goal. Solutions achieving this fall on a spectrum. At one end are                         of navigation actions as congestion. For example, Figure 1 shows a
+solutions which prevent robots from being in the same part of the                         warehouse where robots travelling along the same aisle simultane-
+environment simultaneously at planning time, ignoring the robots'                         ously will cause congestion. If the aisle is wide enough, the robots
+capabilities to manoeuvre around each other, whilst at the other                          can manoeuvre around each other, with this deviation incurring
+end are solutions that solve the problem at execution time, relying                       some cost. If the aisle is too narrow however, one of the robots may
+solely on online conflict resolution. Both approaches can lead to                         have to turn back or wait for an unknown amount of time. In the
+inefficient behaviour. In this paper, we present a novel framework                        worst case a robot may become stuck and unable to navigate.
+in the middle of this spectrum that explicitly reasons over the effect
+the presence of multiple robots has on navigation performance. We                            Existing methods that deal with execution-time interactions be-
+refer to this effect as congestion. We present a structure, called the                    tween robots fall on a spectrum. On one end are solutions to the
+probabilistic reservation table, which summarises the plans of robots,                    multi-agent path finding (MAPF) problem, which create plans that
+allowing us to probabilistically model congestion. We show how this                       prevent robots from ever being at the same location at the same
+structure can be used for planning by proposing an approach that,                         time [18]. By solving the problem entirely at planning time, the nav-
+for each robot, sequentially builds and solves a Markov decision                          igation capabilities of the robots, such as their ability to manoeuvre
+process where the transition probabilities are obtained by querying                       around each other, are ignored. This can result in inefficient plans
+the probabilistic reservation table. We carry out experiments on                          which are too conservative and keep the robots far away from each
+synthetic data and in simulation to show the effectiveness of our                         other. On the other end of the multi-robot planning spectrum are
+framework.                                                                                motion planning solutions which solve the problem solely at exe-
+                                                                                          cution time, by relying on the robots' ability to move around each
+KEYWORDS                                                                                  other [3]. However, such solutions do not consider the potential
+                                                                                          effects of other robots on navigation performance ­ in some cases it
+Multi-robot systems; Planning under uncertainty; Markov models;                           may prove more efficient to avoid areas with higher robot density.
+Temporal uncertainty
+                                                                                             In this paper, we propose a method that acts in the middle of
+ACM Reference Format:                                                                     the multi-robot planning spectrum. We reason over the expected
+Charlie Street, Bruno Lacerda, Manuel Mühlig, and Nick Hawes. 2020. Multi-
+Robot Planning Under Uncertainty with Congestion-Aware Models. In Proc.
+of the 19th International Conference on Autonomous Agents and Multiagent
+Systems (AAMAS 2020), Auckland, New Zealand, May 9­13, 2020, IFAAMAS,
+9 pages.
+
+1 INTRODUCTION
+
+In recent years, multi-robot systems have been developed for ware-
+houses [13], agriculture [15] and roads [20]. In these environments,
+the simultaneous presence of multiple robots in the same area
+causes an increase in uncertainty over navigation performance. We
+
+Proc. of the 19th International Conference on Autonomous Agents and Multiagent Systems
+(AAMAS 2020), B. An, N. Yorke-Smith, A. El Fallah Seghrouchni, G. Sukthankar (eds.), May
+9­13, 2020, Auckland, New Zealand. © 2020 International Foundation for Autonomous
+Agents and Multiagent Systems (www.ifaamas.org). All rights reserved.
+effects of congestion at planning time, allowing robots to take         at the level of the controllers that form the macro actions. Alterna-
+longer but less congested routes if that proves more efficient. This    tively, action durations can be modelled as continuous stochastic
+assumes a motion planner that can manoeuvre the robots around           processes, with shifted Poisson distributions [40], exponential dis-
+each other in some cases. We model the duration of navigation           tributions [16, 26], or arbitrary temporal distributions [28].
+actions as a continuous stochastic process through the use of phase-
+type distributions (PTD) [11]. Given policies defining the routes of       There exist Markov models which consider continuous time,
+each robot, we can use the PTDs to construct a continuous-time          such as time-dependent MDPs [9], however approaches to solve
+Markov chain (CTMC) for each robot, which allows us to compute          them either scale badly [32] or rely on strong simplifications [24]
+the probabilities of different levels of congestion occurring at any    that are unsuitable for the problems presented in this paper, such
+location and time. The PTDs, CTMCs and congestion information           as deterministic models of action duration.
+are managed in a structure called the probabilistic reservation table
+(PRT). Planning is carried out on single-robot Markov decision             Solutions to the MAPF problem generate paths for robots to
+processes (MDP) that include the influence of the other robots via      reach their goals in a discretised environment while not colliding
+the congestion probabilities obtained from the PRT.                     with each other [18]. Silver [35] solves this problem by using a
+                                                                        structure called a reservation table to store the route information of
+   The primary contribution of this paper is the PRT, a novel struc-    the robots, such that subsequent robots can avoid those who have
+ture for modelling congestion. As a secondary contribution we           planned previously. In this paper, we expand upon the reservation
+present a framework for multi-robot planning under uncertainty          table to allow actions with continuous stochastic durations. MAPF
+that demonstrates the benefits of modelling the behaviour of robot      solutions commonly assume deterministic environments, though
+teams in continuous time with the PRT.                                  uncertainty has been considered. In [39], a belief space is used,
+                                                                        giving distributions that appear as `tails' over the robot's location.
+2 RELATED WORK                                                          The M* MAPF solver [38] is then adapted to plan in the belief
+                                                                        space of each agent, with coordination occurring between robots
+The multi-agent Markov decision process (MMDP) is an exact model        likely to collide. In [25], when a robot attempts to navigate, it
+for multi-agent planning under uncertainty [8]. Though optimal          fails with some probability, remaining stationary. To handle this,
+behaviour can be synthesised from MMDPs, the state space scales         a set of critical dependencies between robots is computed, which
+exponentially with the number of robots. Furthermore, MMDPs re-         force some robots to wait until another robot has reached a certain
+quire robots to act synchronously. Synchronous execution leads to       location. Continuous time has been considered for MAPF in [2]. The
+suboptimal execution-time behaviour, due to robots having to wait       conflict-based search (CBS) algorithm [33] is adapted by replacing
+unnecessarily [28]. In this work we consider actions with continu-      A* search with safe interval path planning [30] for low-level path
+ous stochastic durations, and want robots to act asynchronously.        planning. Contrary to our work however, the continuous action
+                                                                        durations are assumed to be fixed with no stochasticity. Finally, in
+   One method for tackling the problem of scalability in multi-robot    [34], the M* solver is adapted to have soft collision constraints, i.e.
+planning is to plan on single-robot models with some knowledge of       collisions are allowed to occur, at some cost.
+the other robots. Claes et al. [13, 14] do this by aggregating the re-
+sponses of the other robots via assumptions such as all other robots    3 PRELIMINARIES
+being self interested. Zhang et al. [40] also plan on single-robot
+models using an iterative procedure where robots consider their         We represent the set of distributions over set X by Dist (X ).
+team mates more with every iteration. However, this procedure           Topological Map. We represent the environment using a topolog-
+assumes no uncertainty in action execution, with the output being a     ical map with probability distributions over navigation duration.
+sequence of actions, which are less robust to the probabilistic nature
+of the environment. In this paper, we approximate multi-robot be-          Definition 3.1. A topological map is a tuple T = V , E, , where:
+haviour in single-robot models via congestion, and generate policies    V is a finite set of nodes representing locations in the environment;
+for each robot sequentially, with each robot considering those who      E  V ×V is a set of bidirectional edges which robots can travel on;
+plan before it. Such an approximation is common in multi-robot          and  : E × N  Dist (R0) is a function that takes an edge and the
+planning [3, 17, 35]. Similar to [13, 14], our approach computes a      number of robots present on that edge, and returns a distribution
+best-response for each robot. The best-response is the best action a    over the duration for an additional robot to traverse that edge.
+robot can take, assuming the plans of the other robots are fixed. The
+quality of plans produced under a sequential planning assumption        Markov Decision Processes (MDPs). In this paper, we address
+is very sensitive to the ordering of agents [35], and determining       stochastic shortest path (SSP) problems, which are typically repre-
+an optimal ordering is an NP-hard problem [4]. However, effective       sented as MDPs.
+priority orderings have been generated using heuristics [37], as
+well as optimisation methods [5], which search through the space           Definition 3.2. An MDP [31] is a tuple M = S, s¯, A,  , where
+of possible priority orderings. Determining a priority ordering is      S is a finite set of states, s¯  S is the initial state, A is a finite
+not addressed in this paper.                                            set of actions and  : S × A × S  [0, 1] returns the probability of
+                                                                        arriving at state s  after taking action a in state s.
+   The requirement of synchronisation in MMDPs can be removed
+through the use of macro actions [1], which are high level be-             If there is at most one action available in each state, the MDP
+haviours executed asynchronously, with synchronisation occurring        becomes a discrete-time Markov chain (DTMC).
+
+                                                                           Definition 3.3. An SSP [27] is defined as an MDP
+                                                                        M = S, s¯, A,  , a cost structure c : S × A  R>0 and a set of
+goal states G  S. The goal of an SSP is to find a policy  : S  A         PDF value0.4                           0 Robots
+that minimises the expected cost to reach a state in G.                           0.3                           1 Robot
+                                                                                  0.2                           2 Robots
+   Note that a policy  over an MDP M induces a DTMC M ,                           0.1                           3 Robots
+where, at each state, the only action available is the policy action.             0.0                           4 Robots
+
+Continuous-Time Markov Chains (CTMCs). A CTMC models                                   0  10  20Duration30  40  50
+the continuous-time evolution of a system.
+                                                                         Figure 2: A set of distributions obtained from the high-
+   Definition 3.4. A (labelled) CTMC [22] is a tuple                     lighted edge of the map in Figure 1. The method for obtain-
+Q = S, init, E , AP, Lab, where S is a finite set of states,             ing this data is described in Section 7.
+init : S  [0, 1] gives the probability of a state being the initial
+state, E : S ×S  R0 is a rate transition function, AP is a finite set    according to the robots' indices. Thus, robot ri waits until previous
+of atomic propositions, and Lab : S  2AP is a labelling function         robots r1 to ri-1 have updated the PRT with their policies. Next, ri
+that maps states to atomic propositions that hold in that state.         takes this information from the PRT, constructs a planning model,
+                                                                         and solves this to obtain a policy i which minimises the expected
+   The value of E (s, s ) is the rate parameter of an exponential        time to reach vioal , given the information about the routes of the
+distribution associated with the transition. Thus, the probability       robots that have planned previously. Information about i is then
+that the transition fires within time t is 1 - e-E (s,s)·t . The exit    inserted into the PRT, so ri+1 can start planning. Once all robots
+rate of a state s in Q is the sum of all outgoing rates from s,          have planned, the policies are executed concurrently.
+E (s) = s S E (s, s ). The probability of leaving state s within
+time t is then 1 - e-E (s )·t .                                          5 MODELLING CONGESTION
+
+Phase-Type Distributions (PTDs). PTDs approximate non-                   In this section, we introduce the PRT as a model of congestion that
+negative continuous distributions using the time taken to reach an
+                                                                         considers actions with continuous and stochastic durations.
+absorbing state in a CTMC.
+                                                                         5.1 Modelling Action Durations
+   Definition 3.5. A PTD [29] is a tuple P = S, init, E , sa , where
+S, init and E are as in a CTMC, and sa  S is the single absorbing        Recall that we model the environment as a topological map
+state, i.e. there are no transitions from sa . Further, init (sa ) = 0.  T = V , E, , where  (e, m) represents the continuous distribu-
+                                                                         tion over the duration of traversing e  E with m other robots on
+   Note that in a PTD, the absorbing state cannot be an initial state.   the edge. In this work, we use PTDs to approximate these duration
+We denote the expected time for P to reach the absorbing state as
+E[P], and the set of non-absorbing states of P as N A(P) (the same       distributions. Figure 2 shows a set of PTDs for an edge in Figure 1.
+applies for a CTMC). Furthermore, the set of all PTDs is denoted P.
+                                                                         5.2 Congestion Bands
+   To avoid ambiguity, we use a subscript to notate an element
+belonging to a model, e.g. S P to represent the state space of PTD       We model levels of congestion in terms of congestion bands.
+P, or M to represent the transition function of MDP M.
+                                                                            Definition 5.1. Let e  E and n be the total number of robots. A
+4 OVERVIEW OF APPROACH                                                   set of congestion bands Ce = {ce0, ce1, ..., ceb } is such that:
+
+In this section, we formulate the congestion-aware planning prob-             · cej = [lbej , ubej ]. A congestion band is an interval on the num-
+                                                                                 ber of robots, represented by a lower and an upper bound.
+lem and introduce the framework we propose to address it.                        If k robots are present on e, where lbej  k  ubej then cej is
+                                                                                 the congestion level on that edge.
+   Problem 1. Let R = {r1, ..., rn } be a set of robots acting on a
+topological map T = V , E, , where ri has initial and goal loca-              · ce0 = [0, 0], i.e. a congestion band considering 0 other robots
+tions viinit , vioal  V . Find policies {1, ..., n } that minimise the           is always present.
+makespan, i.e. the time until the last robot reaches its goal.
+                                                                              · ceb = [lbeb , n - 1]. The last congestion band has an upper
+   We assume navigation actions always succeed and lead the robot                bound of n - 1, since at most n - 1 other robots can be
+                                                                                 present on an edge.
+to the desired location. Therefore, the uncertainty arises from the
+                                                                              · lbej+1 = ubej + 1. Congestion bands do not intersect and each
+temporal uncertainty over the duration of navigation actions.                    possible number of robots fits into exactly one band.
+
+   We now describe our general approach to approximate solutions
+
+for Problem 1. There is one global entity, the probabilistic reserva-
+
+tion table (PRT). Planning takes place on single-robot models that
+
+take into account probabilistic information about the other robots.
+
+In particular, we take an approximate approach to planning by
+minimising the expected time to reach the goal on a time-dependent
+MDP which uses expected values for the duration of navigation
+
+actions. In order to plan on single-robot models while not treating
+
+robots independently, we assume robots plan sequentially, follow-
+
+ing a pre-defined priority order, which we assume, w.l.o.g., to be
+             1 , 2 , . . . ,                                             topological map, i.e. the following condition holds:
+
+      query         insert CTMCs                                         s  N A(Q), |Lab (s)| = 1  oal Lab (s)                 (1)
+,            PRT
+
+                     reason over CTMCs
+
+             1 ( @ ), . . . ,  ( @)                                         States labelled with edge e  E in a route CTMC Qi represent
+                                                                         states for which ri is present on e. This is because states in the
+                     Poisson-binomial                                    route CTMC are the union of the states of a set of PTDS, where
+                                                                         each PTD represents an edge in ri 's route. Thus, each state can be
+( = 0| @ ), . . . ,            ( = - 1| @ )                              mapped to the edge the PTD it comes from is modelling.
+
+                     merge into bands                                       If an absorbing state of the route CTMC represents the successful
+
+      0                        ( | @)                                    completion of a robot's route it can be labelled with proposition
+                                                                         oal. Although left to future work, this opens up the possibility
+( | @ ), . . . ,                                                         of formally verifying policies, e.g. computing the probability of a
+
+Figure 3: The pipeline for computing the probabilities of                robot reaching its goal within a time bound.
+each congestion band on edge e at time t using the PRT. Note,
+there may not be a CTMC for all robots at the time of use.                  With a set of route CTMCs stored in the PRT, the first step to
+
+We use congestion bands because there are cases where we do              computing the congestion probabilities is to consider the probability
+not observe a significant difference in the effects of congestion        that each robot ri is present on edge e at time t, denoted Pri (e@t ).
+between similar numbers of robots (cf. Figure 2). Using the notion of    This is shown in the second box of Figure 3.
+congestion bands, we introduce a topological map under congestion.
+                                                                            To compute Pri (e@t ), we analyse the route CTMC Qi for robot
+   Definition 5.2. A topological map under congestion is a tuple         ri by computing the transient probabilities over the CTMC, which
+TC = V , E, C, C , where: C = e E Ce ; and C : E × C  P is a             returns the probability of being in each state s  S Qi at time t,
+function that maps an edge and congestion band (for that edge) to        denoted Pr (s@t ). We can use this information to calculate the
+a PTD over the duration of traversing that edge.                         probability Pri (e@t ) of robot ri being present on edge e at time t:
+
+   Given enough data, a larger number of congestion bands gives a        Pri (e@t ) =                           Pr (s@t )      (2)
+more accurate measure of congestion while increasing the complex-
+ity of planning. Furthermore, note that if we consider one conges-                     {s SQi | e LabQi (s ) }
+tion band per possible number of robots, we recover Definition 3.1,
+but now using PTDs to approximate the duration distributions. This          In practice, existing software can be used to obtain the transient
+allows us to exploit efficient algorithms for fitting PTDs [36], whilst
+also allowing for the interpretation of robot policies as CTMCs, as      probabilities. In this work, we use the PRISM model checker [23].
+we will describe next. To simplify notation, we will omit subscript
+e from congestion band cej if e can be inferred from the context.           We compute the edge presence probabilities using only the route
+
+5.3 Computing Congestion Probabilities                                   CTMCs of individual robots. This assumes that all necessary con-
+                                                                         gestion information for ri is contained in Qi . However, when new
+To support planning, we must compute the probability of each             route CTMCs are added to the PRT, the true probabilities of conges-
+congestion band occurring on an edge e at time t. The process for
+this is shown in Figure 3.                                               tion will change. By making the assumption that the robots can be
+
+   To compute the congestion probabilities, we require information       considered sequentially, we treat a robot's route as fixed at the point
+about the routes of the robots. We use a CTMC Qi to model the
+route of robot ri through the topological map. CTMCs are a natural       of insertion into the PRT. Whilst this does not hold in practice, this
+representation for the continuous-time behaviour of the robots. By
+modelling the edge navigation durations as PTDs, we can construct        is part of the modelling assumption we make. To reason over the
+a CTMC modelling a robot's route by connecting the PTDs. We can
+then exploit methods to analyse transient properties in CTMCs [22]       true congestion probabilities would require a joint model, which we
+to compute the probability of observing a congestion band on an
+edge at a specific time. We describe the PTD connection process          are explicitly avoiding in favour of scalability. Furthermore, as we
+and subsequent planning procedure in Section 6.
+                                                                         show in the experiments in Section 7, this assumption still allows
+   We require the CTMC to be constructed with a labelling function
+that represents the robot's route through the topological map.           our planning framework to effectively reason over congestion.
+
+   Definition 5.3. Let TC be a topological map under congestion.            The next step in computing the congestion probabilities is to use
+A route CTMC is a tuple Q = S, init, E , AP, Lab, where AP =
+E  {oal }, i.e. the atomic propositions are the edges of TC as well as   the presence probabilities to compute a discrete distribution over
+a oal proposition; and Lab is defined such that all non-absorbing        how many other robots are on edge e at time t, i.e. a distribution
+states in Q, denoted N A(Q), are labelled with a single edge of the      over how congested an edge will be. This can be seen in the third
+
+                                                                         box in Figure 3. To compute this, we use the Poisson-binomial
+                                                                         distribution, which models the outcome of n Bernoulli trials, with
+                                                                         the random variable differing in each trial [6]. Here, the Bernoulli
+                                                                         random variables are over the presence of each robot on edge e
+                                                                         at time t, and are distributed by the probabilities Pri (e@t ). We
+                                                                         denote the probability given by the Poisson-binomial distribution
+                                                                         of q other robots being on edge e at time t by Pr (q | e@t ).
+
+                                                                            The final step in computing the congestion probabilities is to
+                                                                         merge the probabilities over the number of robots on edge e at
+                                                                         time t into congestion bands, as seen in the bottom box of Figure 3.
+                                                                         The probability Pr (cj | e@t ) of experiencing congestion band cj
+on edge e at time t is given by:                                        By representing time in the state, the state space becomes infinite.
+
+                                       ubej                             However, the state space is also discrete as the feasible time values
+
+                   Pr (c j | e@t ) =             Pr (q | e@t )          for an MDP state are based on sums of expected values of the PTDs.
+
+                                                                  (3)
+
+                                       q =l bej                         Therefore, to keep the state space finite, we introduce a bound
+                                                                        T  R0, where any MDP state with a time value greater than T
+In some cases, very small congestion probabilities are observed         is made a dead end, i.e. have no successors. This makes the state
+                                                                        space finite as any path that has not reached the goal by T , such
+that bear no practical gain, yet increase the complexity of planning.
+                                                                        as one looping around two edges indefinitely, is cut off. We now
+Therefore, we define a pruning threshold  and set all congestion        define the planning problem for ri as an SSP over Mi .
+probabilities below  to 0. The distribution is then normalised.
+
+5.4 Defining the PRT                                                    Definition 6.2. The SSP for robot ri is defined as:
+
+A PRT is initialised with the set of robots R, the topological map        · An MDP Mi according to Definition 6.1.
+TC , and pruning threshold . A PRT is a table with an entry for           · A cost function ci : (V × R0) × E  R>0 that gives the
+each robot ri  R. An entry in the table, PRT(ri ), stores a route
+CTMC Qi representing ri 's route through the topological map. Two           expected duration over all congestion bands:
+functions are provided by the PRT: insert and con. The function
+insert (ri , Qi ) inserts route CTMC Qi into the entry for ri in the    ci ((v, t ), e) =                        con(ri , e, j, t ) · E[C (e, c j )] (5)
+PRT. The function con(ri , e, j, t ) returns the probability that ri
+experiences congestion band cj on edge e at time t, calculated                             j  {0, ..., |Ce |-1}
+according to the method described in Figure 3. Note that con
+returns the congestion probability for ri given the entries of all      · A set of goal states Gi defined as:
+other robots in the PRT, i.e., con reflects the current state of the
+                                                                        Gi = {(v, t )  V × R0 | v = vioal and t < T }          (6)
+PRT rather than the congestion information fixed in Qi .
+                                                                        To solve the SSP efficiently, we use labelled real time dynamic
+
+                                                                        programming (LRTDP) [7]. LRTDP is a trial-based heuristic search
+                                                                        method for MDPs that uses an admissible heuristic hi : S  R0
+                                                                        to initialise the value of states, so states unlikely to contribute to
+
+6 PLANNING UNDER CONGESTION                                             the optimal policy are not explored. We define this heuristic as:
+
+6.1 Obtaining Robot Policies                                                               hi ((v, t )) = min_cost(v, vioal )  (7)
+
+The planning problem for each robot ri is to synthesise a policy that   In Equation 7, min_cost returns the minimal cost to travel from
+minimises the expected time to reach vioal , taking into account
+the congestion probabilities and the continuous stochastic models       v to vioal , which can be computed using the Floyd-Warshall algo-
+                                                                        rithm [19]. The cost of each edge e in min_cost is set to E[C (e, c0)],
+
+of action duration. In order to tackle this time dependency whilst      the expected duration assuming no congestion.
+
+still being able to scale to reasonable sized models, we build an       If T is set higher than any realistic cost of reaching the goal, the
+
+approximate MDP per robot where each edge traversal has an              model used for planning is a finite-horizon SSP with avoidable dead
+
+outcome per congestion band, and the duration of this outcome is        ends, as there always exists a policy from the initial state that can
+
+the expected duration of the congestion band.                           reach a goal state while never visiting a dead end. Thus, LRTDP
+
+   Definition 6.1. Given topological map TC = V , E, C, C , time        trials that visit a dead end will always terminate, and so it can be
+bound T  R0, and the PRT, we define robot ri 's MDP as Mi =
+S, s¯, A,  , where:                                                     used to synthesise optimal policies [21].
+
+     · S = V × R0. States are a product of a topological map node       To execute the obtained policies, the executor needs to be able to
+
+        and expected time of arrival to that node.                      define the current state. This poses an issue when time is included
+     · s¯ = (viinit , 0), i.e. the robot's initial location at time 0.
+     · A = E. The actions are the edges of the topological map.         in the MDP state as a robot will never arrive at a node at precisely
+     · The transition function  is defined such that for each con-
+                                                                        a time in one of the states. To solve this, we choose the successor
+        gestion band on an edge, there is a successor state defined
+                                                                        with time value closest to the true arrival time. This ensures we
+
+                                                                        can always identify the current state to obtain the policy action.
+
+  by the location reached from that edge, and time value equal          6.2 Constructing a Robot's Route CTMC
+
+  to the previous state's time plus the expected duration of            Given our presented planning solution, in Algorithm 1 we detail
+                                                                        how to construct a route CTMC Qi for robot ri that models the exe-
+  the edge under that congestion band. Robots are assumed               cution of policy i on MDP Mi . Algorithm 1 modifies the algorithm
+                                                                        presented in [12] for cases where non-determinism is resolved.
+  to start the next edge immediately after finishing the pre-
+                                                                           The first step is to compute the MDP transitions reachable under
+  vious one. The probability of reaching this successor is the          policy i , as seen in line 2. This is equivalent to the transitions of the
+                                                                        induced DTMC. To build Qi , we then iterate over these transitions.
+  probability of that congestion band being experienced at the          Each transition is associated with a single PTD, which is added to
+
+  time of arrival to that edge. Formally, for states s = (v, t ),       Qi in lines 5-7. Function getPTD returns the PTD for a transition,
+  s  = (v , t ), and edge e:                                            and addStatesAndTransitions adds all states in N A(P) (the non-
+                                                                        absorbing states of P) to Qi as well as the transitions between them.
+  (s, e, s )       con(ri , e, j, t )  if e = (v, v ), t < T and        These states are then labelled with the edge P models.
+                                       t  = t + E[C (e, c j )]
+              =                                                   (4)
+
+                  0                    otherwise
+
+                 
+
+  where j  {0, ..., |Ce | - 1}.
+                                                                                                           0
+
+                                                                         0                                       .6     2
+
+                                                                                                              0
+                                                                         1                              20
+                                                                                                                     1
+
+                                                                    0                1                           .4                                                                                                                     { 2}
+
+                                                                                                                        3                                                                                                        { 2}             2      {             }
+
+                                                                       1.0                                                                                                                      0.42                                 2            {      }
+                                                                                                                                                                                                         01.42
+                                                                                                                        0                                                                                                                         3
+                                                                                                                                                                                                                           1
+                                                          0                                 1                        11                                                                                         0.18 1
+
+                                                              :                      1.0                                                                                       1.0        { 1}                                       3
+
+                                                             1
+
+                                                                                                                 1         1                                                                          1  0.180.132                      { 2}
+                                                                                                                                                                                          { 1}                    0
+                                                                                                                                                                          1.0                                                              {  2}
+                                                                                                                                                                                          1{ 1 }                                     2}
+                                                                                                                                                                                                                                 1{
+
+                                     .6     2                          0.7           0                                         0.81                                                                      0.32      .0            { 2}                    4                   {  }
+                                                                                                                                                                                                         0.08       18                                              {        }
+                                  0                                                                                                                                                { 1}
+                                                                                                  2                                2
+                                         0                                                                                                                      4                                                             1
+                                                                                                                                                                                                                                              4
+                                                                    0.7                              2               0.8
+                   1     2
+
+                0     1           0                                                                                                                                                                             1                                           5
+                                    .4
+                   0                                      0:                         2                                     1:      4                                                                                                          5
+
+                                  1                       2 0.3                                                            2 0.2                                   5                                                                                     5
+                                                                                                                                                                                                                                                            { 2}
+                                                                                                 3                                                                                                                                   5 { 2}
+
+                                                                    0.3                                              0.2                   5
+
+   }                                        3                                                  3                                        5                                                                                        { 2}             { 2}
+
+                                                                                                                               5
+
+                (a) The induced DTMC.                     (b) PTDs for the edges used in the MDP/DTMC.                                                                                    (c) The route CTMC.
+
+                                         Figure 4: The process of generating a route CTMC from a robot's policy.
+
+      {  }
+
+            Algorithm 1: Route CTMC Construction                                                                               Qi  and  all   transitions                 to  it.  If  a  goal           state  is  reached                   in  the    MDP,             s  a
+                                                                                                                                                                                                                                                                             P
+5                                                                                                                              is labelled with {oal }.
+}             Input : MDP Mi , policy i , PTDs P, topological map TC
+              Output : Route CTMC Qi                                                                                              To compute the initial state distribution for Qi , we consider the
+                                                                                                                               PTDs for all MDP transitions outgoing from s¯Mi . For a state in
+            1 begin                                                                                                            one of these PTDs P, its initial state probability in Qi is its initial
+            2 T r  {(s, s )  SMi × SMi | Mi (s, i (s ), s ) > 0}
+            3 for (s, s )  T r do                                                                                              probability in P weighted by the probability of the associated MDP
+
+                // Add the PTD for the transition                                                                              transition. This is shown in lines 14-16.
+
+            4
+
+                P  getPTD(s, s )                                                                                                   The final component of Algorithm 1 is to connect the PTDs to
+
+            5
+
+                addStatesAndTransitions(N A(P))                                                                                model the probabilistic outcomes of the MDP, and to sequence them
+
+            6                                                                                                                  to represent the robot's route. This is shown in lines 18-23. If a PTD
+                                                                                                                               P in the route CTMC models MDP transition (s, s ), P needs to be
+            7   sP N A(P), LabQi (s P ) = {i (s )}
+
+            8   // If s  is a dead-end or goal state in Mi                                                                     connected to the successor PTDs modelling the transitions outgoing
+
+            9   if s  has no action in i then                                                                                  from   s .  For  state                 sP  in  P,   a   transition        from                    sP  to  s    a      is  now           split
+                                                                                                                                                                                                                                              P
+                   addAbsorbingStateAndTransitions(s                           a     )                                         into multiple transitions. These go from s P to the initial states of
+            10                                                                 P
+
+            11     if s  is a goal state in Mi then                                                                            the successor PTDs. For a state s P in P, and s P in successor PTD
+                                                                                                                               P, the rate between the two states is the original rate from s P to
+            12        Lab Qi  (s  a  )   =  {oal  }                                                                            saP in P multiplied by the initial probability of s P in P, weighted
+                                  P                                                                                            by the probability of the MDP transition that P models.
+
+            13  // Set the initial distribution of Qi
+
+            14  if s = s¯Mi then                                                                                                   In Figure 4, we provide an example to demonstrate Algorithm 1.
+
+            15     for s P  N A(P) do                                                                                          Figure 4a shows the DTMC induced by a policy on an MDP, anno-
+
+            16        init Qi (s P ) = Mi (s, i (s ), s ) · init P (s P )                                                      tated with actions and congestion bands. Figure 4b shows the PTDs,
+
+            17  // Connect the PTDs                                                                                            with absorbing states represented by concentric circles. Figure 4c
+                                                                                                                               shows the resulting route CTMC. Note how, in this example the 1
+            18  pre  {s   SMi | Mi (s , i (s ), s ) > 0}                                                                       transition to the absorbing state in the PTD for ce01 is split into 4
+                                                                                                                               transitions in the route CTMC. However, as the exit rate from that
+            19  for s   pre do                                                                                                 state is still 1, we still leave that state in the same amount of time.
+
+            20     Ppr e  getPTD(s , s )
+
+            21     for s Ppre  N A(Ppr e ) do
+
+            22        for s P  N A(P) do                                                                                       7 EXPERIMENTS
+
+            23           E, Qi       (s Ppr e , s P )  =  E, Ppr e  (s  Pp  r  e  ,  s            a     r  e  )  ·             In this section we analyse the scalability and execution-time per-
+                                                                                                  Pp                           formance of the presented planning framework. All experiments
+                         Mi (s, i (s ), s ) · init P (s P )                                                                    in this section are run on Ubuntu 16.04, with an Intel Core i7-8700
+                                                                                                                               CPU@3.2GHz, and 16GB of RAM. All software is written in Python,
+            24 return Qi = S Qi , init Qi , E, Qi , E  {oal }, LabQi                                                           except for PRISM [23], which is written in Java/C++.
+
+               By default, the absorbing state of PTD P is not added to Qi ,                                                   Scalability. To test the scalability of the framework, we ran plan-
+            as P should be connected to PTDs modelling the next edge to                                                        ning on three maps using synthetic data. The three maps were a
+            be traversed. However, if the MDP transition under consideration                                                   5 × 5 and 15 × 15 warehouse map (see Figure 5a, the 15 × 15 map
+                                                                                                                               is identical but scaled up), as well as a warehouse with a tunnel,
+            reaches the goal or a dead-end, the absorbing state should be added                                                designed to produce congestion (see Figure 5b).
+
+            as the robot's route is finished. This is seen in lines 9-12. Function                                                For these experiments, the underlying duration distributions
+            addAbsorbingStatesAndTransitions adds absorbing state saP to                                                       were created using lognormals, where for each successive number
+                                                                                                                               of robots, the mode of the distribution increases and the distribution
+                                                                                            01 2 3 4 5
+
+                                                                             Congestion-Aware 1.0 1.0 0.95 0.95 0.8 0.8
+
+                                                                             MAPF Baseline  1.0 0.95 0.95 1.0 0.95 1.0
+
+                                                                             Independent Baseline 1.0 1.0 0.95 0.95 0.8 0.25
+
+                                                                             Table 1: The success rate of each method as the number of
+
+                                                                             robots sent to the other side of the map increases.
+
+(a) A 5×5 warehouse.  (b) Warehouse with tunnel.
+
+Figure 5: The maps used for synthetic experiments.
+
+has a higher variance, as we observe in practice. 1000 samples were          subset of edges, and reused this data for edges of the same length.
+taken from each, and PTDs were fit to these using the method                 Figure 2 shows an example set of PTDs from this map. We use 5
+outlined by Thummler et al. [36]. For each edge we defined four              congestion bands, one for each number of robots.
+congestion bands, set to [0, 0], [1, 3], [4, 5], [6, n-1]. All edges follow
+the same distributions, with minor variations made on each edge to              To judge the execution-time performance, we compare our frame-
+ensure a representative state space. In the planning framework, the          work against two baselines. The first baseline treats all robots inde-
+PRT pruning threshold is  = 10-4, the MDP time bound T = 200                 pendently, i.e. the robots ignore each other at planning time. When
+and LRTDP is run until it converges or 100 trials are run. The               using this baseline all robots will follow their shortest path to the
+scalability is measured in terms of total planning time, which is the        goal. This baseline relies only on the motion planner, as the inter-
+time taken from the first robot starting to plan to the time at which        actions between robots are ignored at planning time. The second
+the last robot finishes planning. This includes the time for CTMC            baseline acts similarly to our framework, but will only consider
+insertion into the PRT, as well as the computation of congestion             an edge at planning time if the probability of any congestion is
+probabilities to define the transition functions of the MDPs.                less than a threshold , taken to be 0.1 in this experiment. If this is
+                                                                             the case, the MDP states that the robot deterministically traverses
+   To analyse the scalability of the framework, 40 random configu-           the edge with no congestion. This baseline is similar to a MAPF
+rations of robots were generated for each of the 3 environments for          approach as it almost entirely avoids interactions between robots
+2-15 robot problems, by starting with 40 random 2 robot configura-           at planning time. The threshold  is chosen to be as low as possible
+tions for each map, and then adding one randomly configured robot            while still allowing plans to be generated. For traditional MAPF
+to each to obtain the 3 robot configurations etc. The results of these       solvers this threshold would be 0, but given the uncertainty in our
+experiments are displayed in Figure 6. The results show there to be a        models this would result in no plans being found. These baselines
+sub-exponential increase in the total planning time on all maps, and         mirror the two ends of the multi-robot planning spectrum.
+so this framework mitigates the exponential state space increase
+seen when using joint models. Larger maps give longer planning                  We evaluated 6 problem configurations on each of the 3 meth-
+times, as the routes are typically longer, increasing the problem            ods. For each problem, each method was run 20 times. Across all
+size. The variance in the results is due to the variance in congestion       problems, 3 robots begin on the larger side of the map and 2 on the
+experienced across the problem configurations used. If there is less         smaller side. Problem 0 sets the goal location of each robot on the
+congestion, the branching factor of the MDPs will decrease as the            same side of the map as their initial location. For problems 1-5, the
+variance over congestion is reduced. With a lower branching factor,          problem number states how many robots have to travel to the other
+LRTDP requires fewer trials to converge and fewer computations               side of the map. If there are more robots switching sides of the map,
+in the PRT will be required, reducing planning time. For example,            there will be a higher level of congestion. A run is considered a
+though the 5 × 5 warehouse and warehouse with tunnel maps are                failure if either the motion planner of one of the robots fails, or the
+of a similar size, the times for the latter are generally longer, as the     robots do not reach their goals within 5 minutes. In either case this
+tunnel causes congestion. Across all maps and problem configura-             suggests robots are unable to navigate due to the presence of other
+tions, approximately half of the planning time was spent in the PRT          robots. In this experiment we measure the makespan, i.e. the time
+(i.e. computing congestion probabilities), with a median of 51%.             until the last robot reaches its goal.
+
+Execution Time Performance. To test the performance of the                      In Table 1, we show the success rates for the 3 methods over the
+obtained policies at execution time, we simulate a 5 robot setup             6 problem configurations. The low congestion problems see the
+in ROS using the Stage simulator, using the map seen in Figure 1.            robots always succeed as there is very little congestion in the envi-
+All robots use the ROS move_base motion planner. Having two                  ronment. In the later problems, robots begin to fail as move_base
+tunnels on the map allows robots to take the longer tunnel if the            is incapable of consistently dealing with multi-robot interactions
+shorter one is too congested. PTDs were fit from data collected in           when there is heavy congestion. Since the MAPF baseline is de-
+simulation, by repeatedly sending robots to varying goal locations           signed to avoid congestion it succeeds almost all of the time, with
+on the map. Every time a robot traversed an edge, the duration and           any failures being accountable to the small chance that heavy con-
+number of robots on the edge was recorded. To ensure enough data             gestion can still occur with this baseline, as it is still a stochastic
+was collected to be representative, we focused collection on a small         model. The independent framework fails frequently as congestion
+                                                                             increases, as it plans for all robots to travel through the same tunnel.
+                                                                             The congestion-aware framework shows a much smaller decrease in
+                                                                             success rate, as it routes robots through separate tunnels, reducing
+                                                                             the chance of creating scenarios move_base cannot handle.
+Total Planning Time (s)3.0                                                    Total Planning Time (s)1200                                                    Total Planning Time (s)500
+                       2.5                                                                           1000                                                                           400
+                       2.0                                                                            800                                                                           300
+                       1.5                                                                            600                                                                           200
+                       1.0                                                                            400                                                                           100
+                       0.5                                                                            200
+                       0.0 2 3 4 N5um6ber7Of 8Rob9ots1P0la1n1nin1g2 13 14 15                                                                                                          0 2 3 4 N5um6ber7Of 8Rob9ots1P0la1n1nin1g2 13 14 15
+                                                                                                        0 2 3 4 N5um6ber7Of 8Rob9ots1P0la1n1nin1g2 13 14 15
+                                    (a) 5 × 5 warehouse.                                                                                                                                    (c) Warehouse with tunnel.
+                                                                                                                  (b) 15 × 15 warehouse.
+
+                                                           Figure 6: The scalability across the warehouse maps.
+
+                                    250  Congestion-Aware                                              being unable to deal with multi-robot interactions. The congestion-
+                                         MAPF Baseline                                                 aware method assumes a motion planner that can deal with such
+                                                                                                       interactions and always succeed, whereas move_base often fails.
+                         Makespan(s)200                                                                Though the PTDs were obtained using move_base, the recorded
+                                                                                                       durations of edge traversals do not take into account the frequent
+                                    150                                                                occurrence of move_base sending robots back to previous edges to
+                                                                                                       avoid the congestion. These failures increase the actual makespan
+                                    100                                                                from the expected value obtained at planning time.
+
+                                      50                                                                  In summary, the congestion-aware framework outperforms both
+                                         Nu0mber of R1obots T2ravelling3to Other4Side of M5ap          ends of the multi-robot planning spectrum, represented by the two
+                                                                                                       baselines. It outperforms the independent baseline as the robots
+Figure 7: The makespans and expected makespans (circles)                                               reach their goals successfully significantly more often with the
+for the congestion-aware method and the MAPF baseline.                                                 congestion-aware framework. The congestion-aware framework
+                                                                                                       outperforms the MAPF baseline as it plans such that the robots
+   The success rates can be seen to describe how each of the 3                                         reach their goals in the same time or less than the baseline, by
+methods handle congestion. The independent baseline fails often as                                     exploiting the motion planner's ability to handle congestion.
+it does not handle congestion at all. The MAPF baseline almost never
+fails, as it does not exploit the fact that robots can navigate through                                8 CONCLUSION
+certain levels of congestion. The success rate of the congestion-
+aware method shows how it will route robots through congested                                          In this paper, we have presented a framework for multi-robot plan-
+edges if appropriate. The failures caused by move_base are not                                         ning under uncertainty that allows robots to reason over continuous
+represented in our planning models, though failures were recorded                                      stochastic action durations and congestion. Though we have fo-
+during data collection. Incorporating the failure of the continuous                                    cused on robot navigation, this framework is applicable to general
+motion planner into our planning models is left to future work.                                        actions and shared resources. In this work, we have approximated
+                                                                                                       a solution for uncertain action durations in a time-dependent MDP.
+   Figure 7 shows the makespans for the successful runs across all 6                                   This approach allows us to highlight the benefit of using the PRT
+problems for the congestion-aware method and MAPF baseline, as                                         in planning. In future work we will investigate more accurate plan-
+well as the expected makespans computed at planning time. For the                                      ning approaches and include congestion models from the context
+low congestion problems, both methods route the robots through                                         of traffic assignment, such as link capacity functions [10], into our
+their shortest paths. When 2 and 5 robots are required to travel                                       planning models. We will also integrate our framework with a mo-
+through the tunnels the congestion-aware framework outperforms                                         tion planner better suited to handle congestion, and explore how
+the MAPF baseline, which sends robots through unnecessarily long                                       to provide formal guarantees over the performance of the robots.
+routes to avoid congestion. When 3 and 4 robots travel through the
+tunnels, both methods perform similarly. This shows the congestion-                                    ACKNOWLEDGMENTS
+aware framework can take longer routes if deemed most efficient.
+There is little change in the makespan for the congestion-aware                                        Street is funded by the Honda Research Institute Europe GmbH.
+framework between 3 and 5 robots travelling through the tunnel,                                        Lacerda is funded by UK Research and Innovation and EPSRC
+displaying how this method can effectively distribute robots across                                    through the Robotics and Artificial Intelligence for Nuclear (RAIN)
+the environment. In congested environments there is a significant                                      research hub [EP/R026084/1].
+difference between the expected and actual makespans for the
+congestion-aware framework. This shows the effect of move_base
+REFERENCES                                                                                     Challenges. In Proceedings of the Tenth Annual Symposium on Combinatorial
+                                                                                               Search (SoCS). 29­37.
+ [1] Christopher Amato, George D Konidaris, and Leslie P Kaelbling. 2014. Planning       [19] Robert W Floyd. 1962. Algorithm 97: Shortest Path. Commun. ACM 5, 6 (1962),
+      with macro-actions in decentralized POMDPs. In Proceedings of the 2014 Inter-            345.
+      national Conference on Autonomous Agents and Multiagent Systems (AAMAS).
+      International Foundation for Autonomous Agents and Multiagent Systems, 1273­       [20] Jesper Karlsson, Cristian-Ioan Vasile, Jana Tumova, Sertac Karaman, and Daniela
+
+      1280.                                                                                    Rus. 2018. Multi-Vehicle Motion Planning for Social Optimal Mobility-on-
+                                                                                               Demand. In Proceedings of the 2018 IEEE International Conference on Robotics
+ [2] Anton Andreychuk, Konstantin Yakovlev, Dor Atzmon, and Roni Stern. 2019.                  and Automation (ICRA). IEEE, 7298­7305.
+      Multi-agent Pathfinding with Continuous Time. In Proceedings of the Twenty-        [21] Andrey Kolobov, Mausam, and Daniel S. Weld. 2012. A Theory of Goal-Oriented
+      Eighth International Joint Conference on Artificial Intelligence (IJCAI). 39­45.         MDPs with Dead Ends. In Proceedings of the Twenty-Eighth Conference on Uncer-
+                                                                                               tainty in Artificial Intelligence (UAI'12). 438­447.
+ [3] Andrea Bajcsy, Sylvia L Herbert, David Fridovich-Keil, Jaime F Fisac, Sampada       [22] Marta Kwiatkowska, Gethin Norman, and David Parker. 2007. Stochastic model
+                                                                                               checking. In Formal Methods for the Design of Computer, Communication and
+      Deglurkar, Anca D Dragan, and Claire J Tomlin. 2019. A Scalable Framework                Software Systems: Performance Evaluation (SFM'07). Springer, 220­270.
+      For Real-Time Multi-Robot, Multi-Human Collision Avoidance. In Proceedings of      [23] M. Kwiatkowska, G. Norman, and D. Parker. 2011. PRISM 4.0: Verification of
+      the 2019 IEEE International Conference on Robotics and Automation (ICRA). IEEE,          Probabilistic Real-time Systems. In Proceedings of the 23rd International Conference
+      936­943.                                                                                 on Computer Aided Verification (CAV'11). Springer, 585­591.
+                                                                                         [24] Lantao Liu and Gaurav S Sukhatme. 2018. A Solution to Time-Varying Markov
+ [4] Maren Bennewitz, Wolfram Burgard, and Sebastian Thrun. 2001. Optimizing                   Decision Processes. IEEE Robotics and Automation Letters 3, 3 (2018), 1631­1638.
+      schedules for prioritized path planning of multi-robot systems. In Proceedings of  [25] Hang Ma, TK Satish Kumar, and Sven Koenig. 2017. Multi-Agent Path Finding
+      the 2001 IEEE International Conference on Robotics and Automation (ICRA). IEEE,          with Delay Probabilities. In Proceedings of the Thirty-First AAAI Conference on
+      271­276.                                                                                 Artificial Intelligence. 3605­3612.
+                                                                                         [26] Masoumeh Mansouri, Bruno Lacerda, Nick Hawes, and Federico Pecora. 2019.
+ [5] Maren Bennewitz, Wolfram Burgard, and Sebastian Thrun. 2002. Finding and
+                                                                                               Multi-Robot Planning Under Uncertain Travel Times and Safety Constraints.
+      optimizing solvable priority schemes for decoupled path planning techniques for          In Proceedings of the Twenty-Eighth International Joint Conference on Artificial
+      teams of mobile robots. Robotics and Autonomous Systems 41, 2-3 (2002), 89­99.           Intelligence (IJCAI). 478­484.
+ [6] William Biscarri, Sihai Dave Zhao, and Robert J Brunner. 2018. A simple and fast    [27] Mausam and Andrey Kolobov. 2012. Planning with Markov Decision Processes: An
+      method for computing the Poisson binomial distribution function. Computational           AI Perspective. Morgan & Claypool Publishers.
+      Statistics & Data Analysis 122 (2018), 92­100.                                     [28] João Vicente Messias, Matthijs Spaan, and Pedro Lima. 2013. GSMDPs for Multi-
+ [7] Blai Bonet and Hector Geffner. 2003. Labeled RTDP: Improving the Conver-                  Robot Sequential Decision-Making. In Proceedings of the Twenty-Seventh AAAI
+      gence of Real-Time Dynamic Programming. In Proceedings of the Thirteenth                 Conference on Artificial Intelligence. 1408­1414.
+      Interanational Conference on Automated Planning and Scheduling (ICAPS). 12­21.     [29] Hiroyuki Okamura, Ryo Watanabe, and Tadashi Dohi. 2014. Variational Bayes
+ [8] Craig Boutilier. 1996. Planning, Learning and Coordination in Multiagent De-              for Phase-Type Distribution. Communications in Statistics ­ Simulation and
+      cision Processes. In Proceedings of the 6th Conference on Theoretical Aspects of         Computation 43, 8 (2014), 2031­2044.
+      Rationality and Knowledge (TARK '96). Morgan Kaufmann Publishers Inc., 195­        [30] Mike Phillips and Maxim Likhachev. 2011. Sipp: Safe Interval Path Planning for
+      210.                                                                                     Dynamic Environments. In Proceedings of the 2011 IEEE International Conference
+                                                                                               on Robotics and Automation (ICRA). IEEE, 5628­5635.
+ [9] Justin A Boyan and Michael L Littman. 2001. Exact solutions to Time-Dependent       [31] Martin L. Puterman. 1994. Markov Decision Processes: Discrete Stochastic Dynamic
+      MDPs. In Proccedings of the Advances in Neural Information Processing Systems            Programming. John Wiley & Sons, Inc.
+      (NIPS). 1026­1032.                                                                 [32] Emmanuel Rachelson, Patrick Fabiani, and Frédérick Garcia. 2009. Timdppoly:
+                                                                                               An Improved Method for Solving Time-dependent MDPs. In Proceedings of the
+[10] David Branston. 1976. Link capacity functions: A review. Transportation Research          2009 21st IEEE International Conference on Tools with Artificial Intelligence. IEEE,
+      10, 4 (1976), 223­236.                                                                   796­799.
+
+[11] Peter Buchholz, Jan Kriege, and Iryna Felko. 2014. Input Modeling with Phase-Type   [33] Guni Sharon, Roni Stern, Ariel Felner, and Nathan R Sturtevant. 2015. Conflict-
+      Distributions and Markov Models: Theory and Applications. Springer.                      based search for optimal multi-agent pathfinding. Artificial Intelligence 219 (2015),
+                                                                                               40­66.
+[12] Yuliya Butkova, Ralf Wimmer, and Holger Hermanns. 2017. Long-Run Rewards
+      for Markov Automata. In Proceedings of the International Conference on Tools       [34] Rongye Shi, Peter Steenkiste, and Manuela M Veloso. 2019. SC-M*: A Multi-
+      and Algorithms for the Construction and Analysis of Systems (TACAS). Springer,
+      188­203.                                                                                 Agent Path Planning Algorithm with Soft-Collision Constraint on Allocation of
+                                                                                               Common Resources. Applied Sciences 9, 19 (2019), 4037.
+[13] Daniel Claes, Frans Oliehoek, Hendrik Baier, and Karl Tuyls. 2017. Decentralised    [35] David Silver. 2005. Cooperative Pathfinding. In Proceedings of the first AAAI
+      Online Planning for Multi-Robot Warehouse Commissioning. In Proceedings of               Conference on Artificial Intelligence and Interactive Digital Entertainment (AIIDE).
+      the 16th International Conference on Autonomous Agents and Multiagent Systems            AAAI Press, 117­122.
+      (AAMAS). International Foundation for Autonomous Agents and Multiagent
+      Systems, 492­500.                                                                  [36] Axel Thummler, Peter Buchholz, and Miklos Telek. 2006. A Novel Approach for
+                                                                                               Phase-Type Fitting with the EM Algorithm. IEEE Transactions on Dependable and
+[14] Daniel Claes, Philipp Robbel, Frans A Oliehoek, Karl Tuyls, Daniel Hennes, and            Secure Computing 3, 3 (2006), 245­258.
+
+      Wiebe Van der Hoek. 2015. Effective Approximations for Multi-Robot Coor-           [37] Jur P Van Den Berg and Mark H Overmars. 2005. Prioritized Motion Planning
+      dination in Spatially Distributed Tasks. In Proceedings of the 2015 International        for Multiple Robots. In Proceedings of the 2005 IEEE/RSJ International Conference
+      Conference on Autonomous Agents and Multiagent Systems (AAMAS). International            on Intelligent Robots and Systems (IROS). IEEE, 430­435.
+      Foundation for Autonomous Agents and Multiagent Systems, 881­890.
+                                                                                         [38] Glenn Wagner and Howie Choset. 2015. Subdimensional expansion for multirobot
+[15] Gautham Das, Grzegorz Cielniak, Pal From, and Marc Hanheide. 2018. Dis-                   path planning. Artificial Intelligence 219 (2015), 1­24.
+
+      crete Event Simulations for Scalability Analysis of Robotic In-Field Logistics in  [39] Glenn Wagner and Howie Choset. 2017. Path Planning for Multiple Agents Under
+      Agriculture­A Case Study. In Proceedings of the IEEE International Conference on         Uncertainty. In Proceedings of the Twenty-Seventh International Conference on
+      Robotics and Automation, Workshop on Robotic Vision and Action in Agriculture            Automated Planning and Scheduling (ICAPS). 577­585.
+      (WRVAA).
+[16] Christian Eisentraut, Holger Hermanns, and Lijun Zhang. 2010. On Probabilistic      [40] Shiqi Zhang, Yuqian Jiang, Guni Sharon, and Peter Stone. 2017. Multirobot sym-
+      Automata in Continuous Time. In Proceedings of the 2010 25th Annual IEEE                 bolic planning under temporal uncertainty. In Proceedings of the 16th International
+      Symposium on Logic in Computer Science. IEEE, 342­351.                                   Conference on Autonomous Agents and Multiagent Systems (AAMAS). International
+[17] Fatma Faruq, David Parker, Bruno Lacerda, and Nick Hawes. 2018. Simultaneous              Foundation for Autonomous Agents and Multiagent Systems, 501­510.
+      Task Allocation and Planning Under Uncertainty. In Proceedings of the 2018
+      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). IEEE,
+      3559­3564.
+
+[18] Ariel Felner, Roni Stern, Solomon Eyal Shimony, Eli Boyarski, Meir Goldenberg,
+
+      Guni Sharon, Nathan Sturtevant, Glenn Wagner, and Pavel Surynek. 2017. Search-
+
+      Based Optimal Solvers for the Multi-Agent Pathfinding Problem: Summary and
+

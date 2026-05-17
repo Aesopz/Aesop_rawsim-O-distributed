@@ -1,0 +1,6 @@
+"Seed","Delta_TP","Delta_PO","Delta_OD","Delta_RD","Delta_EOR","Better_TP","Better_PO","Better_OD","Better_RD","Better_EOR","FourKPI_AllBetter","FiveMetric_AllBetter"
+"0","5","0.0640539900544601","-0.903702832579903","-332.3367632675","-0.108161388294835","True","True","True","True","True","True","True"
+"1","1","0.0098522167487598","-1.2590418830207","-731.799268964502","-0.102439221884094","True","True","True","True","True","True","True"
+"2","-4","-0.13591895299796","1.2813502583215","615.799926715299","0.335123610779981","False","False","False","False","False","False","False"
+"3","8","0.06215161649944","-0.931598521756399","-182.688420671602","-0.177731743860102","True","True","True","True","True","True","True"
+"4","0.5","0.15813397129187","-2.1248673891888","-1336.2689684326","-0.102915031863315","True","True","True","True","True","True","True"

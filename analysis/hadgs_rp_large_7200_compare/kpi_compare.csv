@@ -1,0 +1,4 @@
+"Method","TP","PO","OD","RD","OrdersHandled","EOR","Statistics"
+"HADGS-RP","1842","4.19589977220957","45.9937164432432","169440.851376908","3684","11.36167192308","C:\Users\Aesop\Desktop\EE-RAWSim-O_PP\analysis\hadgs_rp_large_7200_compare\hadgs_rp\1-6-12-60-0.89-large-large_7200_300-hadgs-return-pending-0\statistics.txt"
+"HADGS","1876.5","4.22159730033746","46.227119017329","173490.377672036","3753","11.082114141797","C:\Users\Aesop\Desktop\EE-RAWSim-O_PP\analysis\hadgs_rp_large_7200_compare\hadgs\1-6-12-60-0.89-large-large_7200_300-hadgs-0\statistics.txt"
+"Delta_RP_minus_HADGS","-34.5","-0.0256975281278899","-0.233402574085801","-4049.52629512802","-69","0.279557781283",""

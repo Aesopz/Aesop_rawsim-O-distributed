@@ -33,6 +33,11 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         public bool UseBias = false;
 
         /// <summary>
+        /// Prefer loaded/heavy and vertical-heading agents when sequencing WHCA reservations.
+        /// </summary>
+        public bool UseRulePriority = false;
+
+        /// <summary>
         /// Indicates whether the method uses a deadlock handler.
         /// </summary>
         public bool UseDeadlockHandler = true;
@@ -99,7 +104,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 _reservationTable.Remove(_calculatedReservations[missingAgentId]);
 
             //sort Agents
-            agents = agents.OrderBy(a => a.CanGoThroughObstacles ? 1 : 0).ThenBy(a => Graph.getDistance(a.NextNode, a.DestinationNode)).ToList();
+            agents = SortAgents(agents);
 
             Dictionary<int, double> bias = new Dictionary<int, double>();
 
@@ -122,6 +127,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                     if (!rraStars.TryGetValue(agent.ID, out rraStar) || rraStar == null || rraStar.StartNode != agent.DestinationNode ||
                         UseDeadlockHandler && _deadlockHandler.IsInDeadlock(agent, currentTime)) // TODO this last expression is used to set back the state of the RRA* in case of a deadlock - this is only a hotfix
                         rraStars[agent.ID] = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
+                    rraStars[agent.ID].ShouldAbort = () => Stopwatch.ElapsedMilliseconds / 1000.0 > Math.Min(RuntimeLimitPerAgent * agents.Count, RunTimeLimitOverall) * 0.9;
 
                     if (rraStars[agent.ID].Closed.Contains(agent.NextNode) || rraStars[agent.ID].Search(agent.NextNode))
                     {
@@ -162,6 +168,7 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                     if (!rraStars.TryGetValue(agent.ID, out rraStar) || rraStar == null || rraStar.StartNode != agent.DestinationNode ||
                         UseDeadlockHandler && _deadlockHandler.IsInDeadlock(agent, currentTime)) // TODO this last expression is used to set back the state of the RRA* in case of a deadlock - this is only a hotfix
                         rraStars[agent.ID] = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
+                    rraStars[agent.ID].ShouldAbort = () => Stopwatch.ElapsedMilliseconds / 1000.0 > Math.Min(RuntimeLimitPerAgent * agents.Count, RunTimeLimitOverall) * 0.9;
                 }
 
                 //search my path to the goal
@@ -256,6 +263,32 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                         _deadlockHandler.RandomHop(agent);
             }
 
+        }
+
+        private List<Agent> SortAgents(List<Agent> agents)
+        {
+            IOrderedEnumerable<Agent> sorted;
+            if (UseRulePriority)
+            {
+                sorted = agents
+                    .OrderByDescending(a => a.CurrentEnergyState.TotalWeight)
+                    .ThenBy(a => IsVerticalHeading(a) ? 0 : 1);
+            }
+            else
+            {
+                sorted = agents.OrderBy(a => a.CanGoThroughObstacles ? 1 : 0);
+            }
+
+            return sorted
+                .ThenBy(a => a.CanGoThroughObstacles ? 1 : 0)
+                .ThenBy(a => Graph.getDistance(a.NextNode, a.DestinationNode))
+                .ThenBy(a => a.ID)
+                .ToList();
+        }
+
+        private static bool IsVerticalHeading(Agent agent)
+        {
+            return Math.Abs(Math.Sin(agent.OrientationAtNextNode)) >= Math.Abs(Math.Cos(agent.OrientationAtNextNode));
         }
     }
 }

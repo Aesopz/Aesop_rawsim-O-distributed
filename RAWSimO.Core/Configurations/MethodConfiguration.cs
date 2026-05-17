@@ -39,9 +39,19 @@ namespace RAWSimO.Core.Configurations
         WHCAvStar,
 
         /// <summary>
+        /// Silver 06 - Cooperative pathfinding with rule-based priority.
+        /// </summary>
+        WHCAvStarPriority,
+
+        /// <summary>
         /// Silver 06 - Cooperative pathfinding
         /// </summary>
         WHCAnStar,
+
+        /// <summary>
+        /// Silver 06 - Cooperative pathfinding with rule-based priority.
+        /// </summary>
+        WHCAnStarPriority,
 
         /* Heavy Approach with many drawbacks for continues time slots 
          * Missing: Distinguish between pod holding and non-pod holding bots
@@ -278,6 +288,10 @@ namespace RAWSimO.Core.Configurations
         /// </summary>
         GM1,
         /// <summary>
+        /// Use M1G and include bots that are nearly done returning a pod.
+        /// </summary>
+        GM1ReturnPending,
+        /// <summary>
         /// Use mathematical programming method to solve POA
         /// </summary>
         GM2,
@@ -505,7 +519,9 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(SimplePathPlanningConfiguration))]
     [XmlInclude(typeof(DummyPathPlanningConfiguration))]
     [XmlInclude(typeof(WHCAvStarPathPlanningConfiguration))]
+    [XmlInclude(typeof(WHCAvStarPriorityPathPlanningConfiguration))]
     [XmlInclude(typeof(WHCAnStarPathPlanningConfiguration))]
+    [XmlInclude(typeof(WHCAnStarPriorityPathPlanningConfiguration))]
     [XmlInclude(typeof(FARPathPlanningConfiguration))]
     [XmlInclude(typeof(ODIDPathPlanningConfiguration))]
     [XmlInclude(typeof(BCPPathPlanningConfiguration))]
@@ -719,9 +735,11 @@ namespace RAWSimO.Core.Configurations
     [XmlInclude(typeof(ForesightOrderBatchingConfiguration))]
     [XmlInclude(typeof(PodMatchingOrderBatchingConfiguration))]
     [XmlInclude(typeof(M1GConfiguration))]
+    [XmlInclude(typeof(M1GReturnPendingConfiguration))]
     [XmlInclude(typeof(M2GConfiguration))]
     [XmlInclude(typeof(HASConfiguration))]
     [XmlInclude(typeof(HADGSConfiguration))]
+    [XmlInclude(typeof(HADGSReturnPendingConfiguration))]
     [XmlInclude(typeof(LinesInCommonOrderBatchingConfiguration))]
     [XmlInclude(typeof(QueueOrderBatchingConfiguration))]
     public abstract class OrderBatchingConfiguration : ControllerConfigurationBase

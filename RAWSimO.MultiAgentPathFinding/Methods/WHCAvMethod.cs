@@ -33,6 +33,12 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         public bool UseDeadlockHandler = true;
 
         /// <summary>
+        /// WHCA*v-P planning order: loaded-first (TotalWeight desc), then vertical heading,
+        /// then distance-to-destination, then retry-priority, then bot id.
+        /// </summary>
+        public bool UseRulePriority = false;
+
+        /// <summary>
         /// The RRA* Searches
         /// </summary>
         public Dictionary<int, ReverseResumableAStar> rraStars;
@@ -147,9 +153,11 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
                 {
                     rraStars[agent.ID] = new ReverseResumableAStar(Graph, agent, agent.Physics, agent.DestinationNode);
                 }
+                rraStars[agent.ID].ShouldAbort = () => Stopwatch.ElapsedMilliseconds / 1000.0 > runtimeLimit * 0.9;
 
                 //search my path to the goal
                 var aStar = new SpaceTimeAStar(Graph, LengthOfAWaitStep, currentTime + LengthOfAWindow, _reservationTable, agent, rraStars[agent.ID]);
+                aStar.ShouldAbort = () => Stopwatch.ElapsedMilliseconds / 1000.0 > runtimeLimit * 0.9;
 
                 //the agent with a higher priority has to wait so that the others can go out of the way
                 aStar.WaitStepsBeforeStart = (int)(Math.Pow(2, agentPrios[agent.ID]) / 2.0);
@@ -210,7 +218,29 @@ namespace RAWSimO.MultiAgentPathFinding.Methods
         /// <param name="queues">The queues.</param>
         private void SortAgents(ref List<Agent> agents, Dictionary<int, int> agentPrios)
         {
-            agents = agents.OrderByDescending(a => agentPrios[a.ID]).ThenBy(a => a.CanGoThroughObstacles ? 1 : 0).ThenBy(a => Graph.getDistance(a.NextNode, a.DestinationNode)).ToList();
+            if (UseRulePriority)
+            {
+                agents = agents
+                    .OrderByDescending(a => a.CurrentEnergyState.TotalWeight)
+                    .ThenBy(a => IsVerticalHeading(a) ? 0 : 1)
+                    .ThenBy(a => Graph.getDistance(a.NextNode, a.DestinationNode))
+                    .ThenByDescending(a => agentPrios[a.ID])
+                    .ThenBy(a => a.ID)
+                    .ToList();
+                return;
+            }
+
+            agents = agents
+                .OrderByDescending(a => agentPrios[a.ID])
+                .ThenBy(a => a.CanGoThroughObstacles ? 1 : 0)
+                .ThenBy(a => Graph.getDistance(a.NextNode, a.DestinationNode))
+                .ThenBy(a => a.ID)
+                .ToList();
+        }
+
+        private static bool IsVerticalHeading(Agent agent)
+        {
+            return Math.Abs(Math.Sin(agent.OrientationAtNextNode)) >= Math.Abs(Math.Cos(agent.OrientationAtNextNode));
         }
     }
 }
